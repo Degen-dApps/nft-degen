@@ -38,11 +38,12 @@
         <span>How to earn more Activity Points:</span>
 
         <ul>
+          <li v-if="$config.showFeatures.nftLaunchpad">Launch NFTs via the NFT Launchpad</li>
+          <li v-if="$config.showFeatures.nftLaunchpad">Buy or sell NFTs</li>
           <li>Mint {{ $config.tldName }} domains</li>
           <li v-if="$config.showFeatures.swap">Swap tokens (when the receiving token is {{ $config.tokenSymbol }})</li>
-          <li>Mint posts</li>
+          <li>Mint posts (each NFT has a built-in chat where you can post messages and mint them.)</li>
           <li>Invite others to {{ $config.projectName }} using referral links</li>
-          <li v-if="$config.showFeatures.nftLaunchpad">Launch and mint NFTs via the NFT Launchpad</li>
           <li>Other kinds of earning APs are coming soon, stay tuned!</li>
         </ul>
       </div>
