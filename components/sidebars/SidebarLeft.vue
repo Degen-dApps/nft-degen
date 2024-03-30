@@ -110,7 +110,7 @@
 
           <!-- Profile -->
           <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
-            <NuxtLink class="nav-link" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" to="/profile">
+            <NuxtLink class="nav-link" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" :to="getProfileLink">
               <i class="bi bi-person"></i> Profile
             </NuxtLink>
           </li>
@@ -269,6 +269,16 @@ export default {
   },
 
   computed: {
+    getProfileLink() {
+      if (this.userStore.getDefaultDomain) {
+        return `/profile/?id=${this.userStore.getDefaultDomain}`;
+      } else if (this.address) {
+        return `/profile/?id=${this.address}`;
+      } else {
+        return `/profile`;
+      }
+    },
+
     getUserAp() {
       if (this.userStore.getCurentUserActivityPoints > 0) {
         return this.userStore.getCurentUserActivityPoints;

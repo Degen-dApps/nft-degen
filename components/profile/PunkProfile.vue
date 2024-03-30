@@ -224,6 +224,7 @@
 
       <!-- Tabs Navigation -->
       <ul class="nav nav-tabs nav-fill">
+        <!--
         <li class="nav-item">
           <button 
             class="nav-link" 
@@ -231,23 +232,26 @@
             @click="changeCurrentTab('posts')" 
           >Posts</button>
         </li>
+        -->
         <li class="nav-item">
           <button 
             class="nav-link" 
             :class="currentTab === 'mints' ? 'active' : ''" 
             @click="changeCurrentTab('mints')" 
-          >Mints</button>
+          >Minted posts</button>
         </li>
       </ul>
+      
       <!-- END Tabs Navigation -->
 
       <!-- Tabs Content -->
       <div class="tab-content mt-3">
 
-        <!-- Posts Tab -->
+        <!-- Posts Tab 
         <div v-if="currentTab === 'posts' && uDid">
           <ChatFeed :byDid="uDid" :hideCommentBox="true" :orbisContext="getOrbisContext" />
         </div>
+        -->
 
         <!-- Mints Tab -->
         <div v-if="currentTab === 'mints' && uAddress">
@@ -281,7 +285,7 @@ export default {
     return {
       balanceAp: 0,
       balanceChatTokenWei: 0,
-      currentTab: "posts",
+      currentTab: "mints",
       domain: this.pDomain,
       emailForNotificationsSet: false,
       followers: 0,
