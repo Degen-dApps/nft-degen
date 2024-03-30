@@ -88,7 +88,7 @@ export default defineNuxtConfig({
       marketplacePostNftItemUrl: "https://explorer.degen.tips/token/0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A/instance/", // url (append nft id to it)
       marketplaceNftCollectionBaseUrl: "https://explorer.degen.tips/token/", // url (append nft address to it)
       newsletterLink: "https://paragraph.xyz/@iggy?modal=subscribe",
-      nftDefaultRatio: 6969, // default ratio for the NFT price bonding curve
+      nftDefaultRatio: 1337, // default ratio for the NFT price bonding curve
       nftLaunchpadBondingAddress: "0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c", // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 8, // number of latest NFTs to show in the NFT launchpad
       orbisTest: false, // if true, test context will be used instead of the production one
