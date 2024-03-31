@@ -20,7 +20,7 @@
         (Also accessible via NFTdegen.org, if you're of more serious nature 🤪)
       </p>
 
-      <h5>Useful links</h5>
+      <h5>New kind of NFTs</h5>
 
       <p class="text-break mt-3">
         NFTs created on NFTdegen.lol are not your usual NFTs. Each NFT collection has a built-in pool which allows 
@@ -34,8 +34,10 @@
       <h5>Useful links</h5>
 
       <ul>
-        <li><a href="https://github.com/Degen-dApps" target="_blank">GitHub</a></li>
+        <li><a href="https://github.com/Degen-dApps" target="_blank">GitHub org</a></li>
+        <li><a href="https://degendapps.lol" target="_blank">List of dApps on Degen Chain</a></li>
         <li><a href="https://warpcast.com/tempetechie.eth" target="_blank">Tempe Techie 🎩</a></li>
+        <li><a href="https://warpcast.com/tekr0x.eth" target="_blank">Tekr 🎩</a></li>
       </ul>
 
       <h5>Tech stack</h5>
@@ -63,7 +65,10 @@
       <h5>Feedback</h5>
 
       <p class="text-break mt-3">
-        Feel free to contact <a href="https://warpcast.com/tempetechie.eth" target="_blank">Tempe Techie 🎩</a> via Warpcast. 
+        Feel free to contact 
+        <a href="https://warpcast.com/tempetechie.eth" target="_blank">Tempe Techie 🎩</a> or
+        <a href="https://warpcast.com/tekr0x.eth" target="_blank">Tekr 🎩</a> 
+        via Warpcast. 
       </p>
 
     </div>
