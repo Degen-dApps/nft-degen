@@ -148,7 +148,7 @@ export default {
       );
 
       // get featured NFTs
-      const fNfts = await launchpadContract.getFeaturedNftContracts(4);
+      const fNfts = await launchpadContract.getFeaturedNftContracts(8);
 
       await this.parseNftsArray(fNfts, this.featuredNfts, provider);
     },
