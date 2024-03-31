@@ -186,6 +186,13 @@
             </NuxtLink>
           </li>
 
+          <!-- Dapps List -->
+          <li class="nav-item p-1" @click="closeLeftSidebar">
+            <a class="nav-link" href="https://degendapps.lol" target="_blank">
+              <i class="bi bi-card-list"></i> dApps List <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+            </a>
+          </li>
+
           <!-- Governance -->
           <li class="nav-item p-1" v-if="$config.showFeatures.governance" @click="closeLeftSidebar">
             <a class="nav-link" :href="$config.governanceUrl" target="_blank">
