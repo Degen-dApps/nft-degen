@@ -332,6 +332,12 @@ export default {
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
+          try {
+            await axios.get('https://api.nftdegen.org/endpoints/collections/update?scope=mint&nftAddress='+this.cAddress);
+          } catch (e) {
+            console.error(e);
+          }
+
           this.priceBuyWei = await nftContract.getMintPrice();
           this.priceSellWei = await nftContract.getBurnPrice();
 
@@ -602,6 +608,12 @@ export default {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
+
+          try {
+            await axios.get('https://api.nftdegen.org/endpoints/collections/update?scope=burn&nftAddress='+this.cAddress);
+          } catch (e) {
+            console.error(e);
+          }
 
           this.priceBuyWei = await nftContract.getMintPrice();
           this.priceSellWei = await nftContract.getBurnPrice();
