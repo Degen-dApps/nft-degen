@@ -219,11 +219,7 @@ export default {
     async fetchDomainData() {
       this.loadingData = true;
 
-      console.log("fetching domain data");
-
       this.isMinter = this.$config.punkMinterAddress !== "";
-
-      console.log("isMinter: " + this.isMinter);
 
       const contractInterface = new ethers.utils.Interface([
         "function buyingEnabled() view returns (bool)", // TLD-specific function
@@ -246,13 +242,9 @@ export default {
         contractAddress = this.$config.punkTldAddress;
       }
 
-      console.log("contractAddress: " + contractAddress);
-
       let provider = this.$getFallbackProvider(this.$config.supportedChainId);
 
       const contract = new ethers.Contract(contractAddress, contractInterface, provider);
-
-      console.log("fetching paused status")
 
       // fetch paused status
       if (this.isMinter) {
@@ -260,8 +252,6 @@ export default {
       } else {
         this.paused = !await contract.buyingEnabled();
       }
-
-      console.log("paused: " + this.paused);
 
       // fetch price(s)
       if (this.$config.punkNumberOfPrices === 1) {
@@ -274,16 +264,12 @@ export default {
         this.price5char = ethers.utils.formatUnits(await contract.price5char(), this.$config.tokenDecimals);
       }
 
-      console.log("price 5 char: " + this.price5char);
-
       // fetch referral fee
       if (this.isMinter) {
         this.referralFee = await contract.referralFee();
       } else {
         this.referralFee = await contract.referral();
       }
-
-      console.log("referral fee: " + this.referralFee);
 
       this.loadingData = false;
     },

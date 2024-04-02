@@ -15,8 +15,8 @@
 <div class="card border scroll-500">
   <div class="card-body">
 
-    <p v-if="!hideBackButton" class="fs-3" @click="$router.back()">
-      <i class="bi bi-arrow-left-circle cursor-pointer"></i>
+    <p v-if="!hideBackButton" class="fs-3">
+      <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
     </p>
 
     <h3 class="d-flex flex-row flex-wrap mt-3">

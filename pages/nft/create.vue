@@ -169,6 +169,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
@@ -318,6 +319,13 @@ export default {
               type: "success",
               onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
             });
+
+            // add collection to the API
+            try {
+              await axios.get('https://api.nftdegen.org/endpoints/collections/add?uniqueId='+this.uniqueId);
+            } catch (e) {
+              console.error(e);
+            }
 
             // after successful launch, fetch the collection address and redirect to the collection page
             const nftContractAddress = await launchpadContract.getNftContractAddress(this.uniqueId);
