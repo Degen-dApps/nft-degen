@@ -86,10 +86,17 @@
           </li>
           -->
 
-          <!-- NFT Launchpad -->
+          <!-- New & Featured NFTs -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
-            <NuxtLink class="nav-link" :class="$route.path.startsWith('/nft') ? 'active' : ''" aria-current="page" to="/nft">
-              <i class="bi bi-rocket-takeoff"></i> NFT Launchpad
+            <NuxtLink class="nav-link" :class="$route.path == '/nft' ? 'active' : ''" aria-current="page" to="/nft">
+              <i class="bi bi-stars"></i> New & Featured NFTs
+            </NuxtLink>
+          </li>
+
+          <!-- Highest Price -->
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
+            <NuxtLink class="nav-link" :class="$route.path.startsWith('/nft/highest-price') ? 'active' : ''" aria-current="page" to="/nft/highest-price">
+              <i class="bi bi-currency-bitcoin"></i> Highest Priced NFTs
             </NuxtLink>
           </li>
 
