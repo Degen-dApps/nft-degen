@@ -19,7 +19,7 @@
         <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
       </p>
   
-      <h3 class="d-flex flex-row flex-wrap mt-3 mb-5">
+      <h3 class="d-flex flex-row flex-wrap mt-3 mb-3">
         <div class="mb-3 me-auto">NFT Launchpad</div>
         
         <div class="mb-3">
@@ -31,8 +31,16 @@
           </button>
         </div>
       </h3>
-  
-      <h4 class="mb-3">NFTs with the highest price</h4>
+
+      <div class="dropdown mb-4">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Top-Priced NFTs
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item disabled" href="#">Top-Priced NFTs</a></li>
+          <li><NuxtLink class="dropdown-item" to="/nft">New & Featured</NuxtLink></li>
+        </ul>
+      </div>
 
       <div class="d-flex justify-content-center mb-3" v-if="waitingData && !nftsList">
         <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
@@ -70,6 +78,11 @@ export default {
 
   mounted() {
     this.fetchNfts();
+
+    console.log("set item in localStorage");
+    // set this component name as the current component in localStorage
+    window.localStorage.setItem("currentNftComponent", "NftsHighestPrice");
+    console.log("item set in localStorage");
   },
 
   methods: {

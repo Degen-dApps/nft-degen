@@ -19,7 +19,7 @@
       <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
     </p>
 
-    <h3 class="d-flex flex-row flex-wrap mt-3 mb-5">
+    <h3 class="d-flex flex-row flex-wrap mt-3 mb-3">
       <div class="mb-3 me-auto">NFT Launchpad</div>
       
       <div class="mb-3">
@@ -39,6 +39,16 @@
       </NuxtLink>
     </div>
     -->
+
+    <div class="dropdown mb-4">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          New & Featured
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item disabled" href="#">New & Featured</a></li>
+          <li><NuxtLink class="dropdown-item" to="/nft/highest-price">Top-Priced NFTs</NuxtLink></li>
+        </ul>
+      </div>
 
     <h4 class="mb-3" v-if="featuredNfts.length > 0">Featured</h4>
 
@@ -116,6 +126,11 @@ export default {
       this.fetchFeaturedNfts();
       this.fetchLastNfts();
     }
+
+    console.log("set item in localStorage");
+    // set this component name as the current component in localStorage
+    window.localStorage.setItem("currentNftComponent", "Nft");
+    console.log("set item in localStorage done");
   },
 
   computed: {
