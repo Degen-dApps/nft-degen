@@ -196,6 +196,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { useEthers, shortenAddress } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";

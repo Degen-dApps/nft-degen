@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
@@ -108,6 +109,12 @@ export default {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
+
+          try {
+            await axios.get('https://api.nftdegen.org/endpoints/collections/update?scope=previewImage&nftAddress='+this.cAddress);
+          } catch (e) {
+            console.error(e);
+          }
 
           this.$emit("saveCollection", {
             image: this.imageUrl
