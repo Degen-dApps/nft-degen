@@ -34,6 +34,7 @@
       <h5>Useful links</h5>
 
       <ul>
+        <li><a href="https://docs.google.com/document/d/1UTTFLszVAwpd7LbvNMbj4vL1NBaN0ImoZYNPJ4T_EJo/edit?usp=sharing" target="_blank">FAQ</a></li>
         <li><a href="https://github.com/Degen-dApps" target="_blank">GitHub org</a></li>
         <li><a href="https://degendapps.lol" target="_blank">List of dApps on Degen Chain</a></li>
         <li><a href="https://degenname.lol/" target="_blank">DegenName.lol</a></li>
