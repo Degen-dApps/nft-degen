@@ -19,7 +19,7 @@
       <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
     </p>
 
-    <h3 class="d-flex flex-row flex-wrap mt-3">
+    <h3 class="d-flex flex-row flex-wrap mt-3 mb-5">
       <div class="mb-3 me-auto">NFT Launchpad</div>
       
       <div class="mb-3">
