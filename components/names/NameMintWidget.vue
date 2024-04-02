@@ -39,7 +39,19 @@
 
     <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
     
+    <hr />
+
+    <p class="mt-3 text-center">
+      <small>
+      <em>
+        (Manage your name on 
+        <a href="https://degenname.lol/" target="_blank">DegenName.lol</a>)
+      </em>
+      </small>
+    </p>
   </div>
+
+  
 </div>
 </template>
 

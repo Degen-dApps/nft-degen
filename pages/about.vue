@@ -17,7 +17,7 @@
       </p>
 
       <p class="text-break mt-3">
-        (Also accessible via NFTdegen.org, if you're of more serious nature 🤪)
+        (Also accessible via NFTdegen.org, if you're of a more serious nature 🤪)
       </p>
 
       <h5>New kind of NFTs</h5>
@@ -36,6 +36,7 @@
       <ul>
         <li><a href="https://github.com/Degen-dApps" target="_blank">GitHub org</a></li>
         <li><a href="https://degendapps.lol" target="_blank">List of dApps on Degen Chain</a></li>
+        <li><a href="https://degenname.lol/" target="_blank">DegenName.lol</a></li>
         <li><a href="https://warpcast.com/tempetechie.eth" target="_blank">Tempe Techie 🎩</a></li>
         <li><a href="https://warpcast.com/tekr0x.eth" target="_blank">Tekr 🎩</a></li>
       </ul>
