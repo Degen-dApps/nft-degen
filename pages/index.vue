@@ -6,6 +6,7 @@
 import { useEthers } from 'vue-dapp';
 import Nft from "~/pages/nft/index.vue";
 import NftsHighestPrice from "~/pages/nft/highest-price.vue";
+import NftsMostHolders from "~/pages/nft/most-holders.vue";
 
 export default {
   name: "index",
@@ -25,6 +26,8 @@ export default {
           return Nft;
         } else if (curComp === "NftsHighestPrice") {
           return NftsHighestPrice;
+        } else if (curComp === "NftsMostHolders") {
+          return NftsMostHolders;
         }
       } catch (e) {
         return Nft;

@@ -47,6 +47,7 @@
         <ul class="dropdown-menu">
           <li><a class="dropdown-item disabled" href="#">New & Featured</a></li>
           <li><NuxtLink class="dropdown-item" to="/nft/highest-price">Top-Priced NFTs</NuxtLink></li>
+          <li><NuxtLink class="dropdown-item" to="/nft/most-holders">Most Holders NFTs</NuxtLink></li>
         </ul>
       </div>
 
@@ -127,10 +128,8 @@ export default {
       this.fetchLastNfts();
     }
 
-    console.log("set item in localStorage");
     // set this component name as the current component in localStorage
     window.localStorage.setItem("currentNftComponent", "Nft");
-    console.log("set item in localStorage done");
   },
 
   computed: {
