@@ -6,7 +6,7 @@
 
         <div v-if="isActivated" class="text-center">
 
-          <NuxtLink to="/profile">
+          <NuxtLink :to="getProfileLink">
             <ProfileImage 
               :key="userStore.getOrbisImage"
               @click="closeLeftSidebar"

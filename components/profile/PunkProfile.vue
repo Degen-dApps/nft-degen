@@ -316,7 +316,7 @@ export default {
     this.currentTab = localStorage.getItem("profileCurrentTab");
 
     if (!this.currentTab) {
-      this.currentTab = "posts";
+      this.currentTab = "mints";
     }
 
     // if uAddress and/or domain is not provided via props, then find it yourself
