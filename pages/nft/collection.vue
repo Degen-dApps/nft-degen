@@ -170,6 +170,23 @@
     </div>
   </div>
 
+  <!-- YouTube video -->
+  <div v-if="userTokenId && cYouTube" class="card border mt-3 scroll-500">
+    <div class="card-body">
+
+      <h5 class="mb-2 mt-3 text-center">NFT Video</h5>
+
+      <div class="d-flex justify-content-center">
+        <div class="col-12 col-lg-8">
+          <p class="text-break text-center mt-3 mb-4">
+            <span v-html="youtubeParsing(cYouTube)"></span>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Chat feed -->
   <ChatFeed 
     v-if="$config.chatChannels.nftLaunchpad && userTokenId" 
@@ -210,7 +227,7 @@ import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
 import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveImageFromCollectionModal";
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils';
-import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
+import { getTextWithoutBlankCharacters, youtubeParsing } from '~/utils/textUtils';
 
 export default {
   name: 'NftCollection',
@@ -225,6 +242,7 @@ export default {
       cName: null,
       cSupply: null,
       cType: 0,
+      cYouTube: null,
       mdAddress: null,
       priceBuyWei: null,
       priceSellWei: null,
@@ -458,6 +476,7 @@ export default {
       const metadataInterface = new ethers.utils.Interface([
         "function getCollectionDescription(address) public view returns (string memory)",
         "function getCollectionMetadataType(address nftAddress_) external view returns (uint256)",
+        "function getCollectionMetadataUrl(address nftAddress_) external view returns (string memory)",
         "function getCollectionPreviewImage(address) public view returns (string memory)"
       ]);
       
@@ -525,6 +544,21 @@ export default {
 
       if (!this.cAuthorDomain) {
         this.fetchUserDomain();
+      }
+
+      // check if collection has a metadata URL set
+      const cMetadataUrl = await metadataContract.getCollectionMetadataUrl(this.cAddress);
+
+      // if metadata URL is set, fetch metadata from it
+      if (cMetadataUrl) {
+        try {
+          const metadataResponse = await axios.get(cMetadataUrl);
+          if (metadataResponse?.data?.youtube_url) {
+            this.cYouTube = metadataResponse.data.youtube_url;
+          }
+        } catch (e) {
+          //console.log(e);
+        }
       }
 
       // create collection object, JSON.stringify it and save it to session storage

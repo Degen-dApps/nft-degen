@@ -140,6 +140,13 @@ export default {
         this.editImagePreviewUrl = "";
       }
 
+      // make sure the URL ends with a slash if it's a folder
+      if (this.typeChoice === 2 || this.typeChoice === 3) {
+        if (!this.editImageMetadataUrl.endsWith("/")) {
+          this.editImageMetadataUrl += "/";
+        }
+      }
+
       try {
         const tx = await metadataContract.setMdTypeAndUrlOrImage(
           this.cAddress,

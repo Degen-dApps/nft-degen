@@ -20,7 +20,6 @@ export default {
     currentComponent() {
       try {
         const curComp = window.localStorage.getItem("currentNftComponent");
-        console.log("curComp", curComp);
         
         if (curComp === "Nft") {
           return Nft;
