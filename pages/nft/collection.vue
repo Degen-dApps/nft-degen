@@ -93,7 +93,8 @@
 
             <p class="me-4">
               <i class="bi bi-file-earmark-binary me-1"></i>
-              {{ cSupply }} NFTs minted
+              {{ cSupply }} NFTs minted 
+              <span v-if="getBuysAmount">({{ getBuysAmount }} buys, {{ getSellsAmount }} sells)</span>
             </p>
 
             <p class="me-4">
@@ -237,6 +238,7 @@ export default {
       cAddress: null,
       cAuthorAddress: null,
       cAuthorDomain: null,
+      cCounter: null,
       cDescription: null,
       cImage: null,
       cName: null,
@@ -273,6 +275,22 @@ export default {
   },
 
   computed: {
+    getBuysAmount() {
+      if (!this.cCounter) {
+        return null;
+      }
+
+      return this.cCounter - 1;
+    },
+
+    getSellsAmount() {
+      if (!this.cCounter || !this.cSupply) {
+        return null;
+      }
+
+      return this.cCounter - 1 - this.cSupply;
+    },
+
     getUsernameOrFullAddress() {
       if (this.cAuthorDomain) {
         let cleanName = String(this.cAuthorDomain).replace(this.$config.tldName, "");
@@ -357,9 +375,6 @@ export default {
             console.error(e);
           }
 
-          this.priceBuyWei = await nftContract.getMintPrice();
-          this.priceSellWei = await nftContract.getBurnPrice();
-
           try {
             this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0);
           } catch (e) {
@@ -367,8 +382,6 @@ export default {
           }
           
           this.cSupply = await nftContract.totalSupply();
-
-          this.waitingBuy = false;
         } else {
           this.toast.dismiss(toastWait);
           this.waitingBuy = false;
@@ -393,8 +406,12 @@ export default {
         } catch (e) {
           this.toast("Transaction has failed.", {type: "error"});
         }
-
+      } finally {
         this.waitingBuy = false;
+
+        // refresh prices
+        this.priceBuyWei = await nftContract.getMintPrice();
+        this.priceSellWei = await nftContract.getBurnPrice();
       }
     },
 
@@ -443,7 +460,7 @@ export default {
       let collection = fetchCollection(window, this.cAddress);
 
       if (refresh) {
-        console.log("Refreshing collection metadata...");
+        // refresh collection data
         collection = null;
       }
 
@@ -456,6 +473,7 @@ export default {
       }
 
       const nftInterface = new ethers.utils.Interface([
+        "function counter() public view returns (uint256)",
         "function getBurnPrice() public view returns (uint256)",
         "function getMintPrice() public view returns (uint256)",
         "function metadataAddress() public view returns (address)",
@@ -529,7 +547,9 @@ export default {
 
       this.waitingData = false;
 
+      // get total supply & counter
       this.cSupply = await nftContract.totalSupply();
+      this.cCounter = await nftContract.counter();
 
       // get author address
       if (collection?.authorAddress) {
@@ -546,21 +566,6 @@ export default {
         this.fetchUserDomain();
       }
 
-      // check if collection has a metadata URL set
-      const cMetadataUrl = await metadataContract.getCollectionMetadataUrl(this.cAddress);
-
-      // if metadata URL is set, fetch metadata from it
-      if (cMetadataUrl) {
-        try {
-          const metadataResponse = await axios.get(cMetadataUrl);
-          if (metadataResponse?.data?.youtube_url) {
-            this.cYouTube = metadataResponse.data.youtube_url;
-          }
-        } catch (e) {
-          //console.log(e);
-        }
-      }
-
       // create collection object, JSON.stringify it and save it to session storage
       collection = {
         address: this.cAddress,
@@ -574,6 +579,24 @@ export default {
       };
       
       storeCollection(window, this.cAddress, collection);
+
+      // check if collection has a metadata URL set
+      const cMetadataUrl = await metadataContract.getCollectionMetadataUrl(this.cAddress);
+
+      // if metadata URL is set, fetch metadata from it
+      if (cMetadataUrl) {
+        try {
+          const metadataResponse = await axios.get(cMetadataUrl);
+
+          if (metadataResponse.data.youtube_url) {
+            this.cYouTube = metadataResponse.data.youtube_url;
+          }
+        } catch (e) {
+          //console.log(e);
+        }
+      }
+
+      
     },
 
     saveCollection(newCollectionData) {
