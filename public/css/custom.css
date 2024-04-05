@@ -492,6 +492,14 @@ a:hover {
   border-style: solid;
 }
 
+.wannabe-link {
+  color: var(--bs-primary);
+}
+
+.wannabe-link:hover {
+  color: var(--bs-link-hover-color);
+}
+
 /* Desktop only */
 @media screen and (min-width: 1000px) {
   .navbar-expand-lg .navbar-nav .nav-link {

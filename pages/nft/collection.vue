@@ -28,8 +28,10 @@
       <div class="row">
 
         <div class="col-md-5 text-center mb-3">
+          <!-- Collection image -->
           <img :src="cImage" class="img-fluid img-thumbnail rounded col-12" />
 
+          <!-- Actions dropdown -->
           <div class="dropdown mt-3">
             <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               Actions
@@ -75,17 +77,21 @@
 
         </div>
 
+        <!-- Collection details -->
         <div class="col-md-7">
-          <!--
-          <h3 class="mb-3">Collection: {{ cName }}</h3>
-          -->
-
-          <!-- Data -->
           <div class="mt-1 mb-4 muted-text" style="font-size: 14px;">
 
             <p class="me-4">
               <i class="bi bi-file-earmark-text-fill me-1"></i>
               {{ cDescription }}
+            </p>
+
+            <p class="me-4">
+              <i class="bi bi-person me-1"></i>
+              Author:
+              <span v-if="getUsernameOrShortAddress"> 
+                <NuxtLink :to="'/profile/?id='+String(getUsernameOrFullAddress)">{{getUsernameOrShortAddress}}</NuxtLink>
+              </span>
             </p>
 
             <p class="me-4">
@@ -100,6 +106,14 @@
             </p>
 
             <p class="me-4">
+              <i class="bi bi-clipboard me-1"></i>
+              <span @click="copyFrameLink" class="wannabe-link cursor-pointer">
+                Click to copy Farcaster Frame link & earn referral fees
+              </span>
+            </p>
+
+            <!--
+            <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <a :href="$config.blockExplorerBaseUrl+'/address/'+cAddress" target="_blank" style="text-decoration: none;">
                 {{ shortenAddress(cAddress) }}
@@ -108,6 +122,7 @@
                 <NuxtLink :to="'/profile/?id='+String(getUsernameOrFullAddress)">{{getUsernameOrShortAddress}}</NuxtLink>
               </span>
             </p>
+            -->
 
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-1"></i>
@@ -153,6 +168,26 @@
 
     </div>
   </div>
+
+  <!-- Farcaster Frame referral link 
+  <div class="card border mt-3 scroll-500">
+    <div class="card-body">
+
+      <h5 class="mb-2 mt-3 text-center">Share Farcaster Frame link and earn referral fees</h5>
+
+      <div class="d-flex justify-content-center">
+        <div class="col-12 col-lg-8">
+
+          <p class="text-break text-center mt-3 mb-4">
+            ...
+          </p>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  -->
 
   <!-- Alert to buy an NFT to chat -->
   <div v-if="!userTokenId" class="card border mt-3 scroll-500">
