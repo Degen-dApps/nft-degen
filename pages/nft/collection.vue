@@ -231,6 +231,7 @@ import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveIm
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils';
 import { getTextWithoutBlankCharacters, youtubeParsing } from '~/utils/textUtils';
+import { useUserStore } from '~/store/user';
 
 export default {
   name: 'NftCollection',
@@ -277,10 +278,6 @@ export default {
   },
 
   computed: {
-    copyFrameLink() {
-      navigator.clipboard.writeText("https://frames.nftdegen.org/frame/nft/"+this.cAddress);
-      this.toast("Frame link copied to your clipboard. Share it on Farcaster!", {type: "success"});
-    },
 
     getBuysAmount() {
       if (!this.cCounter) {
@@ -288,6 +285,18 @@ export default {
       }
 
       return this.cCounter - 1;
+    },
+
+    getCurrentUserDomainNameOrAddress() {
+      if (this.address) {
+        if (this.userStore.getDefaultDomain) {
+          return getTextWithoutBlankCharacters(this.userStore.getDefaultDomain);
+        }
+
+        return this.address;
+      }
+      
+      return null;
     },
 
     getSellsAmount() {
@@ -330,6 +339,18 @@ export default {
   },
 
   methods: {
+    copyFrameLink() {
+      let frameLink = "https://frames.nftdegen.org/frame/nft/"+this.cAddress;
+
+      if (this.getCurrentUserDomainNameOrAddress) {
+        frameLink += "?ref="+this.getCurrentUserDomainNameOrAddress;
+      }
+
+      navigator.clipboard.writeText(frameLink);
+
+      this.toast("Frame link copied to your clipboard. Share it on Farcaster!", {type: "success"});
+    },
+
     getDomainName,
 
     async buyNft() {
@@ -725,8 +746,9 @@ export default {
   setup() {
     const { address, chainId, isActivated, signer } = useEthers();
     const toast = useToast();
+    const userStore = useUserStore();
 
-    return { address, chainId, isActivated, shortenAddress, signer, toast }
+    return { address, chainId, isActivated, shortenAddress, signer, toast, userStore }
   },
 };
 </script>
