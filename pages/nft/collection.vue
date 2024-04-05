@@ -445,6 +445,7 @@ export default {
           }
           
           this.cSupply = await nftContract.totalSupply();
+          this.cCounter = await nftContract.counter();
         } else {
           this.toast.dismiss(toastWait);
           this.waitingBuy = false;
