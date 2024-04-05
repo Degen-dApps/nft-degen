@@ -392,6 +392,7 @@ export default {
       this.waitingBuy = true;
 
       const nftInterface = new ethers.utils.Interface([
+        "function counter() public view returns (uint256)",
         "function getBurnPrice() public view returns (uint256)",
         "function getMintPrice() public view returns (uint256)",
         "function mint(address to) external payable returns (uint256)",
