@@ -68,6 +68,8 @@
 
               <li><span class="dropdown-item cursor-pointer" @click="getCollectionDetails(true)">Refresh metadata</span></li>
 
+              <li><span class="dropdown-item cursor-pointer" @click="copyFrameLink">Copy Farcaster Frame link</span></li>
+
             </ul>
           </div>
 
@@ -275,6 +277,11 @@ export default {
   },
 
   computed: {
+    copyFrameLink() {
+      navigator.clipboard.writeText("https://frames.nftdegen.org/frame/nft/"+this.cAddress);
+      this.toast("Frame link copied to your clipboard. Share it on Farcaster!", {type: "success"});
+    },
+
     getBuysAmount() {
       if (!this.cCounter) {
         return null;
