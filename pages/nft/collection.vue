@@ -307,6 +307,12 @@ export default {
   mounted() {
     this.cAddress = this.$route.query.id;
 
+    // check if address is in removedFromFrontend list
+    if (this.removedFromFrontend.includes(this.cAddress)) {
+      this.toast("Invalid NFT address.", {type: "error"});
+      return this.$router.push({ path: '/nft' });
+    }
+
     if (this.cAddress) {
       this.getCollectionDetails();
     }
@@ -370,7 +376,15 @@ export default {
       }
 
       return false;
-    }
+    },
+
+    removedFromFrontend() {
+      // a list of NFT addresses that were launched via NFTdegen, but were removed from the frontend 
+      // (due to various reasons, e.g. art theft, inappropriate content, etc.)
+      return [
+        "0x53360d60e661065480a7bd6bebe6bfb17124df32", // Top Degen stamp NFT stolen art from Andrea (@andreaboi)
+      ];
+    },
   },
 
   methods: {
