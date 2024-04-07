@@ -574,6 +574,7 @@ export default {
         "function getCollectionDescription(address) public view returns (string memory)",
         "function getCollectionMetadataType(address nftAddress_) external view returns (uint256)",
         "function getCollectionMetadataUrl(address nftAddress_) external view returns (string memory)",
+        "function getCollectionName(address nftAddress_) external view returns (string memory)",
         "function getCollectionPreviewImage(address) public view returns (string memory)"
       ]);
       
@@ -615,7 +616,11 @@ export default {
       if (collection?.name) {
         this.cName = collection.name;
       } else {
-        this.cName = await nftContract.name();
+        this.cName = await metadataContract.getCollectionName(this.cAddress);
+
+        if (!this.cName) {
+          this.cName = await nftContract.name();
+        }
       }
 
       try {
