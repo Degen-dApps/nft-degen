@@ -1,39 +1,20 @@
 <template>
-  <component :is="currentComponent" :hideBackButton="true" />
+  
 </template>
 
 <script>
 import { useEthers } from 'vue-dapp';
-import Nft from "~/pages/nft/index.vue";
-import NftsHighestPrice from "~/pages/nft/highest-price.vue";
-import NftsMostHolders from "~/pages/nft/most-holders.vue";
 
 export default {
   name: "index",
 
-  data() {
-    return {
-      //currentComponent: Nft
-    }
-  },
+  mounted() {
+    const curComp = window.localStorage.getItem("currentNftPage");
 
-  computed: {
-    currentComponent() {
-      try {
-        const curComp = window.localStorage.getItem("currentNftComponent");
-        
-        if (curComp === "Nft") {
-          return Nft;
-        } else if (curComp === "NftsHighestPrice") {
-          return NftsHighestPrice;
-        } else if (curComp === "NftsMostHolders") {
-          return NftsMostHolders;
-        }
-      } catch (e) {
-        return Nft;
-      }
-
-      return Nft;
+    if (!curComp) {
+      return this.$router.push({ path: '/nft' });
+    } else {
+      return this.$router.push({ path: curComp });
     }
   },
 

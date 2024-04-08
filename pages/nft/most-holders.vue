@@ -81,7 +81,7 @@ export default {
     this.fetchNfts();
 
     // set this component name as the current component in localStorage
-    window.localStorage.setItem("currentNftComponent", "NftsMostHolders");
+    window.localStorage.setItem("currentNftPage", "/nft/most-holders");
   },
 
   methods: {

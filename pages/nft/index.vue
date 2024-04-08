@@ -129,7 +129,7 @@ export default {
     }
 
     // set this component name as the current component in localStorage
-    window.localStorage.setItem("currentNftComponent", "Nft");
+    window.localStorage.setItem("currentNftPage", "/nft");
   },
 
   computed: {

@@ -81,7 +81,7 @@ export default {
     this.fetchNfts();
 
     // set this component name as the current component in localStorage
-    window.localStorage.setItem("currentNftComponent", "NftsHighestPrice");
+    window.localStorage.setItem("currentNftPage", "/nft/highest-price");
   },
 
   methods: {
