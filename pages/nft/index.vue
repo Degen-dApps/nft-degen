@@ -1,6 +1,6 @@
 <template>
 <Head>
-  <Title>NFT Launchpad | {{ $config.projectMetadataTitle }}</Title>
+  <Title>New NFTs | {{ $config.projectMetadataTitle }}</Title>
   <Meta property="og:title" :content="$config.projectMetadataTitle" />
 
   <Meta name="description" :content="$config.projectDescription" />
@@ -41,24 +41,6 @@
     -->
 
     <NftListDropdown buttonText="New NFTs" />
-
-    <!--
-    <h4 class="mb-3" v-if="featuredNfts.length > 0">Featured</h4>
-
-    <div class="row" v-if="featuredNfts.length > 0">
-      <NuxtLink v-for="nft in featuredNfts" :key="nft.address" class="col-md-3 text-decoration-none" :to="'/nft/collection?id=' + nft.address">
-        <div class="card border mb-3">
-          <img :src="nft.image" class="card-img-top" :alt="nft.name">
-          <div class="card-body rounded-bottom-3">
-            <p class="card-text mb-1"><strong>{{ nft.name }}</strong></p>
-            <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.tokenSymbol }}</small>
-          </div>
-        </div>
-      </NuxtLink>
-    </div>
-
-    <h4 class="mt-3 mb-3" v-if="lastNfts.length > 0">Latest NFTs</h4>
-    -->
 
     <div class="row">
       <NuxtLink v-for="nft in lastNfts" :key="nft.address" class="col-md-3 text-decoration-none" :to="'/nft/collection?id=' + nft.address">
@@ -106,7 +88,6 @@ export default {
       allNftsArrayLength: 0,
       allNftsIndexStart: 0,
       allNftsIndexEnd: 0,
-      featuredNfts: [],
       lastNfts: [],
       waitingData: false
     }
@@ -119,7 +100,6 @@ export default {
 
   mounted() {
     if (this.$config.nftLaunchpadBondingAddress) {
-      //this.fetchFeaturedNfts();
       this.fetchLastNfts();
     }
 
@@ -134,34 +114,6 @@ export default {
   },
 
   methods: {
-    async fetchFeaturedNfts() {
-      this.waitingData = true;
-
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
-
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer;
-      }
-
-      // create launchpad contract object
-      const launchpadInterface = new ethers.utils.Interface([
-        "function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory)"
-      ]);
-
-      const launchpadContract = new ethers.Contract(
-        this.$config.nftLaunchpadBondingAddress,
-        launchpadInterface,
-        provider
-      );
-
-      // get featured NFTs
-      const fNfts = await launchpadContract.getFeaturedNftContracts(8);
-
-      await this.parseNftsArray(fNfts, this.featuredNfts, provider);
-    },
-
     async fetchLastNfts() {
       this.waitingData = true;
 
