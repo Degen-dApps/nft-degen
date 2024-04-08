@@ -12,7 +12,7 @@ export default {
     const curComp = window.localStorage.getItem("currentNftPage");
 
     if (!curComp) {
-      return this.$router.push({ path: '/nft' });
+      return this.$router.push({ path: '/nft/featured' });
     } else {
       return this.$router.push({ path: curComp });
     }

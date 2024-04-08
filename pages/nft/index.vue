@@ -40,18 +40,9 @@
     </div>
     -->
 
-    <div class="dropdown mb-4">
-        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          New & Featured
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item disabled" href="#">New & Featured</a></li>
-          <li><NuxtLink class="dropdown-item" to="/nft/highest-price">Top-Priced NFTs</NuxtLink></li>
-          <li><NuxtLink class="dropdown-item" to="/nft/most-holders">Most Holders NFTs</NuxtLink></li>
-          <li><NuxtLink class="dropdown-item" to="/nft/most-traded">Most Traded NFTs</NuxtLink></li>
-        </ul>
-      </div>
+    <NftListDropdown buttonText="New NFTs" />
 
+    <!--
     <h4 class="mb-3" v-if="featuredNfts.length > 0">Featured</h4>
 
     <div class="row" v-if="featuredNfts.length > 0">
@@ -66,7 +57,8 @@
       </NuxtLink>
     </div>
 
-    <h4 class="mt-3 mb-3" v-if="lastNfts.length > 0">Latest</h4>
+    <h4 class="mt-3 mb-3" v-if="lastNfts.length > 0">Latest NFTs</h4>
+    -->
 
     <div class="row">
       <NuxtLink v-for="nft in lastNfts" :key="nft.address" class="col-md-3 text-decoration-none" :to="'/nft/collection?id=' + nft.address">
@@ -102,6 +94,7 @@
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import SearchNftModal from '~/components/nft/SearchNftModal.vue';
+import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';
 import { fetchCollection, storeCollection } from '~/utils/storageUtils';
 
 export default {
@@ -120,12 +113,13 @@ export default {
   },
 
   components: {
+    NftListDropdown,
     SearchNftModal
   },
 
   mounted() {
     if (this.$config.nftLaunchpadBondingAddress) {
-      this.fetchFeaturedNfts();
+      //this.fetchFeaturedNfts();
       this.fetchLastNfts();
     }
 

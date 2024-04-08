@@ -1,15 +1,15 @@
 <template>
   <Head>
-    <Title>Top-Priced NFTs | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Top-Priced NFTs | '+$config.projectMetadataTitle" />
+    <Title>Featured NFTs | {{ $config.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Featured NFTs | '+$config.projectMetadataTitle" />
   
-    <Meta name="description" content="Check these NFTs with the highest mint price!" />
+    <Meta name="description" content="Check these featured NFTs!" />
   
     <Meta property="og:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
-    <Meta property="og:description" content="Check these NFTs with the highest mint price!" />
+    <Meta property="og:description" content="Check these featured NFTs!" />
   
     <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
-    <Meta name="twitter:description" content="Check these NFTs with the highest mint price!" />
+    <Meta name="twitter:description" content="Check these featured NFTs!" />
   </Head>
   
   <div class="card border scroll-500">
@@ -32,13 +32,9 @@
         </div>
       </h3>
 
-      <NftListDropdown buttonText="Top-Priced NFTs" />
+      <NftListDropdown buttonText="Featured NFTs" />
 
-      <div class="d-flex justify-content-center mb-3" v-if="waitingData && !nftsList">
-        <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
-      </div>
-
-      <NftCollectionsList v-if="nftsList" :nftsList="nftsList" />
+      <component :is="currentComponent" :nftsList="nftsList" :waitingData="waitingData" />
   
     </div>
   </div>
@@ -50,12 +46,18 @@
 <script>
 import axios from 'axios';
 import SearchNftModal from '~/components/nft/SearchNftModal.vue';
-import NftCollectionsList from '~/components/nft/list/NftCollectionsList.vue';
+import FeaturedNftsApi from '~/components/nft/list/FeaturedNftsApi.vue';
+import FeaturedNftsBlockchain from '~/components/nft/list/FeaturedNftsBlockchain.vue';
 import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';
 
 export default {
-  name: 'NftsHighestPrice',
+  name: 'NftsMostHolders',
   props: ["hideBackButton"],
+
+  components: {
+    NftListDropdown,
+    SearchNftModal
+  },
 
   data() {
     return {
@@ -64,31 +66,38 @@ export default {
     }
   },
 
-  components: {
-    NftCollectionsList,
-    NftListDropdown,
-    SearchNftModal
-  },
-
   mounted() {
     this.fetchNfts();
 
     // set this component name as the current component in localStorage
-    window.localStorage.setItem("currentNftPage", "/nft/highest-price");
+    window.localStorage.setItem("currentNftPage", "/nft/featured");
+  },
+
+  computed: {
+    currentComponent() {
+      if (this.nftsList.length > 0) {
+        return FeaturedNftsApi;
+      } else {
+        return FeaturedNftsBlockchain;
+      }
+    }
   },
 
   methods: {
     async fetchNfts() {
       this.waitingData = true;
 
-      // TODO: Fetch NFTs with the highest price
-      const response = await axios.get('https://api.nftdegen.org/endpoints/highestPriceNfts?limit=16');
-      this.nftsList = response.data.topCollections;
+      try {
+        // TODO: Fetch NFTs
+        const response = await axios.get('https://api.nftdegen.org/endpoints/featuredNfts?limit=16');
+        this.nftsList = response.data.topCollections;
+      } catch (error) {
+        console.error("Cannot fetch featured NFTs from API. Trying blockchain...");
+        this.nftsList = [];
+      }
 
       this.waitingData = false;
     },
-
-    
   }
 }
 </script>

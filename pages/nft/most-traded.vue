@@ -32,17 +32,7 @@
         </div>
       </h3>
 
-      <div class="dropdown mb-4">
-        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Most Traded NFTs
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item disabled" href="#">Most Traded NFTs</a></li>
-          <li><NuxtLink class="dropdown-item" to="/nft">New & Featured</NuxtLink></li>
-          <li><NuxtLink class="dropdown-item" to="/nft/highest-price">Top-Priced NFTs</NuxtLink></li>
-          <li><NuxtLink class="dropdown-item" to="/nft/most-holders">Most Holders NFTs</NuxtLink></li>
-        </ul>
-      </div>
+      <NftListDropdown buttonText="Most Traded NFTs" />
 
       <div class="d-flex justify-content-center mb-3" v-if="waitingData && !nftsList">
         <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
@@ -61,6 +51,7 @@
 import axios from 'axios';
 import SearchNftModal from '~/components/nft/SearchNftModal.vue';
 import NftCollectionsList from '~/components/nft/list/NftCollectionsList.vue';
+import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';
 
 export default {
   name: 'NftsMostTraded',
@@ -75,6 +66,7 @@ export default {
 
   components: {
     NftCollectionsList,
+    NftListDropdown,
     SearchNftModal
   },
 

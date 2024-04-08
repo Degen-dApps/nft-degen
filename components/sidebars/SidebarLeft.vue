@@ -86,10 +86,17 @@
           </li>
           -->
 
-          <!-- New & Featured NFTs -->
+          <!-- Featured NFTs -->
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
+            <NuxtLink class="nav-link" :class="$route.path == '/nft/featured' ? 'active' : ''" aria-current="page" to="/nft/featured">
+              <i class="bi bi-patch-check"></i> Featured NFTs
+            </NuxtLink>
+          </li>
+
+          <!-- New NFTs -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
             <NuxtLink class="nav-link" :class="$route.path == '/nft' ? 'active' : ''" aria-current="page" to="/nft">
-              <i class="bi bi-stars"></i> New & Featured NFTs
+              <i class="bi bi-stars"></i> New NFTs
             </NuxtLink>
           </li>
 
