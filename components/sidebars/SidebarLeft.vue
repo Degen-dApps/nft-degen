@@ -93,6 +93,13 @@
             </NuxtLink>
           </li>
 
+          <!-- Most Traded NFTs -->
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
+            <NuxtLink class="nav-link" :class="$route.path.startsWith('/nft/most-traded') ? 'active' : ''" aria-current="page" to="/nft/most-traded">
+              <i class="bi bi-arrow-left-right"></i> Most Traded NFTs
+            </NuxtLink>
+          </li>
+
           <!-- Top-Priced NFTs -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/nft/highest-price') ? 'active' : ''" aria-current="page" to="/nft/highest-price">

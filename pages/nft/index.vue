@@ -48,6 +48,7 @@
           <li><a class="dropdown-item disabled" href="#">New & Featured</a></li>
           <li><NuxtLink class="dropdown-item" to="/nft/highest-price">Top-Priced NFTs</NuxtLink></li>
           <li><NuxtLink class="dropdown-item" to="/nft/most-holders">Most Holders NFTs</NuxtLink></li>
+          <li><NuxtLink class="dropdown-item" to="/nft/most-traded">Most Traded NFTs</NuxtLink></li>
         </ul>
       </div>
 
