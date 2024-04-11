@@ -34,7 +34,12 @@
 
       <NftListDropdown buttonText="Featured NFTs" />
 
-      <component :is="currentComponent" :nftsList="nftsList" :waitingData="waitingData" />
+      <!--
+      <FeaturedNftsApi v-if="currentComponent === 'FeaturedNftsApi'" :nftsList="nftsList" :waitingData="waitingData" />
+      -->
+      
+      <FeaturedNftsBlockchain />
+      
   
     </div>
   </div>
@@ -55,12 +60,15 @@ export default {
   props: ["hideBackButton"],
 
   components: {
+    FeaturedNftsApi,
+    FeaturedNftsBlockchain,
     NftListDropdown,
     SearchNftModal
   },
 
   data() {
     return {
+      currentComponent: null,
       nftsList: [],
       waitingData: false
     }
@@ -73,16 +81,6 @@ export default {
     window.localStorage.setItem("currentNftPage", "/nft/featured");
   },
 
-  computed: {
-    currentComponent() {
-      if (this.nftsList.length > 0) {
-        return FeaturedNftsApi;
-      } else {
-        return FeaturedNftsBlockchain;
-      }
-    }
-  },
-
   methods: {
     async fetchNfts() {
       this.waitingData = true;
@@ -90,12 +88,23 @@ export default {
       try {
         // TODO: Fetch NFTs
         const response = await axios.get('https://api.nftdegen.org/endpoints/featuredNfts?limit=16');
+
+        console.log("Featured NFTs fetched from API:", response.data.topCollections);
+
         this.nftsList = response.data.topCollections;
+
+        if (this.nftsList.length > 0) {
+          this.currentComponent = "FeaturedNftsApi";
+          return this.waitingData = false;
+        }
+        
       } catch (error) {
         console.error("Cannot fetch featured NFTs from API. Trying blockchain...");
-        this.nftsList = [];
       }
 
+      console.log("Fetching featured NFTs from blockchain...");
+
+      this.currentComponent = "FeaturedNftsBlockchain";
       this.waitingData = false;
     },
   }
