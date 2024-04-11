@@ -34,12 +34,8 @@
 
       <NftListDropdown buttonText="Featured NFTs" />
 
-      <!--
       <FeaturedNftsApi v-if="currentComponent === 'FeaturedNftsApi'" :nftsList="nftsList" :waitingData="waitingData" />
-      -->
-      
-      <FeaturedNftsBlockchain />
-      
+      <FeaturedNftsBlockchain v-else-if="currentComponent === 'FeaturedNftsBlockchain'" />
   
     </div>
   </div>
