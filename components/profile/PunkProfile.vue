@@ -38,14 +38,14 @@
               <NuxtLink class="body-color hover-color" :to="'/keys/?username='+getChatName">Get Friend Key</NuxtLink>
             </p>
 
-            <p class="me-4">
+            <p class="me-4" v-if="uAddress">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <a :href="$config.blockExplorerBaseUrl+'/address/'+uAddress" target="_blank" class="body-color hover-color" style="text-decoration: none;">
                 {{ shortenAddress(uAddress) }}
               </a>
             </p>
 
-            <p class="me-4">
+            <p class="me-4" v-if="uAddress">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <a 
                 :href="'https://explorer.degen.tips/token/0x4087fb91A1fBdef05761C02714335D232a2Bf3a1?tab=inventory&holder_address_hash='+uAddress" 
@@ -502,10 +502,13 @@ export default {
       if (this.$route.query.id) {
         const id = this.$route.query.id;
 
-        if (id.includes(".")) {
+        // check if id is a valid address
+        if (ethers.utils.isAddress(id)) {
+          this.uAddress = id; // address
+        } else if (id.includes(".")) {
           this.domain = id; // domain
         } else {
-          this.uAddress = id; // address
+          this.toast(`Invalid id provided (neither address, nor ${this.$config.tldName} name).`, {type: "error"});
         }
       } else {
         // if no id is provided, then use the user's address
@@ -543,9 +546,11 @@ export default {
 
         if (domainHolder !== ethers.constants.AddressZero) {
           this.uAddress = domainHolder;
+          storeUsername(window, this.uAddress, this.domain);
+        } else {
+          return this.toast("This username is not yet registered.", {type: "error"});
         }
-
-        storeUsername(window, this.uAddress, this.domain);
+        
       }
 
       await this.fetchOrbisProfile();

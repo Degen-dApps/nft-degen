@@ -310,6 +310,12 @@ export default {
   mounted() {
     this.cAddress = this.$route.query.id;
 
+    // check if address is valid
+    if (!ethers.utils.isAddress(this.cAddress)) {
+      this.toast("Invalid NFT address.", {type: "error"});
+      return this.$router.push({ path: '/nft' });
+    }
+
     // check if address is in removedFromFrontend list
     if (this.removedFromFrontend.includes(this.cAddress.toLowerCase())) {
       this.toast("Invalid NFT address.", {type: "error"});
