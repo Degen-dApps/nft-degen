@@ -10,6 +10,8 @@
 
   <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
   <Meta name="twitter:description" :content="$config.projectDescription" />
+
+  <Link rel="canonical" :href="$config.projectUrl+'/nft'" />
 </Head>
 
 <div class="card border scroll-500">

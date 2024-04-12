@@ -2,6 +2,7 @@
   <Head>
     <Title>Search posts | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Search posts | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" :href="$config.projectUrl+'/search-posts'" />
   </Head>
 
   <div class="scroll-500">

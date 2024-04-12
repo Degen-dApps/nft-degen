@@ -2,6 +2,7 @@
   <Head>
     <Title>Find user | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Find user | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" :href="$config.projectUrl+'/find-user'" />
   </Head>
 
   <div class="scroll-500">

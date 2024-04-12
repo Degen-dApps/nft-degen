@@ -10,6 +10,8 @@
   
     <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
     <Meta name="twitter:description" content="Check these NFTs that were traded the most!" />
+
+    <Link rel="canonical" :href="$config.projectUrl+'/nft/most-traded'" />
   </Head>
   
   <div class="card border scroll-500">

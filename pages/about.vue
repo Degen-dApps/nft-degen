@@ -2,6 +2,7 @@
   <Head>
     <Title>About | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'About | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" href="https://nftdegen.lol/about" />
   </Head>
 
   <div class="card border scroll-500">

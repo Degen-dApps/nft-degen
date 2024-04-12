@@ -2,6 +2,7 @@
   <Head>
     <Title>Shill and discuss projects | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Shill and discuss projects | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" :href="$config.projectUrl+'/shill'" />
   </Head>
 
   <ChatFeed 

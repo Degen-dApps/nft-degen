@@ -10,6 +10,8 @@
 
     <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageNftCreate" />
     <Meta name="twitter:description" :content="'Create your very own NFT collection on ' + $config.projectName + '!'" />
+
+    <Link rel="canonical" :href="$config.projectUrl+'/nft/create'" />
   </Head>
 
   <div class="card border scroll-500">

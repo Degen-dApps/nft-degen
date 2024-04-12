@@ -10,6 +10,8 @@
 
     <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageStake" />
     <Meta name="twitter:description" :content="'Stake and earn ' + $config.tokenSymbol + ' on ' + $config.projectName + '!'" />
+
+    <Link rel="canonical" :href="$config.projectUrl+'/stake'" />
   </Head>
 
   <div class="card border scroll-500">

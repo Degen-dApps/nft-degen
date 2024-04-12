@@ -8,6 +8,8 @@
 
     <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImagePost" />
     <Meta name="twitter:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+
+    <Link rel="canonical" :href="$config.projectUrl+'/post'" />
   </Head>
 
   <ChatPost class="m-4" v-if="masterPost" :post="masterPost" :orbisContext="getOrbisContext" />

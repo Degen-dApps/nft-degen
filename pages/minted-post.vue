@@ -11,6 +11,8 @@
 
       <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImagePostNft" />
       <Meta name="twitter:description" :content="'Check out this minted post NFT on ' + $config.projectName + '!'" />
+
+      <Link rel="canonical" :href="$config.projectUrl+'/minted-post'" />
     </Head>
 
     <!-- Minted Post Image -->

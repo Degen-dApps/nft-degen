@@ -2,6 +2,8 @@
   <Head>
     <Title>Swap | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Token Swap | ' + $config.projectMetadataTitle" />
+
+    <Link rel="canonical" :href="$config.projectUrl+'/swap'" />
   </Head>
 
   <div class="scroll-500">

@@ -2,6 +2,8 @@
   <Head>
     <Title>Activity Points | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Activity Points | ' + $config.projectMetadataTitle" />
+
+    <Link rel="canonical" :href="$config.projectUrl+'/activity-points'" />
   </Head>
 
   <div class="card border scroll-500">

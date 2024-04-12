@@ -1,5 +1,7 @@
 <template>
-  
+  <Head>
+    <Link rel="canonical" href="https://nftdegen.lol" />
+  </Head>
 </template>
 
 <script>

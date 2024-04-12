@@ -10,6 +10,8 @@
 
     <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageAirdrop" />
     <Meta name="twitter:description" :content="'Claim your ' + $config.chatTokenSymbol + ' token airdrop on ' + $config.projectName + '!'" />
+
+    <Link rel="canonical" :href="$config.projectUrl+'/airdrop'" />
   </Head>
 
   <div class="card border scroll-500">

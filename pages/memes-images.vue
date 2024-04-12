@@ -2,6 +2,7 @@
   <Head>
     <Title>Memes & Images | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Memes & Images | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" :href="$config.projectUrl+'/memes-images'" />
   </Head>
 
   <ChatFeed 

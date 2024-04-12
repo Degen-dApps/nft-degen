@@ -2,6 +2,7 @@
   <Head>
     <Title>Friend Keys | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Friend Keys | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" :href="$config.projectUrl+'/keys'" />
   </Head>
 
   <div class="card border">

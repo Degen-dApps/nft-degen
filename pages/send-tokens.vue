@@ -2,6 +2,7 @@
   <Head>
     <Title>Send tokens | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Send tokens | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" :href="$config.projectUrl+'/send-tokens'" />
   </Head>
 
   <div class="scroll-500">

@@ -2,6 +2,7 @@
   <Head>
     <Title>Notifications | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Notifications | ' + $config.projectMetadataTitle" />
+    <Link rel="canonical" :href="$config.projectUrl+'/notifications'" />
   </Head>
 
   <div class="card border">
