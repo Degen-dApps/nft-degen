@@ -44,6 +44,19 @@
                 {{ shortenAddress(uAddress) }}
               </a>
             </p>
+
+            <p class="me-4">
+              <i class="bi bi-box-arrow-up-right me-2"></i>
+              <a 
+                :href="'https://explorer.degen.tips/token/0x4087fb91A1fBdef05761C02714335D232a2Bf3a1?tab=inventory&holder_address_hash='+uAddress" 
+                target="_blank" 
+                class="body-color hover-color" 
+                style="text-decoration: none;"
+              >
+                <span v-if="isCurrentUser">See all your .degen names</span>
+                <span v-if="!isCurrentUser">See all .degen names of this user</span>
+              </a>
+            </p>
           </div>
           <!-- END Data -->
 
