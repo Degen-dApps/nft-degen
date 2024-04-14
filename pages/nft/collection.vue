@@ -15,7 +15,7 @@
   <div class="card border">
     <div class="card-body">
       <p class="fs-3">
-        <i @click="$router.push({ path: '/nft' })" class="bi bi-arrow-left-circle cursor-pointer"></i>
+        <i @click="$router.push({ path: '/' })" class="bi bi-arrow-left-circle cursor-pointer"></i>
       </p>
 
       <h3 class="mb-3 mt-3" v-if="!cName">NFT Collection Details</h3>
@@ -127,7 +127,7 @@
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-1"></i>
               <a :href="$config.marketplaceNftCollectionBaseUrl+cAddress" target="_blank" style="text-decoration: none;">
-                See on NFT marketplace
+                See on block explorer
               </a>
             </p>
           </div>
@@ -313,13 +313,13 @@ export default {
     // check if address is valid
     if (!ethers.utils.isAddress(this.cAddress)) {
       this.toast("Invalid NFT address.", {type: "error"});
-      return this.$router.push({ path: '/nft' });
+      return this.$router.push({ path: '/' });
     }
 
     // check if address is in removedFromFrontend list
     if (this.removedFromFrontend.includes(this.cAddress.toLowerCase())) {
       this.toast("Invalid NFT address.", {type: "error"});
-      return this.$router.push({ path: '/nft' });
+      return this.$router.push({ path: '/' });
     }
 
     if (this.cAddress) {
