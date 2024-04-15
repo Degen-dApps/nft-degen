@@ -125,8 +125,8 @@
         <div id="ratioHelp" class="form-text">
           Price for mint #1 will be {{ getLessDecimals(calculatePrice(2, ratio)) }} {{ $config.tokenSymbol }}, 
           for mint #5 will be {{ getLessDecimals(calculatePrice(5, ratio)) }} {{ $config.tokenSymbol }},
-          for mint #15 will be {{ getLessDecimals(calculatePrice(15, ratio)) }} {{ $config.tokenSymbol }}, 
-          for mint #30 will be {{ getLessDecimals(calculatePrice(30, ratio)) }} {{ $config.tokenSymbol }}, etc.
+          for mint #20 will be {{ getLessDecimals(calculatePrice(20, ratio)) }} {{ $config.tokenSymbol }}, 
+          for mint #80 will be {{ getLessDecimals(calculatePrice(80, ratio)) }} {{ $config.tokenSymbol }}, etc. (assuming there are no sells in-between)
         </div>
       </div>
 

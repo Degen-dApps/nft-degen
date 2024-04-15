@@ -83,11 +83,15 @@ export default {
     async fetchNfts() {
       this.waitingData = true;
 
-      // TODO: Fetch NFTs
-      const response = await axios.get('https://api.nftdegen.org/endpoints/mostTradedNfts?limit=16');
-      this.nftsList = response.data.topCollections;
-
-      this.waitingData = false;
+      // Fetch NFTs
+      try {
+        const response = await axios.get('https://api.nftdegen.org/endpoints/mostTradedNfts?limit=16');
+        this.nftsList = response.data.topCollections;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.waitingData = false;
+      }
     },
 
     

@@ -249,6 +249,14 @@
         <li class="nav-item">
           <button 
             class="nav-link" 
+            :class="currentTab === 'created' ? 'active' : ''" 
+            @click="changeCurrentTab('created')" 
+          >Created</button>
+        </li>
+
+        <li class="nav-item">
+          <button 
+            class="nav-link" 
             :class="currentTab === 'mints' ? 'active' : ''" 
             @click="changeCurrentTab('mints')" 
           >Minted posts</button>
@@ -266,6 +274,11 @@
         </div>
         -->
 
+        <!-- Created NFTs Tab -->
+        <div v-if="currentTab === 'created' && uAddress">
+          <UserCreatedNfts :uAddress="uAddress" :limit="16" />
+        </div>
+
         <!-- Mints Tab -->
         <div v-if="currentTab === 'mints' && uAddress">
           <UserMintedPosts :address="uAddress" />
@@ -281,6 +294,7 @@ import { useEthers, shortenAddress } from 'vue-dapp';
 import { ethers } from 'ethers';
 import { useUserStore } from '~/store/user';
 import { useToast } from "vue-toastification/dist/index.mjs";
+import UserCreatedNfts from '~/components/nft/list/UserCreatedNfts.vue';
 import ProfileImage from "~/components/profile/ProfileImage.vue";
 import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import UserMintedPosts from "~/components/minted-posts/UserMintedPosts.vue";
@@ -298,7 +312,7 @@ export default {
     return {
       balanceAp: 0,
       balanceChatTokenWei: 0,
-      currentTab: "mints",
+      currentTab: "created",
       domain: this.pDomain,
       emailForNotificationsSet: false,
       followers: 0,
@@ -321,6 +335,7 @@ export default {
     ChatFeed,
     FileUploadModal,
     ProfileImage,
+    UserCreatedNfts,
     UserMintedPosts
   },
 
@@ -329,7 +344,7 @@ export default {
     this.currentTab = localStorage.getItem("profileCurrentTab");
 
     if (!this.currentTab) {
-      this.currentTab = "mints";
+      this.currentTab = "created";
     }
 
     // if uAddress and/or domain is not provided via props, then find it yourself

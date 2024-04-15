@@ -83,14 +83,16 @@ export default {
     async fetchNfts() {
       this.waitingData = true;
 
-      // TODO: Fetch NFTs with the highest price
-      const response = await axios.get('https://api.nftdegen.org/endpoints/highestPriceNfts?limit=16');
-      this.nftsList = response.data.topCollections;
-
-      this.waitingData = false;
+      // Fetch NFTs with the highest price
+      try {
+        const response = await axios.get('https://api.nftdegen.org/endpoints/highestPriceNfts?limit=16');
+        this.nftsList = response.data.topCollections;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.waitingData = false;
+      }
     },
-
-    
   }
 }
 </script>
