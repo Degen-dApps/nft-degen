@@ -40,8 +40,7 @@
         <li><a href="https://github.com/Degen-dApps" target="_blank">GitHub org</a></li>
         <li><a href="https://degendapps.lol" target="_blank">List of dApps on Degen Chain</a></li>
         <li><a href="https://degenname.lol/" target="_blank">DegenName.lol</a></li>
-        <li><a href="https://warpcast.com/tempetechie.eth" target="_blank">Tempe Techie 🎩</a></li>
-        <li><a href="https://warpcast.com/tekr0x.eth" target="_blank">Tekr 🎩</a></li>
+        <li><a href="https://gist.github.com/tempe-techie/2e14a9371aa40a286a8442e03ae7c8cf" target="_blank">Tutorial on how to integrate .degen names</a></li>
       </ul>
 
       <h5>Tech stack</h5>
