@@ -276,7 +276,7 @@
 
         <!-- Created NFTs Tab -->
         <div v-if="currentTab === 'created' && uAddress">
-          <UserCreatedNfts :uAddress="uAddress" :limit="16" />
+          <UserCreatedNfts :uAddress="uAddress" :limit="8" />
         </div>
 
         <!-- Mints Tab -->

@@ -4,6 +4,10 @@
   </div>
 
   <NftCollectionsList v-if="nftsList" :nftsList="nftsList" />
+
+  <div class="d-flex justify-content-center" v-if="moreResults">
+    <button class="btn btn-primary" @click="fetchNfts">Load More</button>
+  </div>
 </template>
 
 <script>
@@ -20,8 +24,10 @@ export default {
 
   data() {
     return {
-      waitingData: false,
-      nftsList: []
+      cursor: null,
+      moreResults: false,
+      nftsList: [],
+      waitingData: false
     };
   },
 
@@ -36,13 +42,33 @@ export default {
       this.waitingData = true;
 
       if (!this.limit) {
-        this.limit = 16;
+        this.limit = 8;
       }
 
       // Fetch NFTs
       try {
-        const response = await axios.get(`https://api.nftdegen.org/endpoints/createdNftsByUser?addr=${this.uAddress}&limit=${this.limit}`);
-        this.nftsList = response.data.collections;
+        let url = `https://api.nftdegen.org/endpoints/createdNftsByUser?addr=${this.uAddress}&limit=${this.limit}`;
+
+        if (this.cursor && this.moreResults) {
+          url += `&cursor=${this.cursor}`;
+        }
+
+        const response = await axios.get(url);
+
+        // append response.data.collections to nftsList
+        this.nftsList = this.nftsList.concat(response.data.collections);
+
+        if (response.data?.cursor) {
+          this.cursor = response.data.cursor.endCursor;
+
+          if (response.data.cursor?.moreResults) {
+            if (response.data.cursor?.moreResults === "MORE_RESULTS_AFTER_LIMIT") {
+              this.moreResults = true;
+            } else {
+              this.moreResults = false;
+            }
+          }
+        }
       } catch (error) {
         console.error(error);
       } finally {
