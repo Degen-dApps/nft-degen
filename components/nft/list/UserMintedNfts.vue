@@ -109,12 +109,12 @@ export default {
         
         // pause for 2 seconds before fetching nfts again
         await new Promise(resolve => setTimeout(resolve, 2000));
-        this.fetchNfts(true);
+        this.fetchNfts("true");
       }
     },
 
-    async fetchNfts(clear=false) {
-      if (clear) {
+    async fetchNfts(clear="false") {
+      if (clear === "true") {
         this.nftsList = [];
         this.cursor = null;
         this.moreResults = false;
