@@ -117,7 +117,7 @@ export default defineNuxtConfig({
         "activityPoints": true, 
         "airdrop": false, 
         "friendKeys": false, 
-        "governance": true,
+        "governance": false,
         "newsletter": false, 
         "nftLaunchpad": true, 
         "randomMintedPosts": true, 
