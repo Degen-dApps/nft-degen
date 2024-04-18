@@ -500,6 +500,17 @@ a:hover {
   color: var(--bs-link-hover-color);
 }
 
+.wannabe-link-underlined {
+  color: var(--bs-primary);
+  text-decoration: underline;
+}
+
+.wannabe-link-underlined:hover {
+  color: var(--bs-link-hover-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+
 /* Desktop only */
 @media screen and (min-width: 1000px) {
   .navbar-expand-lg .navbar-nav .nav-link {

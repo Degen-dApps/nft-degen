@@ -257,8 +257,16 @@
         <li class="nav-item">
           <button 
             class="nav-link" 
-            :class="currentTab === 'mints' ? 'active' : ''" 
-            @click="changeCurrentTab('mints')" 
+            :class="currentTab === 'nft-mints' ? 'active' : ''" 
+            @click="changeCurrentTab('nft-mints')" 
+          >Minted</button>
+        </li>
+
+        <li class="nav-item">
+          <button 
+            class="nav-link" 
+            :class="currentTab === 'post-mints' ? 'active' : ''" 
+            @click="changeCurrentTab('post-mints')" 
           >Minted posts</button>
         </li>
       </ul>
@@ -279,8 +287,13 @@
           <UserCreatedNfts :uAddress="uAddress" :limit="8" />
         </div>
 
-        <!-- Mints Tab -->
-        <div v-if="currentTab === 'mints' && uAddress">
+        <!-- Minted NFTs Tab -->
+        <div v-if="currentTab === 'nft-mints' && uAddress">
+          <UserMintedNfts :uAddress="uAddress" :limit="8" />
+        </div>
+
+        <!-- Post Mints Tab -->
+        <div v-if="currentTab === 'post-mints' && uAddress">
           <UserMintedPosts :address="uAddress" />
         </div>
       </div>
@@ -295,6 +308,7 @@ import { ethers } from 'ethers';
 import { useUserStore } from '~/store/user';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import UserCreatedNfts from '~/components/nft/list/UserCreatedNfts.vue';
+import UserMintedNfts from '~/components/nft/list/UserMintedNfts.vue';
 import ProfileImage from "~/components/profile/ProfileImage.vue";
 import FileUploadModal from "~/components/storage/FileUploadModal.vue";
 import UserMintedPosts from "~/components/minted-posts/UserMintedPosts.vue";
@@ -336,6 +350,7 @@ export default {
     FileUploadModal,
     ProfileImage,
     UserCreatedNfts,
+    UserMintedNfts,
     UserMintedPosts
   },
 
@@ -343,7 +358,7 @@ export default {
     // get profileCurrentTab from localStorage
     this.currentTab = localStorage.getItem("profileCurrentTab");
 
-    if (!this.currentTab) {
+    if (!this.currentTab || this.currentTab === "mints") {
       this.currentTab = "created";
     }
 

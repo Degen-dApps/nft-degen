@@ -466,6 +466,7 @@ export default {
 
           try {
             await axios.get('https://api.nftdegen.org/endpoints/collections/update?scope=mint&nftAddress='+this.cAddress);
+            await axios.get('https://api.nftdegen.org/endpoints/user-nfts/add?nftAddress='+this.cAddress+'&userAddress='+this.address);
           } catch (e) {
             console.error(e);
           }
@@ -770,6 +771,7 @@ export default {
 
           try {
             await axios.get('https://api.nftdegen.org/endpoints/collections/update?scope=burn&nftAddress='+this.cAddress);
+            await axios.get('https://api.nftdegen.org/endpoints/user-nfts/add?nftAddress='+this.cAddress+'&userAddress='+this.address);
           } catch (e) {
             console.error(e);
           }
