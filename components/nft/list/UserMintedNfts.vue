@@ -32,7 +32,7 @@
           </p>
 
           <p>
-            So help us out and add the address of the NFT that
+            So help us out and add the address of the NFT (from NFTdegen) that
             <span v-if="isCurrentUsersProfile">you hold</span> 
             <span v-if="!isCurrentUsersProfile">this user holds</span> 
             here:
@@ -60,6 +60,7 @@
 
 <script>
 import axios from 'axios';
+import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import NftCollectionsList from '~/components/nft/list/NftCollectionsList.vue';
@@ -96,6 +97,12 @@ export default {
 
   methods: {
     async addNftToApi() {
+      // check if nftAddressToAdd is a valid address
+      if (!ethers.utils.isAddress(this.nftAddressToAdd)) {
+        this.toast("Invalid NFT address. It has to be a crypto address starting with 0x.", {type: "error"});
+        return;
+      }
+
       try {
         // TODO: call /endpoints/user-nfts/add with nftAddress and userAddress URL params
         let url = `https://api.nftdegen.org/endpoints/user-nfts/add?nftAddress=${this.nftAddressToAdd}&userAddress=${this.uAddress}`;
