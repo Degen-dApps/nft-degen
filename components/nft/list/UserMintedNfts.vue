@@ -44,6 +44,7 @@
               type="text" 
               class="form-control"  
               placeholder="NFT address" 
+              v-on:keyup.enter="addNftToApi"
             />
           </div>
         </div>
@@ -100,7 +101,7 @@ export default {
         let url = `https://api.nftdegen.org/endpoints/user-nfts/add?nftAddress=${this.nftAddressToAdd}&userAddress=${this.uAddress}`;
         await axios.get(url);
 
-        this.toast("NFT address sent to API, refreshing...", {type: "success"});
+        this.toast("NFT address sent to API, refreshing...", {type: "info"});
       } catch (error) {
         console.error(error);
       } finally {
