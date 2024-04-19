@@ -83,7 +83,13 @@
 
             <p class="me-4">
               <i class="bi bi-file-earmark-text-fill me-1"></i>
-              {{ cDescription }}
+              <span v-if="readMore" v-html="cDescription"></span>
+              <span v-if="!readMore" v-html="formattedDescription"></span>
+              <span v-if="descriptionTooLong" class="wannabe-link cursor-pointer ms-1" @click="readMore=!readMore">
+                <em>
+                  (read <span v-if="!readMore">more</span><span v-if="readMore">less</span>)
+                </em>
+              </span>
             </p>
 
             <p class="me-4">
@@ -267,7 +273,7 @@ import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
 import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveImageFromCollectionModal";
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils';
-import { getTextWithoutBlankCharacters, youtubeParsing } from '~/utils/textUtils';
+import { getTextWithoutBlankCharacters, urlParsing, youtubeParsing } from '~/utils/textUtils';
 import { useUserStore } from '~/store/user';
 
 export default {
@@ -288,6 +294,7 @@ export default {
       mdAddress: null,
       priceBuyWei: null,
       priceSellWei: null,
+      readMore: false,
       userTokenId: null, // if user owns at least one NFT, this will be set to the first token ID that user owns
       waitingBuy: false,
       waitingData: false,
@@ -328,6 +335,30 @@ export default {
   },
 
   computed: {
+
+    descriptionTooLong() {
+      if (this.cDescription) {
+        return this.cDescription.length > 420;
+      }
+
+      return false;
+    },
+
+    formattedDescription() {
+      if (this.cDescription) {
+        let dsc = urlParsing(this.cDescription);
+
+        // if description is longer than limit, cut it
+        const dscLimit = 420;
+        if (dsc.length > dscLimit) {
+          return dsc.substring(0, dscLimit) + "...";
+        } else {
+          return dsc;
+        }
+      }
+
+      return null;
+    },
 
     getBuysAmount() {
       if (!this.cCounter) {

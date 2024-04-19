@@ -87,8 +87,6 @@ export default {
         // TODO: Fetch NFTs
         const response = await axios.get('https://api.nftdegen.org/endpoints/featuredNfts?limit=16');
 
-        console.log("Featured NFTs fetched from API:", response.data.topCollections);
-
         this.nftsList = response.data.topCollections;
 
         if (this.nftsList.length > 0) {
