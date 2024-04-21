@@ -45,6 +45,13 @@
               </a>
             </p>
 
+            <p class="me-4" v-if="payflowLink && !isCurrentUser">
+              <i class="bi bi-box-arrow-up-right me-1"></i>
+              <a :href="payflowLink" target="_blank" class="body-color hover-color" style="text-decoration: none;">
+                Go to Payflow.me profile
+              </a>
+            </p>
+
             <p class="me-4" v-if="uAddress">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <a 
@@ -75,7 +82,7 @@
             </button>
             -->
 
-            <!-- Actions dropdown button -->
+            <!-- Profile Settings dropdown button -->
             <div class="dropdown mt-2">
               <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-sliders"></i>
@@ -133,6 +140,14 @@
                 >
                   <i class="bi bi-person-plus-fill"></i> Share referral link
                 </span>
+
+                <a 
+                  v-if="payflowLink"
+                  class="dropdown-item cursor-pointer" 
+                  :href="payflowLink"
+                >
+                  <i class="bi bi-cash-stack"></i> Go to your Payflow.me account
+                </a>
                 
               </div>
             </div>
@@ -140,11 +155,23 @@
           <!-- END Buttons -->
 
           <!-- Send tokens to user -->
-          <NuxtLink v-if="domain && !isCurrentUser && $config.showFeatures.sendTokens" class="btn btn-primary mt-2" :to="'/send-tokens/?to='+domain">
+          <NuxtLink v-if="domain && !isCurrentUser && $config.showFeatures.sendTokens" class="btn btn-primary mt-2 me-2" :to="'/send-tokens/?to='+domain">
             <i class="bi bi-send"></i>
             Send tokens to {{ domain }}
           </NuxtLink>
           <!-- END Send tokens to user -->
+
+          <!-- Payflow 
+          <a
+            v-if="payflowLink && !isCurrentUser"
+            class="btn btn-primary mt-2"
+            target="_blank"
+            :href="payflowLink"
+          >
+            Send via Payflow
+          </a>
+          -->
+          <!-- END Payflow -->
 
         </div>
       </div>
@@ -303,6 +330,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { useEthers, shortenAddress } from 'vue-dapp';
 import { ethers } from 'ethers';
 import { useUserStore } from '~/store/user';
@@ -336,6 +364,7 @@ export default {
       newImageLink: null,
       orbisImage: null,
       orbisProfile: null,
+      payflowUsername: null,
       uAddress: this.pAddress,
       uBalance: 0,
       uDid: null,
@@ -441,6 +470,14 @@ export default {
       }
 
       return false;
+    },
+
+    payflowLink() {
+      if (this.payflowUsername) {
+        return "https://app.payflow.me/"+this.payflowUsername;
+      }
+
+      return null;
     }
   },
 
@@ -660,6 +697,18 @@ export default {
       }
     },
 
+    async fetchPayflowUsername() {
+      try {
+        const res = await axios.get("https://api.alpha.payflow.me/api/user/"+this.uAddress);
+
+        if (res.data && res.data.username) {
+          this.payflowUsername = res.data.username;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    },
+
     async insertImage(imageUrl) {
       // get image from file upload modal component and call the changeImage function
       this.newImageLink = imageUrl;
@@ -702,6 +751,10 @@ export default {
   watch: {
     address() {
       this.fetchAddressAndDomain();
+    },
+
+    uAddress() {
+      this.fetchPayflowUsername();
     }
   }
 }
