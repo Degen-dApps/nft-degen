@@ -68,6 +68,12 @@
                 </span>
               </li>
 
+              <li v-if="address">
+                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#sendNftModal">
+                  Send your NFT to another address
+                </span>
+              </li>
+
               <li><span class="dropdown-item cursor-pointer" @click="getCollectionDetails(true)">Refresh metadata</span></li>
 
               <li><span class="dropdown-item cursor-pointer" @click="copyFrameLink">Copy Farcaster Frame link</span></li>
@@ -255,6 +261,9 @@
 
   <!-- Remove Image From Collection Modal -->
   <RemoveImageFromCollectionModal :mdAddress="mdAddress" :cAddress="cAddress" />
+
+  <!-- Send NFT Modal -->
+  <SendNftModal :cAddress="cAddress" :userTokenId="userTokenId" @fetchUserTokenId="fetchUserTokenId" />
 </template>
 
 <script>
@@ -271,6 +280,7 @@ import ChangeCollectionPreviewModal from "~/components/nft/collection/ChangeColl
 import ChangeDescriptionModal from "~/components/nft/collection/ChangeDescriptionModal";
 import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
 import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveImageFromCollectionModal";
+import SendNftModal from '~/components/nft/collection/SendNftModal.vue';
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils';
 import { getTextWithoutBlankCharacters, urlParsing, youtubeParsing } from '~/utils/textUtils';
@@ -310,6 +320,7 @@ export default {
     ChatFeed,
     ConnectWalletButton,
     RemoveImageFromCollectionModal,
+    SendNftModal,
     SwitchChainButton,
     WaitingToast
   },
@@ -436,17 +447,6 @@ export default {
   },
 
   methods: {
-    copyFrameLink() {
-      let frameLink = "https://frames.nftdegen.org/frame/nft/"+this.cAddress;
-
-      if (this.getCurrentUserDomainNameOrAddress) {
-        frameLink += "?ref="+this.getCurrentUserDomainNameOrAddress;
-      }
-
-      navigator.clipboard.writeText(frameLink);
-
-      this.toast("Frame link copied to your clipboard. Share it on Farcaster!", {type: "success"});
-    },
 
     getDomainName,
 
@@ -502,11 +502,7 @@ export default {
             console.error(e);
           }
 
-          try {
-            this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0);
-          } catch (e) {
-            this.userTokenId = null;
-          }
+          await this.fetchUserTokenId();
           
           this.cSupply = await nftContract.totalSupply();
           this.cCounter = await nftContract.counter();
@@ -543,6 +539,18 @@ export default {
       }
     },
 
+    copyFrameLink() {
+      let frameLink = "https://frames.nftdegen.org/frame/nft/"+this.cAddress;
+
+      if (this.getCurrentUserDomainNameOrAddress) {
+        frameLink += "?ref="+this.getCurrentUserDomainNameOrAddress;
+      }
+
+      navigator.clipboard.writeText(frameLink);
+
+      this.toast("Frame link copied to your clipboard. Share it on Farcaster!", {type: "success"});
+    },
+
     async fetchUserDomain() {
       if (this.cAuthorAddress) {
         const userDomain = await this.getDomainName(this.cAuthorAddress);
@@ -550,6 +558,22 @@ export default {
         if (userDomain) {
           this.cAuthorDomain = userDomain;
           storeUsername(window, this.cAuthorAddress, userDomain+this.$config.tldName);
+        }
+      }
+    },
+
+    async fetchUserTokenId() {
+      if (this.cAddress && this.signer) {
+        const nftInterface = new ethers.utils.Interface([
+          "function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)"
+        ]);
+
+        const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
+
+        try {
+          this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0);
+        } catch (e) {
+          this.userTokenId = null;
         }
       }
     },
@@ -672,11 +696,7 @@ export default {
         }
       }
 
-      try {
-        this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0);
-      } catch (e) {
-        this.userTokenId = null;
-      }
+      await this.fetchUserTokenId();
 
       this.waitingData = false;
 
@@ -810,11 +830,7 @@ export default {
           this.priceBuyWei = await nftContract.getMintPrice();
           this.priceSellWei = await nftContract.getBurnPrice();
           
-          try {
-            this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0);
-          } catch (e) {
-            this.userTokenId = null;
-          }
+          await this.fetchUserTokenId();
 
           this.cSupply = await nftContract.totalSupply();
 
