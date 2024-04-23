@@ -68,7 +68,13 @@
                 </span>
               </li>
 
-              <li v-if="address">
+              <li v-if="address && userTokenId">
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="`https://explorer.degen.tips/token/${cAddress}?tab=inventory&holder_address_hash=${address}`">
+                  See your NFTs on the block explorer
+                </a>
+              </li>
+
+              <li v-if="address && userTokenId">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#sendNftModal">
                   Send your NFT to another address
                 </span>

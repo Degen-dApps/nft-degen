@@ -49,7 +49,11 @@
 
             <input v-model="tokenId" type="text" class="form-control" :id="'inputTokenId-'+componentId">
 
-            <small v-if="userSecondTokenId"><em>Alternativelly you can use your second NFT ID: {{ userSecondTokenId }}.</em></small>
+            <small><em>
+              <span v-if="userSecondTokenId">Alternativelly you can use your second NFT ID: {{ userSecondTokenId }}.</span>
+              Find all NFT IDs that you own 
+              <a target="_blank" :href="`https://explorer.degen.tips/token/${cAddress}?tab=inventory&holder_address_hash=${address}`">on block explorer</a>.
+            </em></small>
           </div>
 
           <button v-if="!nftDataLoaded" @click="loadNftData" type="button" class="btn btn-primary mt-2" :disabled="!tokenId || waiting">
