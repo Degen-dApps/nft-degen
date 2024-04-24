@@ -228,21 +228,7 @@
   </div>
 
   <!-- YouTube video -->
-  <div v-if="userTokenId && cYouTube" class="card border mt-3 scroll-500">
-    <div class="card-body">
-
-      <h5 class="mb-2 mt-3 text-center">NFT Video</h5>
-
-      <div class="d-flex justify-content-center">
-        <div class="col-12 col-lg-8">
-          <p class="text-break text-center mt-3 mb-4">
-            <span v-html="youtubeParsing(cYouTube)"></span>
-          </p>
-        </div>
-      </div>
-
-    </div>
-  </div>
+  <CollectionMediaSection :metadataUrl="cMetadataUrl" v-if="cMetadataUrl && userTokenId" />
 
   <!-- Chat feed -->
   <ChatFeed 
@@ -285,6 +271,7 @@ import AddImageToCollectionModal from "~/components/nft/collection/AddImageToCol
 import ChangeCollectionPreviewModal from "~/components/nft/collection/ChangeCollectionPreviewModal";
 import ChangeDescriptionModal from "~/components/nft/collection/ChangeDescriptionModal";
 import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
+import CollectionMediaSection from '~/components/nft/collection/CollectionMediaSection.vue';
 import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveImageFromCollectionModal";
 import SendNftModal from '~/components/nft/collection/SendNftModal.vue';
 import { getDomainName } from '~/utils/domainUtils';
@@ -303,10 +290,10 @@ export default {
       cCounter: null,
       cDescription: null,
       cImage: null,
+      cMetadataUrl: null,
       cName: null,
       cSupply: null,
       cType: 0,
-      cYouTube: null,
       mdAddress: null,
       priceBuyWei: null,
       priceSellWei: null,
@@ -324,6 +311,7 @@ export default {
     ChangeDescriptionModal,
     ChangeNftTypeModal,
     ChatFeed,
+    CollectionMediaSection,
     ConnectWalletButton,
     RemoveImageFromCollectionModal,
     SendNftModal,
@@ -740,22 +728,7 @@ export default {
       storeCollection(window, this.cAddress, collection);
 
       // check if collection has a metadata URL set
-      const cMetadataUrl = await metadataContract.getCollectionMetadataUrl(this.cAddress);
-
-      // if metadata URL is set, fetch metadata from it
-      if (cMetadataUrl) {
-        try {
-          const metadataResponse = await axios.get(cMetadataUrl);
-
-          if (metadataResponse.data.youtube_url) {
-            this.cYouTube = metadataResponse.data.youtube_url;
-          }
-        } catch (e) {
-          //console.log(e);
-        }
-      }
-
-      
+      this.cMetadataUrl = await metadataContract.getCollectionMetadataUrl(this.cAddress);
     },
 
     saveCollection(newCollectionData) {

@@ -157,7 +157,7 @@ export default {
         const tokenURI = await nftContract.tokenURI(this.tokenId);
 
         if (tokenURI.startsWith("ipfs://")) {
-          tokenURI = tokenURI.replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/");
+          tokenURI = tokenURI.replace("ipfs://", this.$config.ipfsGateway);
         }
 
         let json; // NFT metadata JSON
@@ -175,7 +175,7 @@ export default {
         }
 
         if (json["image"].startsWith("ipfs://")) {
-          json["image"] = json["image"].replace("ipfs://", "https://cloudflare-ipfs.com/ipfs/");
+          json["image"] = json["image"].replace("ipfs://", this.$config.ipfsGateway);
         } 
 
         this.nftImage = json["image"];
