@@ -284,7 +284,6 @@ export default {
 
   data() {
     return {
-      cAddress: null,
       cAuthorAddress: null,
       cAuthorDomain: null,
       cCounter: null,
@@ -320,8 +319,6 @@ export default {
   },
 
   mounted() {
-    this.cAddress = this.$route.query.id;
-
     // check if address is valid
     if (!ethers.utils.isAddress(this.cAddress)) {
       this.toast("Invalid NFT address.", {type: "error"});
@@ -340,6 +337,14 @@ export default {
   },
 
   computed: {
+
+    cAddress() {
+      if (this.$route.query?.id) {
+        return this.$route.query.id;
+      }
+
+      return null;
+    },
 
     descriptionTooLong() {
       if (this.cDescription) {
@@ -851,5 +856,25 @@ export default {
 
     return { address, chainId, isActivated, shortenAddress, signer, toast, userStore }
   },
+
+  watch: {
+    cAddress() {
+      // check if address is valid
+      if (!ethers.utils.isAddress(this.cAddress)) {
+        this.toast("Invalid NFT address.", {type: "error"});
+        return this.$router.push({ path: '/' });
+      }
+
+      // check if address is in removedFromFrontend list
+      if (this.removedFromFrontend.includes(this.cAddress.toLowerCase())) {
+        this.toast("Invalid NFT address.", {type: "error"});
+        return this.$router.push({ path: '/' });
+      }
+
+      if (this.cAddress) {
+        this.getCollectionDetails();
+      }
+    }
+  }
 };
 </script>
