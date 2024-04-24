@@ -45,7 +45,7 @@
 
       <!-- Video player Tab -->
       <div class="col-12 col-lg-8" v-if="currentTab === 'video' && videoUrl">
-        <video class="ratio ratio-16x9" controls>
+        <video class="ratio ratio-16x9 rounded" controls>
           <source :src="videoUrl" type="video/mp4">
           Your browser does not support mp4 video player.
         </video>
