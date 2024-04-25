@@ -66,14 +66,14 @@
           </div>
 
           <div class="mt-4" v-if="typeChoice > 0">
-            <label for="collectionPreviewUrl" class="form-label">
-              <strong>
-                Change collection preview image (optional):
-              </strong>
-            </label>
+            
+            <details>
+              <summary>Change collection preview image (optional):</summary>
 
-            <input v-model="editImagePreviewUrl" type="text" class="form-control" id="collectionPreviewUrl" aria-describedby="previewImageHelp">
-            <div id="previewImageHelp" class="form-text">This is a preview image for the whole collection, not for individual NFTs.</div>
+              <input v-model="editImagePreviewUrl" type="text" class="form-control" id="collectionPreviewUrl" aria-describedby="previewImageHelp">
+              <div id="previewImageHelp" class="form-text">This is a preview image for the whole collection, not for individual NFTs.</div>
+            </details>
+
           </div>
 
         </div>
@@ -92,6 +92,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
 import { useToast } from "vue-toastification/dist/index.mjs";
@@ -188,6 +189,9 @@ export default {
 
           // close the modal
           document.getElementById('closeModal-'+this.componentId).click();
+
+          // call the music NFTs endpoint so that API checks if this NFT is a music NFT
+          await axios.get('https://api.nftdegen.org/endpoints/music-nfts/add?nftAddress='+this.cAddress);
 
           this.waitingMetadata = false;
         } else {
