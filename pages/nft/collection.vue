@@ -319,19 +319,19 @@ export default {
   },
 
   mounted() {
-    // check if address is valid
-    if (!ethers.utils.isAddress(this.cAddress)) {
-      this.toast("Invalid NFT address.", {type: "error"});
-      return this.$router.push({ path: '/' });
-    }
-
-    // check if address is in removedFromFrontend list
-    if (this.removedFromFrontend.includes(this.cAddress.toLowerCase())) {
-      this.toast("Invalid NFT address.", {type: "error"});
-      return this.$router.push({ path: '/' });
-    }
-
     if (this.cAddress) {
+      // check if address is valid
+      if (!ethers.utils.isAddress(this.cAddress)) {
+        this.toast("Invalid NFT address.", {type: "error"});
+        return this.$router.push({ path: '/' });
+      }
+
+      // check if address is in removedFromFrontend list
+      if (this.removedFromFrontend.includes(this.cAddress.toLowerCase())) {
+        this.toast("Invalid NFT address.", {type: "error"});
+        return this.$router.push({ path: '/' });
+      }
+
       this.getCollectionDetails();
     }
   },
@@ -859,19 +859,19 @@ export default {
 
   watch: {
     cAddress() {
-      // check if address is valid
-      if (!ethers.utils.isAddress(this.cAddress)) {
-        this.toast("Invalid NFT address.", {type: "error"});
-        return this.$router.push({ path: '/' });
-      }
-
-      // check if address is in removedFromFrontend list
-      if (this.removedFromFrontend.includes(this.cAddress.toLowerCase())) {
-        this.toast("Invalid NFT address.", {type: "error"});
-        return this.$router.push({ path: '/' });
-      }
-
       if (this.cAddress) {
+        // check if address is valid
+        if (!ethers.utils.isAddress(this.cAddress)) {
+          this.toast("Invalid NFT address.", {type: "error"});
+          return this.$router.push({ path: '/' });
+        }
+
+        // check if address is in removedFromFrontend list
+        if (this.removedFromFrontend.includes(this.cAddress.toLowerCase())) {
+          this.toast("Invalid NFT address.", {type: "error"});
+          return this.$router.push({ path: '/' });
+        }
+
         this.getCollectionDetails();
       }
     }
