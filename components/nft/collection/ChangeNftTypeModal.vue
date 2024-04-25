@@ -3,7 +3,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="changeNftTypeModalLabel">Change NFT Type</h1>
+          <h1 class="modal-title fs-5" id="changeNftTypeModalLabel">Change NFT Type & Metadata</h1>
           <button :id="'closeModal-'+componentId" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 

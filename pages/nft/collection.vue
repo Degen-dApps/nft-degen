@@ -64,7 +64,7 @@
 
               <li v-if="isCurrentAddressOwner">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeNftTypeModal">
-                  Change collection type
+                  Change collection type & metadata
                 </span>
               </li>
 
