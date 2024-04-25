@@ -69,7 +69,7 @@
               </li>
 
               <li v-if="address && userTokenId">
-                <a class="dropdown-item cursor-pointer" target="_blank" :href="`https://explorer.degen.tips/token/${cAddress}?tab=inventory&holder_address_hash=${address}`">
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsLink">
                   See your NFTs on the block explorer
                 </a>
               </li>
@@ -144,7 +144,7 @@
 
             <p class="me-4">
               <i class="bi bi-box-arrow-up-right me-1"></i>
-              <a :href="$config.marketplaceNftCollectionBaseUrl+cAddress" target="_blank" style="text-decoration: none;">
+              <a :href="collectionExplorerLink" target="_blank" style="text-decoration: none;">
                 See on block explorer
               </a>
             </p>
@@ -346,6 +346,10 @@ export default {
       return null;
     },
 
+    collectionExplorerLink() {
+      return this.$config.blockExplorerBaseUrl+"/token/"+this.cAddress;
+    },
+
     descriptionTooLong() {
       if (this.cDescription) {
         return this.cDescription.length > 420;
@@ -442,6 +446,10 @@ export default {
       return [
         "0x53360d60e661065480a7bd6bebe6bfb17124df32".toLowerCase(), // Top Degen stamp NFT stolen art from Andrea (@andreaboi)
       ];
+    },
+
+    seeYourNftsLink() {
+      return this.$config.blockExplorerBaseUrl+"/token/"+this.cAddress+"?tab=inventory&holder_address_hash="+this.address;
     },
   },
 
