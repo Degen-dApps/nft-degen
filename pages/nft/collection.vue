@@ -867,7 +867,8 @@ export default {
 
   watch: {
     cAddress() {
-      if (this.cAddress) {
+      // if cAddress and also if path is /nft/collection?id=...
+      if (this.cAddress && this.$route.path === "/nft/collection") {
         // check if address is valid
         if (!ethers.utils.isAddress(this.cAddress)) {
           this.toast("Invalid NFT address.", {type: "error"});
