@@ -1,7 +1,7 @@
 <template>
 <NuxtLink class="col-md-3 text-decoration-none" :to="'/nft/collection?id=' + nft.address">
     <div class="card border mb-3">
-      <img :src="nft.previewImage" class="card-img-top" :alt="nft.title">
+      <Image :url="nft.previewImage" :cls="'card-img-top'" :alt="nft.title" />
       <div class="card-body rounded-bottom-3">
         <p class="card-text mb-0"><strong>{{ nft.title }}</strong></p>
         <p v-if="authorName" class="mb-2"><small><em>by {{ authorName }}</em></small></p>
@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import Image from '~/components/Image.vue';
 import { getDomainName } from '~/utils/domainUtils';
 
 export default {
@@ -22,6 +23,10 @@ export default {
     return {
       authorName: null,
     };
+  },
+
+  components: {
+    Image,
   },
 
   mounted() {
