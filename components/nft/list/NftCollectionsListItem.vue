@@ -3,7 +3,8 @@
     <div class="card border mb-3">
       <img :src="nft.previewImage" class="card-img-top" :alt="nft.title">
       <div class="card-body rounded-bottom-3">
-        <p class="card-text mb-1"><strong>{{ nft.title }}</strong></p>
+        <p class="card-text mb-0"><strong>{{ nft.title }}</strong></p>
+        <p v-if="authorName" class="mb-2"><small><em>by {{ authorName }}</em></small></p>
         <small class="card-text">{{ formatPrice(nft.mintPrice) }} {{ $config.tokenSymbol }}</small>
       </div>
     </div>
@@ -11,11 +12,31 @@
 </template>
 
 <script>
+import { getDomainName } from '~/utils/domainUtils';
+
 export default {
   name: 'NftCollectionsListItem',
   props: ["nft"],
+
+  data() {
+    return {
+      authorName: null,
+    };
+  },
+
+  mounted() {
+    this.fetchAuthorName();
+  },
   
   methods: {
+    getDomainName,
+
+    async fetchAuthorName() {
+      if (this.nft) {
+        this.authorName = await this.getDomainName(this.nft.ownerAddress);
+      }
+    },
+
     formatPrice(price) {
       if (price === null) {
         return null;

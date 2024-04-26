@@ -13,10 +13,16 @@ export async function getDomainName(userAddress, signer) {
     "function defaultNames(address) view returns (string)"
   ]);
 
-  const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider);
+  let userDomain = null;
 
-  // get user's default domain
-  const userDomain = await contract.defaultNames(userAddress);
+  try {
+    const contract = new ethers.Contract(config.punkTldAddress, tldInterface, provider);
+
+    // get user's default domain
+    userDomain = await contract.defaultNames(userAddress);
+  } catch (e) {
+    console.error(e);
+  }
 
   return userDomain;
 }
