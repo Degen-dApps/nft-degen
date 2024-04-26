@@ -1,6 +1,6 @@
 <template>
 <!-- YouTube video -->
-<div v-if="youtubeUrl" class="card border mt-3">
+<div class="card border mt-3">
   <div class="card-body">
 
     <!-- Tabs Navigation -->

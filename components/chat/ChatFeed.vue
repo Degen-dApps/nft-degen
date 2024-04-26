@@ -183,11 +183,11 @@ export default {
         if (this.id) {
           return "Post your reply"
         }
-        return "What's happening?"
+        return "What do you think?"
       } else if (!this.isActivated) {
-        return "What's happening? (Please connect wallet and then sign into chat to post messages.)"
+        return "What do you think? (Please connect wallet and then sign into chat to post messages.)"
       } else {
-        return "What's happening? (Please sign into chat to post messages.)"
+        return "What do you think? (Please sign into chat to post messages.)"
       }
     },
 
