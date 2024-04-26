@@ -191,7 +191,11 @@ export default {
           document.getElementById('closeModal-'+this.componentId).click();
 
           // call the music NFTs endpoint so that API checks if this NFT is a music NFT
-          await axios.get('https://api.nftdegen.org/endpoints/music-nfts/add?nftAddress='+this.cAddress);
+          try {
+            await axios.get('https://api.nftdegen.org/endpoints/music-nfts/add?nftAddress='+this.cAddress);
+          } catch (e) {
+            console.error(e);
+          }
 
           this.waitingMetadata = false;
         } else {

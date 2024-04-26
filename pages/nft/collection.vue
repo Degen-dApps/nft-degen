@@ -50,6 +50,12 @@
                 </span>
               </li>
 
+              <li v-if="isCurrentAddressOwner && mediaMetadataContract">
+                <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#changeMediaModal">
+                  Set NFT media (audio & video)
+                </span>
+              </li>
+
               <li v-if="isCurrentAddressOwner && cType == 0">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#addImageToCollectionModal">
                   Add additional image to collection
@@ -142,7 +148,7 @@
             </p>
             -->
 
-            <p class="me-4">
+            <p v-if="cAddress" class="me-4">
               <i class="bi bi-box-arrow-up-right me-1"></i>
               <a :href="collectionExplorerLink" target="_blank" style="text-decoration: none;">
                 See on block explorer
@@ -227,8 +233,8 @@
     </div>
   </div>
 
-  <!-- YouTube video -->
-  <CollectionMediaSection :metadataUrl="cMetadataUrl" v-if="cMetadataUrl && userTokenId" />
+  <!-- Media section -->
+  <CollectionMediaSection v-if="audioUrl || videoUrl || youtubeUrl" :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" />
 
   <!-- Chat feed -->
   <ChatFeed 
@@ -247,6 +253,9 @@
 
   <!-- Change description modal -->
   <ChangeDescriptionModal :cAddress="cAddress" :cDescription="cDescription" :mdAddress="mdAddress" @saveCollection="saveCollection" />
+
+  <!-- Change media modal -->
+  <ChangeMediaModal :cAddress="cAddress" :mdAddress="mdAddress" />
 
   <!-- Change Metadata URL Modal -->
   <ChangeNftTypeModal :mdAddress="mdAddress" :cType="cType" :cAddress="cAddress" @saveCollection="saveCollection" />
@@ -271,6 +280,7 @@ import WaitingToast from "~/components/WaitingToast";
 import AddImageToCollectionModal from "~/components/nft/collection/AddImageToCollectionModal";
 import ChangeCollectionPreviewModal from "~/components/nft/collection/ChangeCollectionPreviewModal";
 import ChangeDescriptionModal from "~/components/nft/collection/ChangeDescriptionModal";
+import ChangeMediaModal from '~/components/nft/collection/ChangeMediaModal.vue';
 import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
 import CollectionMediaSection from '~/components/nft/collection/CollectionMediaSection.vue';
 import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveImageFromCollectionModal";
@@ -285,23 +295,26 @@ export default {
 
   data() {
     return {
+      audioUrl: null,
       cAuthorAddress: null,
       cAuthorDomain: null,
       cCounter: null,
       cDescription: null,
       cImage: null,
-      cMetadataUrl: null,
       cName: null,
       cSupply: null,
       cType: 0,
       mdAddress: null,
+      mediaMetadataContract: false,
       priceBuyWei: null,
       priceSellWei: null,
       readMore: false,
       userTokenId: null, // if user owns at least one NFT, this will be set to the first token ID that user owns
+      videoUrl: null,
       waitingBuy: false,
       waitingData: false,
       waitingSell: false,
+      youtubeUrl: null
     }
   },
 
@@ -309,6 +322,7 @@ export default {
     AddImageToCollectionModal,
     ChangeCollectionPreviewModal,
     ChangeDescriptionModal,
+    ChangeMediaModal,
     ChangeNftTypeModal,
     ChatFeed,
     CollectionMediaSection,
@@ -655,9 +669,10 @@ export default {
       const metadataInterface = new ethers.utils.Interface([
         "function getCollectionDescription(address) public view returns (string memory)",
         "function getCollectionMetadataType(address nftAddress_) external view returns (uint256)",
-        "function getCollectionMetadataUrl(address nftAddress_) external view returns (string memory)",
         "function getCollectionName(address nftAddress_) external view returns (string memory)",
-        "function getCollectionPreviewImage(address) public view returns (string memory)"
+        "function getCollectionPreviewImage(address) public view returns (string memory)",
+        "function getMetadata(address nftAddress_, uint256 tokenId_) external view returns (string memory)",
+        "function mdContractType() external view returns (string memory)"
       ]);
       
       const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, provider);
@@ -742,8 +757,60 @@ export default {
       
       storeCollection(window, this.cAddress, collection);
 
-      // check if collection has a metadata URL set
-      this.cMetadataUrl = await metadataContract.getCollectionMetadataUrl(this.cAddress);
+      // getMetadata for userTokenId
+      if (this.userTokenId) {
+        let metadata = await metadataContract.getMetadata(this.cAddress, this.userTokenId);
+
+        // if metadata starts with "ipfs://" convert it into default IPFS gateway link
+        if (metadata.startsWith("ipfs://")) {
+          metadata = metadata.replace("ipfs://", this.$config.ipfsGateway);
+        }
+
+        // if it starts with http, fetch data with axios
+        if (metadata.startsWith("http")) {
+          try {
+            const response = await axios.get(metadata);
+            metadata = response.data;
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          // if not, it's very likely base64 encoded string, so decode it
+          metadata = atob(metadata.replace("data:application/json;base64,", ""));
+        }
+
+        // if metadata type is not object, convert it to a JSON object
+        if (typeof metadata !== "object" && typeof metadata == "string") {
+          metadata = JSON.parse(metadata);
+        }
+
+        // check if this metadata has media (audio_url, video_url, youtube_url)
+        if (metadata?.audio_url) {
+          this.audioUrl = metadata.audio_url;
+        }
+
+        if (metadata?.animation_url) {
+          this.videoUrl = metadata.animation_url;
+        }
+
+        if (metadata?.youtube_url) {
+          this.youtubeUrl = metadata.youtube_url;
+        }
+      }
+
+      if (this.cType == 0 && this.isCurrentAddressOwner) { // type 0 means onchain metadata
+        // check if metadata contract has mdContractType variable and if it's set to "media"
+        try {
+          const mdContractType = await metadataContract.mdContractType();
+
+          if (mdContractType == "media") {
+            this.mediaMetadataContract = true;
+          }
+        } catch (e) {
+          console.log("Not media metadata contract.");
+        }
+      }
+      
     },
 
     saveCollection(newCollectionData) {

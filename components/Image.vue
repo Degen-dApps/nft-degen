@@ -29,7 +29,10 @@ export default {
         } else if (this.url.startsWith("https://ipfs.itslit.org/ipfs/")) {
           this.cid = this.url.replace("https://ipfs.itslit.org/ipfs/", "");
           return this.imageUrl = this.$config.ipfsGateway + this.cid;
-        }
+        } /*else if (this.url.startsWith("https://ipfs.dylmusic.com/ipfs/")) {
+          this.cid = this.url.replace("https://ipfs.dylmusic.com/ipfs/", "");
+          return this.imageUrl = this.$config.ipfsGateway + this.cid;
+        }*/
       }
       
       this.imageUrl = this.url;
