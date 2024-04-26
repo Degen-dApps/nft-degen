@@ -100,6 +100,8 @@ export default {
 
             if (aUrl.startsWith("ipfs://")) {
               aUrl = aUrl.replace("ipfs://", this.$config.ipfsGateway);
+            } else if (aUrl.startsWith("https://ipfs.itslit.org/ipfs/")) {
+              aUrl = aUrl.replace("https://ipfs.itslit.org/ipfs/", this.$config.ipfsGateway);
             }
 
             this.audioUrl = aUrl;
@@ -110,6 +112,8 @@ export default {
 
             if (vUrl.startsWith("ipfs://")) {
               vUrl = vUrl.replace("ipfs://", this.$config.ipfsGateway);
+            } else if (vUrl.startsWith("https://ipfs.itslit.org/ipfs/")) {
+              vUrl = vUrl.replace("https://ipfs.itslit.org/ipfs/", this.$config.ipfsGateway);
             }
 
             this.videoUrl = vUrl;

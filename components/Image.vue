@@ -24,8 +24,11 @@ export default {
           this.cid = this.url.replace(this.$config.ipfsGateway, "");
         } else if (this.url.startsWith("https://ipfs.io/ipfs/")) {
           this.cid = this.url.replace("https://ipfs.io/ipfs/", "");
-        } if (this.url.startsWith("ipfs://")) {
+        } else if (this.url.startsWith("ipfs://")) {
           this.cid = this.url.replace("ipfs://", "");
+        } else if (this.url.startsWith("https://ipfs.itslit.org/ipfs/")) {
+          this.cid = this.url.replace("https://ipfs.itslit.org/ipfs/", "");
+          return this.imageUrl = this.$config.ipfsGateway + this.cid;
         }
       }
       
