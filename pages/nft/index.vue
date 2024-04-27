@@ -47,7 +47,14 @@
     <div class="row">
       <NuxtLink v-for="nft in lastNfts" :key="nft.address" class="col-md-3 text-decoration-none" :to="'/nft/collection?id=' + nft.address">
         <div class="card border mb-3">
-          <img :src="nft.image" class="card-img-top" :alt="nft.name">
+          <div>
+            <Image :url="nft.image" :alt="nft.name" cls="card-img-top" />
+            <span v-if="nft.audio" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-primary p-2">
+              <i class="bi bi-music-note-beamed"></i>
+              <span class="visually-hidden">Music NFT</span>
+            </span>
+          </div>
+
           <div class="card-body rounded-bottom-3">
             <p class="card-text mb-1"><strong>{{ nft.name }}</strong></p>
             <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.tokenSymbol }}</small>
@@ -75,8 +82,10 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { useEthers } from 'vue-dapp';
+import Image from '~~/components/Image.vue';
 import SearchNftModal from '~/components/nft/SearchNftModal.vue';
 import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';
 import { fetchCollection, storeCollection } from '~/utils/storageUtils';
@@ -96,6 +105,7 @@ export default {
   },
 
   components: {
+    Image,
     NftListDropdown,
     SearchNftModal
   },
@@ -116,6 +126,21 @@ export default {
   },
 
   methods: {
+    async getNftDataFromApi(address) {
+      try {
+        const response = await axios.get("https://api.nftdegen.org/endpoints/singleNftData?nftAddress=" + address);
+
+        if (response?.data?.nft) {
+          return response.data.nft;
+        }
+
+        return null;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    },
+
     async fetchLastNfts() {
       this.waitingData = true;
 
@@ -222,6 +247,29 @@ export default {
 
       // for loop to get NFTs data (price, name & image)
       for (let i = 0; i < inputArray.length; i++) {
+        try {
+          const nftData = await this.getNftDataFromApi(inputArray[i]);
+
+          if (nftData) {
+            let mPriceWei = 0;
+            if (nftData?.mintPrice) {
+              mPriceWei = ethers.utils.parseEther(String(nftData.mintPrice));
+            }
+
+            outputArray.push({
+              ...nftData,
+              image: nftData.previewImage,
+              name: nftData.title,
+              price: mPriceWei,
+            });
+
+            continue;
+          }
+        } catch (error) {
+          console.error("Cannot fetch NFT data from API. Error: ");
+          console.log(error);
+        }
+
         const nftContract = new ethers.Contract(inputArray[i], nftInterface, provider);
 
         // fetch collection object from storage
