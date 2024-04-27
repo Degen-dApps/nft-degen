@@ -11,7 +11,10 @@
   <NftCollectionsList v-if="nftsList" :nftsList="nftsList" />
 
   <div class="d-flex justify-content-center" v-if="moreResults">
-    <button class="btn btn-primary" @click="fetchNfts">Load More</button>
+    <button :disabled="waitingData" class="btn btn-primary" @click="fetchNfts">
+      <span v-if="waitingData" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Load More
+    </button>
   </div>
 
   <!-- Modal: add missing NFT address -->
