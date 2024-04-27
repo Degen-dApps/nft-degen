@@ -1,7 +1,14 @@
 <template>
 <NuxtLink class="col-md-3 text-decoration-none" :to="'/nft/collection?id=' + nft.address">
     <div class="card border mb-3">
-      <Image :url="nft.previewImage" :cls="'card-img-top'" :alt="nft.title" />
+      <div>
+        <Image :url="nft.previewImage" :cls="'card-img-top'" :alt="nft.title" />
+        <span v-if="nft.audio" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-primary p-2">
+          <i class="bi bi-music-note-beamed"></i>
+          <span class="visually-hidden">Music NFT</span>
+        </span>
+      </div>
+      
       <div class="card-body rounded-bottom-3">
         <p class="card-text mb-0"><strong>{{ nft.title }}</strong></p>
         <p v-if="authorName" class="mb-2"><small><em>by {{ authorName }}</em></small></p>
