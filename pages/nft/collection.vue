@@ -29,7 +29,7 @@
 
         <div class="col-md-5 text-center mb-3">
           <!-- Collection image -->
-          <Image v-if="cImage" :url="cImage" :cls="'img-fluid img-thumbnail rounded col-12'" :alt="cName" />
+          <Image v-if="cImage" :url="cImage" :cls="'img-fluid img-thumbnail rounded col-12'" :alt="cName" :key="cImage" />
 
           <!-- Actions dropdown -->
           <div class="dropdown mt-3">

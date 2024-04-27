@@ -190,9 +190,10 @@ export default {
           // close the modal
           document.getElementById('closeModal-'+this.componentId).click();
 
-          // call the music NFTs endpoint so that API checks if this NFT is a music NFT
+          // call the music & video NFTs endpoints so that API checks if this NFT is a music NFT
           try {
             await axios.get('https://api.nftdegen.org/endpoints/music-nfts/add?nftAddress='+this.cAddress);
+            await axios.get('https://api.nftdegen.org/endpoints/video-nfts/add?nftAddress='+this.cAddress);
           } catch (e) {
             console.error(e);
           }

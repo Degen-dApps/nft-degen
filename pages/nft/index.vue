@@ -53,6 +53,10 @@
               <i class="bi bi-music-note-beamed"></i>
               <span class="visually-hidden">Music NFT</span>
             </span>
+            <span v-if="nft.video & !nft.audio" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-primary p-2">
+              <i class="bi bi-camera-reels-fill"></i>
+              <span class="visually-hidden">Video NFT</span>
+            </span>
           </div>
 
           <div class="card-body rounded-bottom-3">

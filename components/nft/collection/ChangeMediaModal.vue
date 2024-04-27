@@ -213,6 +213,12 @@ export default {
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
 
+          try {
+            await axios.get('https://api.nftdegen.org/endpoints/video-nfts/add?nftAddress='+this.cAddress);
+          } catch (e) {
+            console.error(e);
+          }
+
           this.videoUrl = null;
 
           this.waitingVideo = false;
@@ -282,6 +288,12 @@ export default {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
+
+          try {
+            await axios.get('https://api.nftdegen.org/endpoints/video-nfts/add?nftAddress='+this.cAddress);
+          } catch (e) {
+            console.error(e);
+          }
 
           this.youtubeUrl = null;
 
