@@ -39,7 +39,6 @@
           placeholder="e.g. Crypto Punks" 
           v-model="cName"
         />
-        <div id="cNameHelp" class="form-text">This is not a token name, but the whole collection name.</div>
       </div>
 
       <!-- Symbol -->
@@ -91,17 +90,6 @@
           v-model="cDescription"
         />
         <div id="cDescriptionHelp" class="form-text">Too long description means higher gas cost for storing it.</div>
-      </div>
-
-      <!-- NFT Name -->
-      <div class="mb-4">
-        <label for="nftName" class="form-label">NFT Name (can be changed later)</label>
-        <input 
-          type="text" class="form-control" id="cDescription" aria-describedby="nftNameHelp" 
-          placeholder="Short, will show up next to each NFT, e.g. Punk" 
-          v-model="nftName"
-        />
-        <div v-if="nftName" id="nftNameHelp" class="form-text">The first minted NFTs will be {{ nftName }} #1, {{ nftName }} #2, {{ nftName }} #3 etc.</div>
       </div>
 
       <!-- Unique ID -->
@@ -195,7 +183,6 @@ export default {
       cSymbol: null,
       isMounted: false,
       launchpadPaused: null,
-      nftName: null,
       createPriceWei: null,
       ratio: null,
       uniqueId: null,
@@ -249,7 +236,7 @@ export default {
     },
 
     fieldsValid() {
-      return this.cName && this.cSymbol && this.cImage && this.cDescription && this.nftName && this.ratio;
+      return this.cName && this.cSymbol && this.cImage && this.cDescription && this.ratio;
     },
 
     isSupportedChain() {
@@ -302,7 +289,7 @@ export default {
             fetchReferrer(window), // referrer
             this.cleanDescription, // collection description
             this.cImage, // collection image
-            this.nftName, // NFT name
+            this.cName, // NFT name
             this.cName, // collection name
             this.cSymbol, // collection symbol
             this.uniqueId, // unique ID to easily find the NFT contract address
