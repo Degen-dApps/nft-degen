@@ -234,7 +234,11 @@
   </div>
 
   <!-- Media section -->
-  <CollectionMediaSection v-if="audioUrl || videoUrl || youtubeUrl" :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" />
+  <CollectionMediaSection 
+    :key="userTokenId" 
+    v-if="audioUrl || videoUrl || youtubeUrl" 
+    :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" 
+  />
 
   <!-- Chat feed -->
   <ChatFeed 
@@ -935,9 +939,21 @@ export default {
   },
 
   watch: {
-    cAddress() {
+    address(newValue, oldValue) {
+      if (oldValue && oldValue !== newValue && !this.waitingData) {
+        this.getCollectionDetails();
+      }
+    },
+
+    chainId(newValue, oldValue) {
+      if (newValue == this.$config.supportedChainId && oldValue !== newValue && !this.waitingData) {
+        this.getCollectionDetails();
+      }
+    },
+
+    cAddress(newValue, oldValue) {
       // if cAddress and also if path is /nft/collection?id=...
-      if (this.cAddress && this.$route.path === "/nft/collection") {
+      if (newValue && oldValue && newValue !== oldValue && this.cAddress && this.$route.path === "/nft/collection") {
         // check if address is valid
         if (!ethers.utils.isAddress(this.cAddress)) {
           this.toast("Invalid NFT address.", {type: "error"});
