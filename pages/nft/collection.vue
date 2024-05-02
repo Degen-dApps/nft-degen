@@ -233,21 +233,23 @@
     </div>
   </div>
 
-  <!-- Media section -->
-  <CollectionMediaSection 
-    :key="userTokenId" 
-    v-if="audioUrl || videoUrl || youtubeUrl" 
-    :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" 
-  />
+  <!-- Only NFT holders can see the content of this div -->
+  <div v-if="$config.chatChannels.nftLaunchpad && userTokenId">
+    <!-- Media section -->
+    <CollectionMediaSection 
+      :key="userTokenId" 
+      v-if="audioUrl || videoUrl || youtubeUrl" 
+      :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" 
+    />
 
-  <!-- Chat feed -->
-  <ChatFeed 
-    v-if="$config.chatChannels.nftLaunchpad && userTokenId" 
-    :key="cAddress"
-    class="mt-3 scroll-500" 
-    :showQuotedPost="$config.showRepliesOnHomepage" 
-    :orbisContext="$config.chatChannels.nftLaunchpad+':'+cAddress" 
-  />
+    <!-- Chat feed -->
+    <ChatFeed 
+      :key="cAddress"
+      class="mt-3 scroll-500" 
+      :showQuotedPost="$config.showRepliesOnHomepage" 
+      :orbisContext="$config.chatChannels.nftLaunchpad+':'+cAddress" 
+    />
+  </div>
 
   <!-- Add image modal -->
   <AddImageToCollectionModal :cAddress="cAddress" :mdAddress="mdAddress" />
@@ -598,7 +600,7 @@ export default {
         const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
 
         try {
-          this.userTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 0);
+          this.userTokenId = Number(await nftContract.tokenOfOwnerByIndex(this.address, 0));
         } catch (e) {
           this.userTokenId = null;
         }
