@@ -215,7 +215,7 @@
   -->
 
   <!-- Alert to buy an NFT to chat -->
-  <div v-if="!userTokenId" class="card border mt-3 scroll-500">
+  <div v-if="!userTokenId && !isCurrentAddressOwner" class="card border mt-3 scroll-500">
     <div class="card-body">
 
       <h5 class="mb-2 mt-3 text-center">Buy an NFT to see the chat</h5>
@@ -234,7 +234,7 @@
   </div>
 
   <!-- Only NFT holders can see the content of this div -->
-  <div v-if="$config.chatChannels.nftLaunchpad && userTokenId">
+  <div v-if="$config.chatChannels.nftLaunchpad && (userTokenId || isCurrentAddressOwner)">
     <!-- Media section -->
     <CollectionMediaSection 
       :key="userTokenId" 
@@ -643,6 +643,14 @@ export default {
       if (refresh) {
         // refresh collection data
         collection = null;
+        
+        // update user's NFT balance in the API
+        if (this.address) {
+          try {
+            await axios.get('https://api.nftdegen.org/endpoints/user-nfts/add?nftAddress='+this.cAddress+'&userAddress='+this.address);
+          } catch (e) {
+            console.error(e);
+        }
       }
 
       // fetch provider from hardcoded RPCs
@@ -779,6 +787,7 @@ export default {
             metadata = response.data;
           } catch (e) {
             console.error(e);
+            return;
           }
         } else {
           // if not, it's very likely base64 encoded string, so decode it
