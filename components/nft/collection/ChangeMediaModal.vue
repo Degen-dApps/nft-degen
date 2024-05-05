@@ -9,6 +9,11 @@
 
         <div class="modal-body">
           <p>Change media metadata for your NFT.</p>
+          <p>You will need to upload these files somewhere first, we recommend 
+            <a target="_blank" href="https://filebase.com/">Filebase</a>, 
+            <a target="_blank" href="https://www.pinata.cloud/">Pinata</a>, or 
+            <a target="_blank" href="https://thirdweb.com/">Thirdweb</a>.
+          </p>
 
           <div class="mt-4">
             <div class="mb-2">
