@@ -69,10 +69,12 @@ export function findFirstUrl(text) {
 }
 
 export function getAllImagesFromText(text) {
+  const config = useRuntimeConfig();
+
   if (!text) { return [] };
 
   // find multiple image links in the text and return them as an array
-  let imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/gi;
+  let imageRegex = /((http|https|ipfs)?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/gi;
   let imageLinks = text.match(imageRegex);
 
   if (!imageLinks) {
@@ -82,13 +84,22 @@ export function getAllImagesFromText(text) {
 
   if (!imageLinks) { return [] };
 
+  // check if items in imageLinks include ipfs://
+  for (let i = 0; i < imageLinks.length; i++) {
+    if (imageLinks[i].includes("ipfs://")) {
+      imageLinks[i] = imageLinks[i].replace("ipfs://", config.ipfsGateway);
+    }
+  }
+
   return imageLinks;
 }
 
 export function getImageFromText(text) {
+  const config = useRuntimeConfig();
+
   if (!text) { return null };
 
-  let imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i;
+  let imageRegex = /((http|https|ipfs)?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i;
   let imageLinks = text.match(imageRegex);
 
   if (!imageLinks) { 
@@ -97,6 +108,13 @@ export function getImageFromText(text) {
   };
 
   if (!imageLinks) { return "" };
+
+  // check if items in imageLinks include ipfs://
+  for (let i = 0; i < imageLinks.length; i++) {
+    if (imageLinks[i].includes("ipfs://")) {
+      imageLinks[i] = imageLinks[i].replace("ipfs://", config.ipfsGateway);
+    }
+  }
 
   return imageLinks[0];
 }
@@ -359,19 +377,24 @@ export function hasTextBlankCharacters(text) {
 export function imgParsing(text) {
   const config = useRuntimeConfig();
 
-  const imageRegex = /(?:https?:\/\/(?:www\.)?)?(?:[-\w]+\.)+[^\s]+\.(?:jpe?g|gif|webp|png|img)/gi;
+  const imageRegex = /(?:(http|https|ipfs)?:\/\/(?:www\.)?)?(?:[-\w]+\.)+[^\s]+\.(?:jpe?g|gif|webp|png|img)/gi;
   //const imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i;
 
   if (!imageRegex.test(text)) { return text };
 
   return text.replace(imageRegex, function(url) {
-    if (url.includes(".ipfs.sphn.link/")) {
+    if (url.includes("ipfs://")) {
+      // replace an IPFS link with an IPFS Gateway set in config
+      const ipfsLink = url.replace("ipfs://", config.ipfsGateway);
+      return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + ipfsLink + '" />';
+    } else if (url.includes(".ipfs.sphn.link/")) {
       // replace a link to Spheron IPFS Gateway with an IPFS Gateway set in config
       const linkParts = url.split(".ipfs.sphn.link/");
       const ipfsHash = linkParts[0].replace("https://", "");
       const ipfsLink = config.ipfsGateway + ipfsHash + "/" + linkParts[1];
       return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + ipfsLink + '" />';
     }
+
     return '<div></div><img class="img-fluid rounded" style="max-height: 500px;" src="' + url + '" />';
   })
 }
