@@ -29,6 +29,9 @@
         poweredBy="DegenSwap" 
         title="Swap tokens" />
 
+      <!-- Poidh -->
+      <PoidhSidebarWidget />
+
       <!-- Random minted post(s) -->
       <MintedPostsWidget v-if="$config.showFeatures.randomMintedPosts" @closeRightSidebar="closeRightSidebar" />
 
@@ -51,11 +54,12 @@
 <script>
 import tokens from '~/assets/data/tokens.json';
 import { useSidebarStore } from '~/store/sidebars';
+import KeysListWidget from '~/components/keys/KeysListWidget.vue';
 import MintedPostsWidget from '~/components/minted-posts/MintedPostsWidget.vue';
 import NameMintWidget from '~/components/names/NameMintWidget.vue';
-import SimpleSwapWidget from '~/components/swap/SimpleSwapWidget.vue';
-import KeysListWidget from '~/components/keys/KeysListWidget.vue';
+import PoidhSidebarWidget from '~/components/poidh/PoidhSidebarWidget.vue';
 import ReferralWidget from '~/components/referrals/ReferralWidget.vue';
+import SimpleSwapWidget from '~/components/swap/SimpleSwapWidget.vue';
 
 export default {
     name: "SidebarRight",
@@ -65,6 +69,7 @@ export default {
       KeysListWidget,
       MintedPostsWidget,
       NameMintWidget,
+      PoidhSidebarWidget,
       ReferralWidget,
       SimpleSwapWidget
     },
