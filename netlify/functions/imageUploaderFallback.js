@@ -14,6 +14,6 @@ exports.handler = async function (event, context) {
     };
   } catch (error) {
     console.error(error);
-    next(error);
+    //next(error);
   }
 }
