@@ -6,6 +6,9 @@
       <!-- Mint/register a domain name -->
       <NameMintWidget />
 
+      <!-- Poidh -->
+      <PoidhSidebarWidget />
+
       <!-- Referrals -->
       <ReferralWidget />
 
@@ -28,9 +31,6 @@
         :tokens="tokens" 
         poweredBy="DegenSwap" 
         title="Swap tokens" />
-
-      <!-- Poidh -->
-      <PoidhSidebarWidget />
 
       <!-- Random minted post(s) -->
       <MintedPostsWidget v-if="$config.showFeatures.randomMintedPosts" @closeRightSidebar="closeRightSidebar" />
