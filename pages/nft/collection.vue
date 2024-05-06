@@ -132,7 +132,7 @@
             <p class="me-4">
               <i class="bi bi-clipboard me-1"></i>
               <span @click="copyFrameLink" class="wannabe-link cursor-pointer">
-                Click to copy Farcaster Frame link & earn referral fees
+                Click to copy NFT link & earn referral fees
               </span>
             </p>
 
@@ -198,7 +198,7 @@
   <div class="card border mt-3 scroll-500">
     <div class="card-body">
 
-      <h5 class="mb-2 mt-3 text-center">Share Farcaster Frame link and earn referral fees</h5>
+      <h5 class="mb-2 mt-3 text-center">Share NFT link and earn referral fees</h5>
 
       <div class="d-flex justify-content-center">
         <div class="col-12 col-lg-8">

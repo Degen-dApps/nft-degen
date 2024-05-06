@@ -39,6 +39,13 @@ export default {
     },
 
     getReferralLink() {
+      if (this.$route.href.includes("/nft/collection")) {
+        let baseUrl = window.location.origin + this.$route.href;
+        baseUrl = baseUrl.replace(window.location.origin, "https://frames.nftdegen.org");
+        baseUrl = baseUrl.replace("/nft/collection?id=", "/frame/nft/");
+        return baseUrl + `?ref=${this.getDomainNameOrAddress}`;
+      }
+
       if (this.$route.href.includes("?")) {
         return window.location.origin + this.$route.href + `&ref=${this.getDomainNameOrAddress}`;
       }

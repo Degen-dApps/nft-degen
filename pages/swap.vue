@@ -21,6 +21,7 @@
               :routerAddress="$config.swapRouterAddress" 
               swapId="SwapPage1" 
               :tokens="tokens"
+              poweredBy="DegenSwap"
             />
           </div>
         </div>

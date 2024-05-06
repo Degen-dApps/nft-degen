@@ -26,6 +26,7 @@
         v-if="$config.swapRouterAddress && $config.showFeatures.swap" 
         :routerAddress="$config.swapRouterAddress" 
         :tokens="tokens" 
+        poweredBy="DegenSwap" 
         title="Swap tokens" />
 
       <!-- Random minted post(s) -->
