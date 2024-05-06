@@ -1,15 +1,15 @@
 <template>
   <Head>
-    <Title>Music NFTs | {{ $config.projectMetadataTitle }}</Title>
+    <Title>Music NFTs on NFTdegen.lol</Title>
     <Meta property="og:title" :content="'Music NFTs | '+$config.projectMetadataTitle" />
   
-    <Meta name="description" content="Check these Music NFTs!" />
+    <Meta name="description" content="Music NFTs have come to Degen Chain. Check them out here!" />
   
-    <Meta property="og:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
-    <Meta property="og:description" content="Check these Music NFTs!" />
+    <Meta property="og:image" :content="$config.projectUrl+$config.previewMusicNfts" />
+    <Meta property="og:description" content="Music NFTs have come to Degen Chain. Check them out here!" />
   
-    <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
-    <Meta name="twitter:description" content="Check these Music NFTs!" />
+    <Meta name="twitter:image" :content="$config.projectUrl+$config.previewMusicNfts" />
+    <Meta name="twitter:description" content="Music NFTs have come to Degen Chain. Check them out here!" />
 
     <Link rel="canonical" :href="$config.projectUrl+currentPath" />
   </Head>

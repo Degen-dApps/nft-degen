@@ -95,6 +95,7 @@ export default defineNuxtConfig({
       orbisTestContext: "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2", // test context
       previewImage: "/img/covers/cover.png",
       previewImageAirdrop: "/img/covers/cover-airdrop.png",
+      previewMusicNfts: "/img/covers/cover-music-nfts.png",
       previewImageNftCollection: "/img/covers/cover-nft-collection.png",
       previewImageNftCreate: "/img/covers/cover-nft-create.png",
       previewImageNftLaunchpad: "/img/covers/cover-nft-launchpad.png",
