@@ -233,11 +233,15 @@
     </div>
   </div>
 
+  <!-- Media loading spinner -->
+  <div class="d-flex justify-content-center mb-1 mt-2" v-if="waitingMedia">
+    <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
+  </div>
+
   <!-- Only NFT holders can see the content of this div -->
-  <div v-if="$config.chatChannels.nftLaunchpad && (userTokenId || isCurrentAddressOwner)">
+  <div :key="userTokenId" v-if="userTokenId || isCurrentAddressOwner">
     <!-- Media section -->
-    <CollectionMediaSection 
-      :key="userTokenId" 
+    <CollectionMediaSection  
       v-if="audioUrl || videoUrl || youtubeUrl" 
       :audioUrl="audioUrl" :videoUrl="videoUrl" :youtubeUrl="youtubeUrl" 
     />
@@ -319,6 +323,7 @@ export default {
       videoUrl: null,
       waitingBuy: false,
       waitingData: false,
+      waitingMedia: false,
       waitingSell: false,
       youtubeUrl: null
     }
@@ -533,8 +538,8 @@ export default {
 
           await this.fetchUserTokenId();
           
-          this.cSupply = await nftContract.totalSupply();
-          this.cCounter = await nftContract.counter();
+          this.cSupply = Number(await nftContract.totalSupply());
+          this.cCounter = Number(await nftContract.counter());
         } else {
           this.toast.dismiss(toastWait);
           this.waitingBuy = false;
@@ -772,47 +777,50 @@ export default {
       
       storeCollection(window, this.cAddress, collection);
 
-      // getMetadata for userTokenId
-      if (this.userTokenId) {
-        let metadata = await metadataContract.getMetadata(this.cAddress, this.userTokenId);
+      this.waitingMedia = true;
 
-        // if metadata starts with "ipfs://" convert it into default IPFS gateway link
-        if (metadata.startsWith("ipfs://")) {
-          metadata = metadata.replace("ipfs://", this.$config.ipfsGateway);
-        }
+      // getMetadata
+      let mdTokenId = this.userTokenId ? this.userTokenId : 1;
+      let metadata = await metadataContract.getMetadata(this.cAddress, mdTokenId);
 
-        // if it starts with http, fetch data with axios
-        if (metadata.startsWith("http")) {
-          try {
-            const response = await axios.get(metadata);
-            metadata = response.data;
-          } catch (e) {
-            console.error(e);
-            return;
-          }
-        } else {
-          // if not, it's very likely base64 encoded string, so decode it
-          metadata = atob(metadata.replace("data:application/json;base64,", ""));
-        }
-
-        // if metadata type is not object, convert it to a JSON object
-        if (typeof metadata !== "object" && typeof metadata == "string") {
-          metadata = JSON.parse(metadata);
-        }
-
-        // check if this metadata has media (audio_url, video_url, youtube_url)
-        if (metadata?.audio_url) {
-          this.audioUrl = metadata.audio_url;
-        }
-
-        if (metadata?.animation_url) {
-          this.videoUrl = metadata.animation_url;
-        }
-
-        if (metadata?.youtube_url) {
-          this.youtubeUrl = metadata.youtube_url;
-        }
+      // if metadata starts with "ipfs://" convert it into default IPFS gateway link
+      if (metadata.startsWith("ipfs://")) {
+        metadata = metadata.replace("ipfs://", this.$config.ipfsGateway);
       }
+
+      // if it starts with http, fetch data with axios
+      if (metadata.startsWith("http")) {
+        try {
+          const response = await axios.get(metadata);
+          metadata = response.data;
+        } catch (e) {
+          console.error(e);
+          return;
+        }
+      } else {
+        // if not, it's very likely base64 encoded string, so decode it
+        metadata = atob(metadata.replace("data:application/json;base64,", ""));
+      }
+
+      // if metadata type is not object, convert it to a JSON object
+      if (typeof metadata !== "object" && typeof metadata == "string") {
+        metadata = JSON.parse(metadata);
+      }
+
+      // check if this metadata has media (audio_url, video_url, youtube_url)
+      if (metadata?.audio_url) {
+        this.audioUrl = metadata.audio_url;
+      }
+
+      if (metadata?.animation_url) {
+        this.videoUrl = metadata.animation_url;
+      }
+
+      if (metadata?.youtube_url) {
+        this.youtubeUrl = metadata.youtube_url;
+      }
+
+      this.waitingMedia = false;
 
       if (this.cType == 0 && this.isCurrentAddressOwner) { // type 0 means onchain metadata
         // check if metadata contract has mdContractType variable and if it's set to "media"
