@@ -26,10 +26,16 @@
               <input v-model="audioUrl" placeholder="Enter .mp3 URL here" type="text" class="form-control" :id="'input-audio-'+componentId">
             </div>
 
-            <button @click="setAudio" :disabled="waitingAudio" class="btn btn-primary">
-              <span v-if="waitingAudio" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Submit audio URL
-            </button>
+            <div class="d-flex justify-content-between">
+              <button @click="setAudio" :disabled="waitingAudio" class="btn btn-primary">
+                <span v-if="waitingAudio" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Submit audio URL
+              </button>
+
+              <button @click="removeAudio" :disabled="waitingAudio" class="btn btn-danger btn-sm">
+                Remove
+              </button>
+            </div>
           </div>
 
           <div class="mt-4">
@@ -43,10 +49,16 @@
               <input v-model="videoUrl" placeholder="Enter .mp4 URL here" type="text" class="form-control" :id="'input-video-'+componentId">
             </div>
 
-            <button @click="setVideo" :disabled="waitingVideo" class="btn btn-primary">
-              <span v-if="waitingVideo" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Submit video URL
-            </button>
+            <div class="d-flex justify-content-between">
+              <button @click="setVideo" :disabled="waitingVideo" class="btn btn-primary">
+                <span v-if="waitingVideo" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Submit video URL
+              </button>
+
+              <button @click="removeVideo" :disabled="waitingVideo" class="btn btn-danger btn-sm">
+                Remove
+              </button>
+            </div>
           </div>
 
           <div class="mt-4">
@@ -60,10 +72,16 @@
               <input v-model="youtubeUrl" placeholder="Enter YouTube URL here" type="text" class="form-control" :id="'input-youtube-'+componentId">
             </div>
 
-            <button @click="setYoutube" :disabled="waitingYoutube" class="btn btn-primary">
-              <span v-if="waitingYoutube" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Submit YouTube URL
-            </button>
+            <div class="d-flex justify-content-between">
+              <button @click="setYoutube" :disabled="waitingYoutube" class="btn btn-primary">
+                <span v-if="waitingYoutube" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Submit YouTube URL
+              </button>
+
+              <button @click="removeYoutube" :disabled="waitingYoutube" class="btn btn-danger btn-sm">
+                Remove
+              </button>
+            </div>
           </div>
 
         </div>
@@ -104,8 +122,49 @@ export default {
   },
 
   methods: {
+    async removeAudio() {
+      this.audioUrl = "";
+
+      await this.setAudio();
+    },
+
+    async removeVideo() {
+      this.videoUrl = "";
+
+      await this.setVideo();
+    },
+
+    async removeYoutube() {
+      this.youtubeUrl = "";
+
+      await this.setYoutube();
+    },
+
+    sanitizeUrl(url) {
+      if (!url) {
+        return "";
+      }
+
+      if (url) {
+        url = url.trim();
+      }
+
+      if (!url.startsWith("http") && !url.startsWith("ipfs")) {
+        if (!url.includes("/") && !url.includes(".")) {
+          return "ipfs://" + url;
+        } else if (url.split(".").length > 2) {
+          return "https://" + url;
+        }
+
+        return "ipfs://" + url;
+      }
+
+      return url;
+    },
+
     async setAudio() {
       this.waitingAudio = true;
+      this.audioUrl = this.sanitizeUrl(this.audioUrl);
 
       const metadataInterface = new ethers.utils.Interface([
         "function setAudioUrl(address nftAddress_, string memory audioUrl_) external "
@@ -182,6 +241,7 @@ export default {
 
     async setVideo() {
       this.waitingVideo = true;
+      this.videoUrl = this.sanitizeUrl(this.videoUrl);
 
       const metadataInterface = new ethers.utils.Interface([
         "function setAnimationUrl(address nftAddress_, string memory animationUrl_) external "
@@ -264,6 +324,10 @@ export default {
       ]);
       
       const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
+
+      if (!this.youtubeUrl) {
+        this.youtubeUrl = "";
+      }
 
       try {
         const tx = await metadataContract.setYoutubeUrl(
