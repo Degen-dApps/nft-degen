@@ -22,6 +22,10 @@ export default {
       if (this.url) {
         if (this.url.startsWith(this.$config.ipfsGateway)) {
           this.cid = this.url.replace(this.$config.ipfsGateway, "");
+        } else if (this.url.startsWith(this.$config.ipfsGateway2)) {
+          this.cid = this.url.replace(this.$config.ipfsGateway2, "");
+        } else if (this.url.startsWith("https://cloudflare-ipfs.com/ipfs/")) {
+          this.cid = this.url.replace("https://cloudflare-ipfs.com/ipfs/", "");
         } else if (this.url.startsWith("https://ipfs.io/ipfs/")) {
           this.cid = this.url.replace("https://ipfs.io/ipfs/", "");
         } else if (this.url.startsWith("ipfs://")) {
@@ -40,7 +44,7 @@ export default {
 
     handleLoadError() {
       if (this.cid) {
-        this.imageUrl = "https://ipfs.io/ipfs/" + this.cid;
+        this.imageUrl = this.$config.ipfsGateway2 + this.cid;
       } else {
         this.imageUrl = "https://placeholder.pics/svg/300/DEDEDE/555555/Loading";
       }

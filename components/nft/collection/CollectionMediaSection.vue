@@ -127,13 +127,13 @@ export default {
 
     handleAudioError() {
       if (this.aUrl.startsWith(this.$config.ipfsGateway)) {
-        this.aUrl = this.aUrl.replace(this.$config.ipfsGateway, "https://ipfs.io/ipfs/");
+        this.aUrl = this.aUrl.replace(this.$config.ipfsGateway, this.$config.ipfsGateway2);
       }
     },
 
     handleVideoError() {
       if (this.vUrl.startsWith(this.$config.ipfsGateway)) {
-        this.vUrl = this.vUrl.replace(this.$config.ipfsGateway, "https://ipfs.io/ipfs/");
+        this.vUrl = this.vUrl.replace(this.$config.ipfsGateway, this.$config.ipfsGateway2);
       }
     },
   },
