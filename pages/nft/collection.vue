@@ -74,11 +74,19 @@
                 </span>
               </li>
 
+              <!--
+              <li v-if="address && userTokenId">
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsZapper">
+                  See your NFTs on Zapper
+                </a>
+              </li>
+
               <li v-if="address && userTokenId">
                 <a class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsLink">
                   See your NFTs on the block explorer
                 </a>
               </li>
+              -->
 
               <li v-if="address && userTokenId">
                 <span class="dropdown-item cursor-pointer" data-bs-toggle="modal" data-bs-target="#sendNftModal">
@@ -100,7 +108,7 @@
           <div class="mt-1 mb-4 muted-text" style="font-size: 14px;">
 
             <p class="me-4">
-              <i class="bi bi-file-earmark-text-fill me-1"></i>
+              <i class="bi bi-file-earmark-text-fill me-2"></i>
               <span v-if="readMore" v-html="cDescription"></span>
               <span v-if="!readMore" v-html="formattedDescription"></span>
               <span v-if="descriptionTooLong" class="wannabe-link cursor-pointer ms-1" @click="readMore=!readMore">
@@ -148,12 +156,31 @@
             </p>
             -->
 
-            <p v-if="cAddress" class="me-4">
-              <i class="bi bi-box-arrow-up-right me-1"></i>
-              <a :href="collectionExplorerLink" target="_blank" style="text-decoration: none;">
-                See on block explorer
-              </a>
-            </p>
+            <div v-if="cAddress" class="dropdown">
+              <i class="bi bi-box-arrow-up-right me-2"></i>
+              <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <span v-if="address">See your & all NFTs</span>
+                <span v-else>See all NFTs in the collection</span>
+              </span>
+              <div class="dropdown-menu dropdown-menu-end">
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="collectionZapperLink">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  See all NFTs on Zapper
+                </a>
+                <a v-if="address" class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsZapper">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  See only your NFTs on Zapper
+                </a>
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="collectionExplorerLink">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  See all NFTs on block explorer
+                </a>
+                <a v-if="address" class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsLink">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  See only your NFTs on block explorer
+                </a>
+              </div>
+            </div>
           </div>
           <!-- END Data -->
 
@@ -377,6 +404,10 @@ export default {
       return this.$config.blockExplorerBaseUrl+"/token/"+this.cAddress;
     },
 
+    collectionZapperLink() {
+      return `https://zapper.xyz/nft/degen/${this.cAddress}?tab=explore`;
+    },
+
     descriptionTooLong() {
       if (this.cDescription) {
         return this.cDescription.length > 420;
@@ -477,6 +508,10 @@ export default {
 
     seeYourNftsLink() {
       return this.$config.blockExplorerBaseUrl+"/token/"+this.cAddress+"?tab=inventory&holder_address_hash="+this.address;
+    },
+
+    seeYourNftsZapper() {
+      return `https://zapper.xyz/nft/degen/${this.cAddress}?tab=explore&collectionOwners%5B0%5D=${this.address}`;
     },
   },
 

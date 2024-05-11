@@ -123,6 +123,8 @@ export default {
 
       const inputTokenAmountWei = ethers.utils.parseUnits(this.inputTokenAmount, this.inputToken?.decimals);
 
+      const referrer = fetchReferrer(window);
+
       try {
         const tx = await swapTokens(
           this.signer,
@@ -132,7 +134,8 @@ export default {
           inputTokenAmountWei,
           this.outputTokenAmountWei,
           this.routerAddress,
-          fetchReferrer(window)
+          //referrer 
+          ethers.constants.AddressZero // referrer not used, because of an issue with the contract
         );
 
         const toastWait = this.toast(
