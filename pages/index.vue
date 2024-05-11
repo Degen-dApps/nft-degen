@@ -14,7 +14,7 @@ export default {
     const curComp = window.localStorage.getItem("currentNftPage");
 
     if (!curComp) {
-      return this.$router.push({ path: '/nft/featured' });
+      return this.$router.push({ path: '/nft/music-nfts' });
     } else {
       return this.$router.push({ path: curComp });
     }

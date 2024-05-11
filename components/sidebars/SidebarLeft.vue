@@ -133,7 +133,7 @@
           <!-- Notifications 
           <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/notifications') ? 'active' : ''" aria-current="page" to="/notifications">
-              <i class="bi bi-bell"></i> Notifications
+              <i class="bi bi-bell me-1"></i> Notifications
 
               <span 
                 class="badge text-bg-secondary" 
@@ -148,21 +148,21 @@
           <!-- Profile -->
           <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" :to="getProfileLink">
-              <i class="bi bi-person"></i> Profile
+              <i class="bi bi-person me-1"></i> Profile
             </NuxtLink>
           </li>
 
           <!-- Activity Points -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.activityPoints && $config.activityPointsAddress">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/activity-points') ? 'active' : ''" aria-current="page" to="/activity-points">
-              <i class="bi bi-award"></i> Activity Points
+              <i class="bi bi-award me-1"></i> Activity Points
             </NuxtLink>
           </li>
 
           <!-- Shill 
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/shill') ? 'active' : ''" aria-current="page" to="/shill">
-              <i class="bi bi-megaphone"></i> Shill projects
+              <i class="bi bi-megaphone me-1"></i> Shill projects
             </NuxtLink>
           </li>
           -->
@@ -170,103 +170,103 @@
           <!-- Send tokens -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.sendTokens">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/send-tokens') ? 'active' : ''" aria-current="page" to="/send-tokens">
-              <i class="bi bi-send"></i> Send Tokens
+              <i class="bi bi-send me-1"></i> Send Tokens
             </NuxtLink>
           </li>
 
           <!-- Search Posts -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.searchPosts">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/search-posts') ? 'active' : ''" aria-current="page" to="/search-posts">
-              <i class="bi bi-search"></i> Search Posts
+              <i class="bi bi-search me-1"></i> Search Posts
             </NuxtLink>
           </li>
 
           <!-- Stake & Earn -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.stakingContractAddress && $config.showFeatures.stake">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/stake') ? 'active' : ''" aria-current="page" to="/stake">
-              <i class="bi bi-cash-stack"></i> Stake & Earn
+              <i class="bi bi-cash-stack me-1"></i> Stake & Earn
             </NuxtLink>
           </li>
 
           <!-- Swap -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.swapRouterAddress && $config.showFeatures.swap">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/swap') ? 'active' : ''" aria-current="page" to="/swap">
-              <i class="bi bi-arrow-down-up"></i> Swap
+              <i class="bi bi-arrow-down-up me-1"></i> Swap
             </NuxtLink>
           </li>
           
           <!-- Friend Keys -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.keysAddress && $config.showFeatures.friendKeys">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/keys') ? 'active' : ''" aria-current="page" to="/keys">
-              <i class="bi bi-key"></i> Friend Keys
+              <i class="bi bi-key me-1"></i> Friend Keys
             </NuxtLink>
           </li>
 
           <!-- Airdrop -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="($config.airdropClaimDomainsAddress || $config.airdropApAddress) && $config.showFeatures.airdrop">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/airdrop') ? 'active' : ''" aria-current="page" to="/airdrop">
-              <i class="bi bi-gift"></i> Airdrop
+              <i class="bi bi-gift me-1"></i> Airdrop
             </NuxtLink>
           </li>
           
           <!-- Find User -->
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/find-user') ? 'active' : ''" aria-current="page" to="/find-user">
-              <i class="bi bi-binoculars"></i> Find User
+              <i class="bi bi-binoculars me-1"></i> Find User
             </NuxtLink>
           </li>
 
           <!-- About -->    
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/about') ? 'active' : ''" aria-current="page" to="/about">
-              <i class="bi bi-info-circle"></i> About
+              <i class="bi bi-info-circle me-1"></i> About
             </NuxtLink>
           </li>
 
           <!-- FAQ -->
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <a class="nav-link" href="https://docs.google.com/document/d/1UTTFLszVAwpd7LbvNMbj4vL1NBaN0ImoZYNPJ4T_EJo/edit?usp=sharing" target="_blank">
-              <i class="bi bi-patch-question"></i> FAQ <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+              <i class="bi bi-patch-question me-1"></i> FAQ <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
             </a>
           </li>
 
           <!-- Dapps List -->
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <a class="nav-link" href="https://degendapps.lol" target="_blank">
-              <i class="bi bi-card-list"></i> dApps List <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+              <i class="bi bi-card-list me-1"></i> dApps List <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
             </a>
           </li>
 
           <!-- Governance -->
           <li class="nav-item p-1" v-if="$config.showFeatures.governance" @click="closeLeftSidebar">
             <a class="nav-link" :href="$config.governanceUrl" target="_blank">
-              <i class="bi bi-box2"></i> Governance <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+              <i class="bi bi-box2 me-1"></i> Governance <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
             </a>
           </li>
 
           <!-- More 
           <li class="nav-item p-1 dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
-              <i class="bi bi-three-dots"></i> More
+              <i class="bi bi-three-dots me-1"></i> More
             </a>
 
             <ul class="dropdown-menu">
 
               <li class="pt-1 pb-1" @click="closeLeftSidebar" v-if="$config.airdropClaimDomainsAddress || $config.airdropApAddress">
                 <NuxtLink class="dropdown-item" :class="$route.path.startsWith('/airdrop') ? 'active' : ''" aria-current="page" to="/airdrop">
-                  <i class="bi bi-gift"></i> Airdrop
+                  <i class="bi bi-gift me-1"></i> Airdrop
                 </NuxtLink>
               </li>
 
               <li class="pt-1 pb-1" @click="closeLeftSidebar">
                 <NuxtLink class="dropdown-item" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" to="/profile">
-                  <i class="bi bi-person"></i> Profile
+                  <i class="bi bi-person me-1"></i> Profile
                 </NuxtLink>
               </li>
 
               <li class="pt-1 pb-1">
                 <NuxtLink class="dropdown-item" :class="$route.path.startsWith('/notifications') ? 'active' : ''" aria-current="page" to="/notifications">
-                  <i class="bi bi-bell"></i> Notifications
+                  <i class="bi bi-bell me-1"></i> Notifications
 
                   <span 
                     class="badge text-bg-secondary" 
@@ -279,13 +279,13 @@
 
               <li class="pt-1 pb-1" @click="closeLeftSidebar">
                 <a class="dropdown-item" href="https://snapshot.org/#/sgbchat.eth" target="_blank">
-                  <i class="bi bi-box2"></i> Governance <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+                  <i class="bi bi-box2 me-1"></i> Governance <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
                 </a>
               </li>
 
               <li class="pt-1 pb-1" @click="closeLeftSidebar">
                 <NuxtLink class="dropdown-item" :class="$route.path.startsWith('/about') ? 'active' : ''" aria-current="page" to="/about">
-                  <i class="bi bi-patch-question"></i> About
+                  <i class="bi bi-patch-question me-1"></i> About
                 </NuxtLink>
               </li>
 
