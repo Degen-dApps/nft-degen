@@ -159,7 +159,7 @@
             <div v-if="cAddress" class="dropdown">
               <i class="bi bi-box-arrow-up-right me-2"></i>
               <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                <span v-if="address">See your & all NFTs</span>
+                <span v-if="address && userTokenId">See your & all NFTs</span>
                 <span v-else>See all NFTs in the collection</span>
               </span>
               <div class="dropdown-menu dropdown-menu-end">
@@ -167,7 +167,7 @@
                   <i class="bi bi-box-arrow-up-right me-1"></i>
                   See all NFTs on Zapper
                 </a>
-                <a v-if="address" class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsZapper">
+                <a v-if="address && userTokenId" class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsZapper">
                   <i class="bi bi-box-arrow-up-right me-1"></i>
                   See only your NFTs on Zapper
                 </a>
@@ -175,7 +175,7 @@
                   <i class="bi bi-box-arrow-up-right me-1"></i>
                   See all NFTs on block explorer
                 </a>
-                <a v-if="address" class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsLink">
+                <a v-if="address && userTokenId" class="dropdown-item cursor-pointer" target="_blank" :href="seeYourNftsLink">
                   <i class="bi bi-box-arrow-up-right me-1"></i>
                   See only your NFTs on block explorer
                 </a>
