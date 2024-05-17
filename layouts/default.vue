@@ -58,6 +58,11 @@
             </div> 
 
             <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
+              <img src="@/assets/img/wallets/rainbow.png" class="card-img-top card-img-wallet" alt="Rainbow">
+              <small class="text-center mb-3 text-muted">Rainbow</small>
+            </div>
+
+            <div class="card col-6 cursor-pointer wallet-img-wrapper" @click="connectMetaMask">
               <img src="@/assets/img/wallets/bifrost.png" class="card-img-top card-img-wallet" alt="Bifrost">
               <small class="text-center mb-3 text-muted">Bifrost</small>
             </div> 
