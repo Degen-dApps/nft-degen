@@ -117,7 +117,7 @@
           <!-- Top-Priced NFTs -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/nft/highest-price') ? 'active' : ''" aria-current="page" to="/nft/highest-price">
-              <i class="bi bi-currency-bitcoin me-1"></i> Top-Priced NFTs
+              <i class="bi bi-coin me-1"></i> Top-Priced NFTs
             </NuxtLink>
           </li>
 
@@ -242,6 +242,29 @@
             <a class="nav-link" :href="$config.governanceUrl" target="_blank">
               <i class="bi bi-box2 me-1"></i> Governance <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
             </a>
+          </li>
+
+          <!-- Grants -->
+          <li class="nav-item p-1 dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+              <i class="bi bi-piggy-bank me-1"></i> Grants
+            </a>
+
+            <ul class="dropdown-menu">
+
+              <li class="pt-1 pb-1" @click="closeLeftSidebar">
+                <a class="dropdown-item" href="https://docs.google.com/forms/d/e/1FAIpQLScIJkUMg7zVOLs75lAO5OodYo5f0byXVAIuxxqZh_noB2iTEA/viewform" target="_blank">
+                  <i class="bi bi-music-note-beamed me-1"></i> Grants for Musicians <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+                </a>
+              </li>
+
+              <li class="pt-1 pb-1" @click="closeLeftSidebar">
+                <a class="dropdown-item" href="https://docs.google.com/forms/d/e/1FAIpQLSdpfyPSACHv1JpWoSAPGdyv8ZLGgnWYl5vAeFQQJnPBR_vu2A/viewform" target="_blank">
+                  <i class="bi bi-brush me-1"></i> Grants for Visual Artists <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+                </a>
+              </li>
+
+            </ul>
           </li>
 
           <!-- More 
