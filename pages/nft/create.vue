@@ -76,7 +76,7 @@
       </div>
 
       <div v-if="cImage" class="mb-4">
-        <img :src="cImage" class="img-thumbnail img-fluid" style="max-width: 100px;" />
+        <img :src="parseImageLink" class="img-thumbnail img-fluid" style="max-width: 100px;" />
         <br />
         <small>If image didn't appear above, then something is wrong with the link you added.</small>
       </div>
@@ -247,6 +247,16 @@ export default {
         return false;
       }
     },
+
+    parseImageLink() {
+      let parsedImage = this.cImage;
+
+      if (parsedImage && parsedImage.includes("ipfs://")) {
+        parsedImage = parsedImage.replace("ipfs://", this.$config.ipfsGateway);
+      }
+
+      return parsedImage;
+    }
   },
 
   methods: {
