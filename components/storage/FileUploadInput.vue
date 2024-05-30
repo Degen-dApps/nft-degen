@@ -156,18 +156,23 @@ export default {
       this.waitingUpload = true;
 
       if (this.storageType === "ipfs") {
-        // upload to IPFS
-        const fileUri = await uploadFileToThirdWeb(this.file);
+        try {
+          // upload to IPFS
+          const fileUri = await uploadFileToThirdWeb(this.file);
 
-        const cid = fileUri.replace("ipfs://", "").split("/")[0];
+          const cid = fileUri.replace("ipfs://", "").split("/")[0];
 
-        if (cid) {
-          await this.pinCid(cid);
-        }
+          if (cid) {
+            await this.pinCid(cid);
+          }
 
-        // emit file url
-        this.$emit("processUploadedFileUrl", fileUri);
-
+          // emit file url
+          this.$emit("processUploadedFileUrl", fileUri);
+        } catch (error) {
+					console.error("Error uploading file to IPFS", error);
+					console.log("Falling back to centralized storage service");
+					await this.fallbackUpload();
+				}	
       } else {
         // upload to a centralized storage service (imagekit)
         await this.fallbackUpload();
