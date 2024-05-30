@@ -1,5 +1,11 @@
 <template>
-  <img v-if="imageUrl" :src="parseImageLink" @error="handleLoadError" :alt="alt" :class="cls" />
+  <div>
+    <img @load="loading=false" :src="parseImageLink" @error="handleLoadError" :alt="alt" :class="cls" />
+    <div class="d-flex justify-content-center">
+      <span v-if="loading" class="spinner-grow spinner-grow-lg" role="status" aria-hidden="true"></span>
+    </div>
+    
+  </div>
 </template>
 
 <script>
@@ -11,6 +17,7 @@ export default {
     return {
       cid: null,
       imageUrl: "https://placeholder.pics/svg/300/DEDEDE/555555/Loading",
+      loading: true,
     };
   },
 
@@ -58,13 +65,14 @@ export default {
     handleLoadError() {
       if (this.cid) {
         if (this.imageUrl.startsWith(this.$config.ipfsGateway)) {
-          this.imageUrl = this.$config.ipfsGateway3 + this.cid;
+          return this.imageUrl = this.$config.ipfsGateway3 + this.cid;
         } else if (this.imageUrl.startsWith(this.$config.ipfsGateway3)) {
-          this.imageUrl = this.$config.ipfsGateway2 + this.cid;
+          return this.imageUrl = this.$config.ipfsGateway2 + this.cid;
         }
-      } else {
-        this.imageUrl = "https://placeholder.pics/svg/300/DEDEDE/555555/Loading";
       }
+
+      this.loading = false;
+      return;
 
     },
   },
