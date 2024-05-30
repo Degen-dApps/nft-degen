@@ -16,7 +16,7 @@ export default {
   data() {
     return {
       cid: null,
-      imageUrl: "https://placeholder.pics/svg/300/DEDEDE/555555/Loading",
+      imageUrl: null,
       loading: true,
     };
   },
@@ -71,6 +71,7 @@ export default {
         }
       }
 
+      this.imageUrl = "https://placeholder.pics/svg/300/8e85e6/ffffff/loading%20error";
       this.loading = false;
       return;
 
