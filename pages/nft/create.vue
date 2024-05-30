@@ -150,6 +150,7 @@
         @processFileUrl="insertImage"
         title="Upload your NFT image"
         infoText="Upload the NFT image."
+        storageType="ipfs"
         :componentId="$.uid"
         :maxFileSize="$config.fileUploadSizeLimit"
       />
