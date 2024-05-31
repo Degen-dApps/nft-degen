@@ -152,6 +152,42 @@ export default {
       }
     },
 
+    async pinCid2(cid) {
+      const thisAppUrl = window.location.origin;
+
+      let fetcherService;
+
+      if (this.$config.fileUploadTokenService === "netlify") {
+        fetcherService = thisAppUrl + "/.netlify/functions/pinIpfsCid2";
+      } else if (this.$config.fileUploadTokenService === "vercel") {
+        fetcherService = thisAppUrl + "/api/pinIpfsCid2";
+      }
+
+      if (fetcherService) {
+        // add cid query param
+        fetcherService += "?cid=" + cid;
+
+        try {
+          const resp = await $fetch(fetcherService).catch((error) => error.data);
+
+          let response = resp;
+
+          if (typeof(resp) === "string") {
+            response = JSON.parse(resp);
+          }
+
+          if (response?.error) {
+            console.log("Error pinning CID: ", response["error"]);
+            throw response["error"];
+          }
+          
+        } catch (e) {
+          console.log("Error pinning CID: ", e);
+          throw e;
+        }
+      }
+    },
+
     async uploadFile() {
       this.waitingUpload = true;
 
@@ -164,6 +200,7 @@ export default {
 
           if (cid) {
             await this.pinCid(cid);
+            await this.pinCid2(cid);
           }
 
           // emit file url
