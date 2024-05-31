@@ -198,13 +198,13 @@ export default {
 
           const cid = fileUri.replace("ipfs://", "").split("/")[0];
 
+          // emit file url
+          this.$emit("processUploadedFileUrl", fileUri);
+
           if (cid) {
             await this.pinCid(cid);
             await this.pinCid2(cid);
           }
-
-          // emit file url
-          this.$emit("processUploadedFileUrl", fileUri);
         } catch (error) {
 					console.error("Error uploading file to IPFS", error);
 					console.log("Falling back to centralized storage service");
