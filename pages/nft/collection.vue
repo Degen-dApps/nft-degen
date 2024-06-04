@@ -131,10 +131,17 @@
               Buy/Sell price: {{ formatPrice(priceBuyWei) }} {{ $config.tokenSymbol }} / {{ formatPrice(priceSellWei) }} {{ $config.tokenSymbol }}
             </p>
 
-            <p class="me-4">
+            <p class="me-4" v-if="cSupply">
               <i class="bi bi-file-earmark-binary me-1"></i>
               {{ cSupply }} NFTs minted 
               <span v-if="getBuysAmount">({{ getBuysAmount }} buys, {{ getSellsAmount }} sells)</span>
+            </p>
+
+            <p class="me-4" v-if="cExternalUrl">
+              <i class="bi bi-box-arrow-up-right me-1"></i>
+              <a :href="cExternalUrl" target="_blank" style="text-decoration: none;">
+                Go to NFT's external link
+              </a>
             </p>
 
             <p class="me-4" v-if="showNftDegen">
@@ -337,6 +344,7 @@ export default {
       cAuthorDomain: null,
       cCounter: null,
       cDescription: null,
+      cExternalUrl: null,
       cImage: null,
       cName: null,
       cSupply: null,
@@ -892,6 +900,7 @@ export default {
       }
 
       const nftInterface = new ethers.utils.Interface([
+        "function name() public view returns (string memory)",
         "function owner() public view returns (address)",
         "function tokenURI(uint256 tokenId) public view returns (string memory)", // ERC-721
         "function totalSupply() public view returns (uint256)",
@@ -899,6 +908,9 @@ export default {
       ]);
 
       const nftContract = new ethers.Contract(this.cAddress, nftInterface, provider);
+
+      // fetch name
+      this.cName = await nftContract.name();
 
       let tokenURI;
 
@@ -911,7 +923,7 @@ export default {
       if (tokenURI.startsWith("data:application/json;")) {
         const metadata = JSON.parse(atob(tokenURI.replace("data:application/json;base64,", "")));
         
-        if (metadata?.name) {
+        if (!this.cName && metadata?.name) {
           this.cName = metadata.name.replace("#1", "");
         }
 
@@ -921,6 +933,10 @@ export default {
 
         if (metadata?.image) {
           this.cImage = metadata.image;
+        }
+
+        if (metadata?.external_url) {
+          this.cExternalUrl = metadata.external_url;
         }
 
         if (metadata?.audio_url) {
@@ -938,9 +954,10 @@ export default {
         // if tokenURI is a URL, fetch it
         try {
           const response = await axios.get(tokenURI);
+
           const metadata = response.data;
 
-          if (metadata?.name) {
+          if (!this.cName && metadata?.name) {
             this.cName = metadata.name.replace("#1", "");
           }
 
@@ -950,6 +967,10 @@ export default {
 
           if (metadata?.image) {
             this.cImage = metadata.image;
+          }
+
+          if (metadata?.external_url) {
+            this.cExternalUrl = metadata.external_url;
           }
 
           if (metadata?.audio_url) {
@@ -974,14 +995,14 @@ export default {
       try {
         this.cSupply = await nftContract.totalSupply();
       } catch (e) {
-        console.error(e);
+        console.log("No totalSupply function in the contract.");
       }
 
       // try-catch for owner
       try {
         this.cAuthorAddress = await nftContract.owner();
       } catch (e) {
-        console.error(e);
+        console.log("No owner variable in the contract.");
       }
 
       this.waitingData = false;
