@@ -32,7 +32,7 @@
           <Image v-if="cImage" :url="cImage" :cls="'img-fluid img-thumbnail rounded col-12'" :alt="cName" :key="cImage" />
 
           <!-- Actions dropdown -->
-          <div class="dropdown mt-3">
+          <div class="dropdown mt-3" v-if="showNftDegen">
             <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               Actions
             </button>
@@ -107,7 +107,7 @@
         <div class="col-md-7">
           <div class="mt-1 mb-4 muted-text" style="font-size: 14px;">
 
-            <p class="me-4">
+            <p class="me-4" v-if="cDescription">
               <i class="bi bi-file-earmark-text-fill me-2"></i>
               <span v-if="readMore" v-html="cDescription"></span>
               <span v-if="!readMore" v-html="formattedDescription"></span>
@@ -118,7 +118,7 @@
               </span>
             </p>
 
-            <p class="me-4">
+            <p class="me-4" v-if="getUsernameOrShortAddress">
               <i class="bi bi-person me-1"></i>
               Author:
               <span v-if="getUsernameOrShortAddress"> 
@@ -126,7 +126,7 @@
               </span>
             </p>
 
-            <p class="me-4">
+            <p class="me-4" v-if="showNftDegen">
               <i class="bi bi-coin me-1"></i>
               Buy/Sell price: {{ formatPrice(priceBuyWei) }} {{ $config.tokenSymbol }} / {{ formatPrice(priceSellWei) }} {{ $config.tokenSymbol }}
             </p>
@@ -137,7 +137,7 @@
               <span v-if="getBuysAmount">({{ getBuysAmount }} buys, {{ getSellsAmount }} sells)</span>
             </p>
 
-            <p class="me-4">
+            <p class="me-4" v-if="showNftDegen">
               <i class="bi bi-clipboard me-1"></i>
               <span @click="copyFrameLink" class="wannabe-link cursor-pointer">
                 Click to copy NFT link & earn referral fees
@@ -185,7 +185,7 @@
           <!-- END Data -->
 
           <!-- Buttons -->
-          <div class="row mb-3">
+          <div class="row mb-3" v-if="showNftDegen">
 
             <div v-if="!isActivated || !isSupportedChain" class="d-grid gap-2 col">
               <ConnectWalletButton v-if="!isActivated" class="btn btn-primary" btnText="Connect wallet" />
@@ -208,7 +208,7 @@
             
           </div>
 
-          <small v-if="isActivated && isSupportedChain">
+          <small v-if="isActivated && isSupportedChain && showNftDegen">
             <em>
               (Price may still change after pressing the button, so make sure to check the {{ $config.tokenSymbol }} amount in wallet.)
             </em>
@@ -242,7 +242,7 @@
   -->
 
   <!-- Alert to buy an NFT to chat -->
-  <div v-if="!userTokenId && !isCurrentAddressOwner" class="card border mt-3 scroll-500">
+  <div v-if="!userTokenId && !isCurrentAddressOwner && showNftDegen" class="card border mt-3 scroll-500">
     <div class="card-body">
 
       <h5 class="mb-2 mt-3 text-center">Buy an NFT to see the chat</h5>
@@ -266,7 +266,7 @@
   </div>
 
   <!-- Only NFT holders can see the content of this div -->
-  <div :key="userTokenId" v-if="userTokenId || isCurrentAddressOwner">
+  <div :key="userTokenId" v-if="userTokenId || isCurrentAddressOwner || !showNftDegen">
     <!-- Media section -->
     <CollectionMediaSection  
       v-if="audioUrl || videoUrl || youtubeUrl" 
@@ -346,6 +346,7 @@ export default {
       priceBuyWei: null,
       priceSellWei: null,
       readMore: false,
+      showNftDegen: true, // show features specific to NFTs created via NFTdegen
       userTokenId: null, // if user owns at least one NFT, this will be set to the first token ID that user owns
       videoUrl: null,
       waitingBuy: false,
@@ -709,6 +710,7 @@ export default {
         "function metadataAddress() public view returns (address)",
         "function name() public view returns (string memory)",
         "function owner() public view returns (address)",
+        "function pricingType() public view returns (string memory)",
         "function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)",
         "function totalSupply() public view returns (uint256)"
       ]);
@@ -718,7 +720,12 @@ export default {
       if (collection?.mdAddress) {
         this.mdAddress = collection.mdAddress;
       } else {
-        this.mdAddress = await nftContract.metadataAddress();
+        try {
+          this.mdAddress = await nftContract.metadataAddress();
+        } catch (e) {
+          console.log("This NFT contract was very likely not created via NFTdegen.");
+          return this.getCollectionDetailsFallback();
+        }
       }
 
       const metadataInterface = new ethers.utils.Interface([
@@ -870,6 +877,109 @@ export default {
         }
       }
       
+    },
+
+    async getCollectionDetailsFallback() {
+      // this function is called if the NFT contract was not created via NFTdegen
+      this.showNftDegen = false;
+
+      // fetch provider from hardcoded RPCs
+      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
+
+      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
+        // fetch provider from user's MetaMask
+        provider = this.signer;
+      }
+
+      const nftInterface = new ethers.utils.Interface([
+        "function owner() public view returns (address)",
+        "function tokenURI(uint256 tokenId) public view returns (string memory)",
+        "function totalSupply() public view returns (uint256)"
+      ]);
+
+      const nftContract = new ethers.Contract(this.cAddress, nftInterface, provider);
+
+      const tokenURI = await nftContract.tokenURI(1);
+
+      if (tokenURI.startsWith("data:application/json;")) {
+        const metadata = JSON.parse(atob(tokenURI.replace("data:application/json;base64,", "")));
+
+        console.log(metadata);
+        
+        if (metadata?.name) {
+          this.cName = metadata.name;
+        }
+
+        if (metadata?.description) {
+          this.cDescription = metadata.description;
+        }
+
+        if (metadata?.image) {
+          this.cImage = metadata.image;
+        }
+
+        if (metadata?.audio_url) {
+          this.audioUrl = metadata.audio_url;
+        }
+
+        if (metadata?.animation_url) {
+          this.videoUrl = metadata.animation_url;
+        }
+
+        if (metadata?.youtube_url) {
+          this.youtubeUrl = metadata.youtube_url;
+        }
+      } else {
+        // if tokenURI is a URL, fetch it
+        try {
+          const response = await axios.get(tokenURI);
+          const metadata = response.data;
+
+          if (metadata?.name) {
+            this.cName = metadata.name;
+          }
+
+          if (metadata?.description) {
+            this.cDescription = metadata.description;
+          }
+
+          if (metadata?.image) {
+            this.cImage = metadata.image;
+          }
+
+          if (metadata?.audio_url) {
+            this.audioUrl = metadata.audio_url;
+          }
+
+          if (metadata?.animation_url) {
+            this.videoUrl = metadata.animation_url;
+          }
+
+          if (metadata?.youtube_url) {
+            this.youtubeUrl = metadata.youtube_url;
+          }
+
+          
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // try-catch for totalSupply
+      try {
+        this.cSupply = await nftContract.totalSupply();
+      } catch (e) {
+        console.error(e);
+      }
+
+      // try-catch for owner
+      try {
+        this.cAuthorAddress = await nftContract.owner();
+      } catch (e) {
+        console.error(e);
+      }
+
+      this.waitingData = false;
     },
 
     saveCollection(newCollectionData) {
