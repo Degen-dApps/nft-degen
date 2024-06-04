@@ -910,8 +910,6 @@ export default {
 
       if (tokenURI.startsWith("data:application/json;")) {
         const metadata = JSON.parse(atob(tokenURI.replace("data:application/json;base64,", "")));
-
-        console.log(metadata);
         
         if (metadata?.name) {
           this.cName = metadata.name.replace("#1", "");

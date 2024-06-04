@@ -11,7 +11,13 @@
 
         <div class="mb-3">
           <label :for="'input-'+componentId" class="form-label">Enter NFT collection address or unique ID:</label>
-          <input v-model="searchText" type="text" class="form-control" :for="'input-'+componentId" />
+          <input 
+            v-model="searchText" 
+            type="text" 
+            class="form-control" 
+            :for="'input-'+componentId" 
+            v-on:keyup.enter="findNft" 
+          />
         </div>
 
         <p v-if="findError">Error: Collection not found...</p>
