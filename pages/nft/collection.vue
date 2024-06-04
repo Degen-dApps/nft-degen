@@ -893,13 +893,20 @@ export default {
 
       const nftInterface = new ethers.utils.Interface([
         "function owner() public view returns (address)",
-        "function tokenURI(uint256 tokenId) public view returns (string memory)",
-        "function totalSupply() public view returns (uint256)"
+        "function tokenURI(uint256 tokenId) public view returns (string memory)", // ERC-721
+        "function totalSupply() public view returns (uint256)",
+        "function uri(uint256 tokenId) public view returns (string memory)", // ERC-1155
       ]);
 
       const nftContract = new ethers.Contract(this.cAddress, nftInterface, provider);
 
-      const tokenURI = await nftContract.tokenURI(1);
+      let tokenURI;
+
+      try { // ERC-721
+        tokenURI = await nftContract.tokenURI(1);
+      } catch (e) { // ERC-1155
+        tokenURI = await nftContract.uri(1);
+      }
 
       if (tokenURI.startsWith("data:application/json;")) {
         const metadata = JSON.parse(atob(tokenURI.replace("data:application/json;base64,", "")));
