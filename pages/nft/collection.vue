@@ -907,7 +907,7 @@ export default {
         console.log(metadata);
         
         if (metadata?.name) {
-          this.cName = metadata.name;
+          this.cName = metadata.name.replace("#1", "");
         }
 
         if (metadata?.description) {
@@ -936,7 +936,7 @@ export default {
           const metadata = response.data;
 
           if (metadata?.name) {
-            this.cName = metadata.name;
+            this.cName = metadata.name.replace("#1", "");
           }
 
           if (metadata?.description) {
