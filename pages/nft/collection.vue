@@ -329,6 +329,7 @@ import ChangeNftTypeModal from "~/components/nft/collection/ChangeNftTypeModal";
 import CollectionMediaSection from '~/components/nft/collection/CollectionMediaSection.vue';
 import RemoveImageFromCollectionModal from "~/components/nft/collection/RemoveImageFromCollectionModal";
 import SendNftModal from '~/components/nft/collection/SendNftModal.vue';
+import { getIpfsUrl } from '~/utils/ipfsUtils';
 import { getDomainName } from '~/utils/domainUtils';
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '~/utils/storageUtils';
 import { getTextWithoutBlankCharacters, urlParsing, youtubeParsing } from '~/utils/textUtils';
@@ -833,23 +834,37 @@ export default {
       let mdTokenId = this.userTokenId ? this.userTokenId : 1;
       let metadata = await metadataContract.getMetadata(this.cAddress, mdTokenId);
 
+      if (String(metadata).startsWith("http")) {
+        metadata = await getIpfsUrl(metadata);
+      }
+
       // if metadata starts with "ipfs://" convert it into default IPFS gateway link
-      if (metadata.startsWith("ipfs://")) {
-        metadata = metadata.replace("ipfs://", this.$config.ipfsGateway);
+      if (String(metadata).startsWith("ipfs://")) {
+        metadata = String(metadata).replace("ipfs://", this.$config.ipfsGateway);
       }
 
       // if it starts with http, fetch data with axios
-      if (metadata.startsWith("http")) {
+      if (String(metadata).startsWith("http")) {
         try {
           const response = await axios.get(metadata);
           metadata = response.data;
         } catch (e) {
           console.error(e);
-          return;
+
+          if (metadata.startsWith(this.$config.ipfsGateway)) {
+            try {
+              metadata = String(metadata).replace(this.$config.ipfsGateway, this.$config.ipfsGateway2);
+              const response = await axios.get(metadata);
+              metadata = response.data;
+            } catch (e) {
+              console.error(e);
+              return
+            }
+          }
         }
       } else {
         // if not, it's very likely base64 encoded string, so decode it
-        metadata = atob(metadata.replace("data:application/json;base64,", ""));
+        metadata = atob(String(metadata).replace("data:application/json;base64,", ""));
       }
 
       // if metadata type is not object, convert it to a JSON object
