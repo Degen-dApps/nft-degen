@@ -749,8 +749,13 @@ export default {
       const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, provider);
 
       // get collection details
-      this.priceBuyWei = await nftContract.getMintPrice();
-      this.priceSellWei = await nftContract.getBurnPrice();
+      try {
+        this.priceBuyWei = await nftContract.getMintPrice();
+        this.priceSellWei = await nftContract.getBurnPrice();
+      } catch (e) {
+        console.log("This NFT contract was very likely not created via NFTdegen.");
+        return this.getCollectionDetailsFallback();
+      }
 
       // get image
       if (collection?.image) {
@@ -1016,6 +1021,11 @@ export default {
       // try-catch for owner
       try {
         this.cAuthorAddress = await nftContract.owner();
+        this.cAuthorDomain = fetchUsername(window, this.cAuthorAddress);
+
+        if (!this.cAuthorDomain) {
+          this.fetchUserDomain();
+        }
       } catch (e) {
         console.log("No owner variable in the contract.");
       }
