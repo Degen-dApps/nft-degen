@@ -112,7 +112,7 @@ export default {
 
           this.bountyId = Number(bounties[0]);
 
-          this.link = `https://degen.poidh.xyz/bounty/${this.bountyId}`;
+          this.link = `https://poidh.xyz/degen/bounty/${this.bountyId}`;
         }
       } catch (error) {
         console.error(error);
