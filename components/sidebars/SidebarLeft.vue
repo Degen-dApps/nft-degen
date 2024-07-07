@@ -145,6 +145,13 @@
           </li>
           -->
 
+          <!-- Degen Radio -->
+          <li class="nav-item p-1" @click="closeLeftSidebar">
+            <a class="nav-link" href="https://degenradio.lol" target="_blank">
+              <i class="bi bi-broadcast me-1"></i> Degen Radio <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
+            </a>
+          </li>
+
           <!-- Profile -->
           <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/profile') ? 'active' : ''" aria-current="page" :to="getProfileLink">
