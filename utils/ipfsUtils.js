@@ -1,3 +1,4 @@
+import axios from "axios";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
 export async function uploadFileToThirdWeb(file) {
@@ -38,4 +39,53 @@ export async function getIpfsUrl(url) {
   }
 
   return String("ipfs://" + cid);
+}
+
+export async function getWorkingUrl(url) {
+  let ipfsUrl = url
+
+  if (url.startsWith("http")) {
+    // fetch head() with axios to check if the url is working
+    try {
+      const response = await axios.head(url)
+      if (response.status === 200) {
+        return { success: true, url: url, format: response.headers['content-type'] }
+      } else {
+        ipfsUrl = await getIpfsUrl(url)
+      }
+    } catch (error) {
+      ipfsUrl = await getIpfsUrl(url)
+    }
+  }
+
+  const ipfsGateways = [
+    'https://ipfs.io/ipfs/',
+    'https://nftdegeniggy.myfilebase.com/ipfs/',
+    'https://ipfs.filebase.io/ipfs/',
+    //'https://cloudflare-ipfs.com/ipfs/',
+    'https://gateway.pinata.cloud/ipfs/',
+    'https://ipfs.itslit.org/ipfs/',
+    'https://ipfs.dylmusic.com/ipfs/',
+  ]
+
+  if (ipfsUrl.startsWith("ipfs://")) {
+    const cid = ipfsUrl.replace("ipfs://", "")
+
+    for (let i = 0; i < ipfsGateways.length; i++) {
+      const gatewayUrl = ipfsGateways[i] + cid
+
+      // fetch head() with axios to check if the url is working
+      try {
+        const response = await axios.head(gatewayUrl)
+        if (response.status === 200) {
+          return { success: true, url: gatewayUrl, format: response.headers['content-type'] }
+        }
+      } catch (error) {
+        continue
+      }
+    }
+  }
+
+  return null
+
 }

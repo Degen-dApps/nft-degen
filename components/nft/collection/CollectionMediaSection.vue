@@ -36,7 +36,7 @@
       <div class="col-12 col-lg-8" v-if="currentTab === 'audio' && aUrl">
         <p class="text-center mt-3">
           <audio class="ratio ratio-16x9" controls>
-            <source :src="aUrl" type="audio/mpeg" @error="handleAudioError">
+            <source :src="aUrl" :type="aFormat">
             Your browser does not support mp3 audio player.
           </audio>
         </p>
@@ -45,7 +45,7 @@
       <!-- Video player Tab -->
       <div class="col-12 col-lg-8" v-if="currentTab === 'video' && vUrl">
         <video class="ratio ratio-16x9 rounded" controls>
-          <source :src="vUrl" type="video/mp4" @error="handleVideoError">
+          <source :src="vUrl" :type="vFormat">
           Your browser does not support mp4 video player.
         </video>
       </div>
@@ -61,6 +61,7 @@
 </template>
 
 <script>
+import { getWorkingUrl } from '~/utils/ipfsUtils';
 import { youtubeParsing } from '~/utils/textUtils';
 
 export default {
@@ -69,8 +70,10 @@ export default {
 
   data() {
     return {
+      aFormat: null,
       aUrl: null,
       currentTab: "audio",
+      vFormat: null,
       vUrl: null,
       yUrl: null
     };
@@ -90,27 +93,19 @@ export default {
         }
 
         if (this.audioUrl) {
-          this.aUrl = this.audioUrl;
-
-          if (this.aUrl.startsWith("ipfs://")) {
-            this.aUrl = this.aUrl.replace("ipfs://", this.$config.ipfsGateway);
-          } else if (this.aUrl.startsWith("https://ipfs.itslit.org/ipfs/")) {
-            this.aUrl = this.aUrl.replace("https://ipfs.itslit.org/ipfs/", this.$config.ipfsGateway);
-          } /*else if (this.aUrl.startsWith("https://ipfs.dylmusic.com/ipfs/")) {
-            this.aUrl = this.aUrl.replace("https://ipfs.dylmusic.com/ipfs/", this.$config.ipfsGateway);
-          }*/
+          const result = await getWorkingUrl(this.audioUrl);
+          if (result) {
+            this.aUrl = result.url;
+            this.aFormat = result.format;
+          }
         }
 
         if (this.videoUrl) {
-          this.vUrl = this.videoUrl;
-
-          if (this.vUrl.startsWith("ipfs://")) {
-            this.vUrl = this.vUrl.replace("ipfs://", this.$config.ipfsGateway);
-          } else if (this.vUrl.startsWith("https://ipfs.itslit.org/ipfs/")) {
-            this.vUrl = this.vUrl.replace("https://ipfs.itslit.org/ipfs/", this.$config.ipfsGateway);
-          } /*else if (this.vUrl.startsWith("https://ipfs.dylmusic.com/ipfs/")) {
-            this.vUrl = this.vUrl.replace("https://ipfs.dylmusic.com/ipfs/", this.$config.ipfsGateway);
-          }*/
+          const result = await getWorkingUrl(this.videoUrl);
+          if (result) {
+            this.vUrl = result.url;
+            this.vFormat = result.format;
+          }
         }
       } catch (e) {
         console.log(e);
@@ -122,18 +117,6 @@ export default {
         this.currentTab = "audio";
       } else if (this.vUrl) {
         this.currentTab = "video";
-      }
-    },
-
-    handleAudioError() {
-      if (this.aUrl.startsWith(this.$config.ipfsGateway)) {
-        this.aUrl = this.aUrl.replace(this.$config.ipfsGateway, this.$config.ipfsGateway2);
-      }
-    },
-
-    handleVideoError() {
-      if (this.vUrl.startsWith(this.$config.ipfsGateway)) {
-        this.vUrl = this.vUrl.replace(this.$config.ipfsGateway, this.$config.ipfsGateway2);
       }
     },
   },
