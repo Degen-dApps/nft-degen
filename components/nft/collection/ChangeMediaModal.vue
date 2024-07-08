@@ -18,17 +18,17 @@
             <div class="mb-2">
               <label :for="'input-audio-'+componentId" class="form-label">
                 <strong>
-                  Set a new .mp3 audio URL for your NFT:
+                  Set a new audio URL or CID for your NFT:
                 </strong>
               </label>
 
-              <input v-model="audioUrl" placeholder="Enter .mp3 URL here" type="text" class="form-control" :id="'input-audio-'+componentId">
+              <input v-model="audioUrl" placeholder="Enter audio URL/CID here" type="text" class="form-control" :id="'input-audio-'+componentId">
             </div>
 
             <div class="d-flex justify-content-between">
               <button @click="setAudio" :disabled="waitingAudio" class="btn btn-primary">
                 <span v-if="waitingAudio" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Submit audio URL
+                Submit audio URL or CID
               </button>
 
               <button @click="removeAudio" :disabled="waitingAudio" class="btn btn-danger btn-sm">
@@ -41,17 +41,17 @@
             <div class="mb-2">
               <label :for="'input-video-'+componentId" class="form-label">
                 <strong>
-                  Set a new .mp4 video URL for your NFT:
+                  Set a new video URL or CID for your NFT:
                 </strong>
               </label>
 
-              <input v-model="videoUrl" placeholder="Enter .mp4 URL here" type="text" class="form-control" :id="'input-video-'+componentId">
+              <input v-model="videoUrl" placeholder="Enter video URL/CID here" type="text" class="form-control" :id="'input-video-'+componentId">
             </div>
 
             <div class="d-flex justify-content-between">
               <button @click="setVideo" :disabled="waitingVideo" class="btn btn-primary">
                 <span v-if="waitingVideo" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Submit video URL
+                Submit video URL or CID
               </button>
 
               <button @click="removeVideo" :disabled="waitingVideo" class="btn btn-danger btn-sm">
@@ -195,7 +195,7 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait);
 
-          this.toast("You have successfully set a new audio URL.", {
+          this.toast("You have successfully set a new audio URL/CID.", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
@@ -272,7 +272,7 @@ export default {
         if (receipt.status === 1) {
           this.toast.dismiss(toastWait);
 
-          this.toast("You have successfully set a new video URL.", {
+          this.toast("You have successfully set a new video URL/CID.", {
             type: "success",
             onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
           });
