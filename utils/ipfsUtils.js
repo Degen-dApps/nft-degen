@@ -38,7 +38,11 @@ export async function getIpfsUrl(url) {
     cid = url.split("pinata.cloud/ipfs/")[1];
   }
 
-  return String("ipfs://" + cid);
+  if (cid) {
+    return String("ipfs://" + cid);
+  }
+  
+  return null;
 }
 
 export async function getWorkingUrl(url) {
@@ -56,6 +60,10 @@ export async function getWorkingUrl(url) {
     } catch (error) {
       ipfsUrl = await getIpfsUrl(url)
     }
+  }
+
+  if (!ipfsUrl) {
+    return url
   }
 
   const ipfsGateways = [
@@ -86,6 +94,6 @@ export async function getWorkingUrl(url) {
     }
   }
 
-  return null
+  return url
 
 }

@@ -170,6 +170,10 @@
                 <span v-else>See all NFTs in the collection</span>
               </span>
               <div class="dropdown-menu dropdown-menu-end">
+                <a class="dropdown-item cursor-pointer" target="_blank" :href="collectionJeevesLink">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>
+                  See all NFTs on Jeeves NFT marketplace
+                </a>
                 <a class="dropdown-item cursor-pointer" target="_blank" :href="collectionZapperLink">
                   <i class="bi bi-box-arrow-up-right me-1"></i>
                   See all NFTs on Zapper
@@ -412,6 +416,11 @@ export default {
 
     collectionExplorerLink() {
       return this.$config.blockExplorerBaseUrl+"/token/"+this.cAddress;
+    },
+
+    collectionJeevesLink() {
+      //https://www.jeeves.market/degen/collection/0x63b24abd4f3fa11c44be58fc867dd326e90aa59e
+      return `https://www.jeeves.market/degen/collection/${this.cAddress}`;
     },
 
     collectionZapperLink() {
