@@ -45,7 +45,7 @@
               @processFileUrl="insertImage"
               title="Upload image"
               infoText="Upload an image."
-              storageType="ipfs"
+              storageType="imagekit"
               :componentId="$.uid"
               :maxFileSize="$config.fileUploadSizeLimit"
             />

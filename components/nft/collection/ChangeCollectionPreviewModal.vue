@@ -16,7 +16,7 @@
 
               <FileUploadInput 
                 btnCls="btn btn-primary"
-                storageType="ipfs" 
+                storageType="imagekit" 
                 :maxFileSize="$config.fileUploadSizeLimit" 
                 @processUploadedFileUrl="insertImageLink"
               />
