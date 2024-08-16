@@ -97,7 +97,6 @@ export default defineNuxtConfig({
       orbisTestContext: "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2", // test context
       previewImage: "/img/covers/cover.png",
       previewImageAirdrop: "/img/covers/cover-airdrop.png",
-      previewMusicNfts: "/img/covers/cover-music-nfts.png",
       previewImageNftCollection: "/img/covers/cover-nft-collection.png",
       previewImageNftCreate: "/img/covers/cover-nft-create.png",
       previewImageNftLaunchpad: "/img/covers/cover-nft-launchpad.png",
@@ -105,6 +104,8 @@ export default defineNuxtConfig({
       previewImagePostNft: "/img/covers/cover-post-nft.png",
       previewImageProfile: "/img/covers/cover-profile.png",
       previewImageStake: "/img/covers/cover-stake.png",
+      previewMusicNfts: "/img/covers/cover-music-nfts.png",
+      previewVideoNfts: "/img/covers/cover-video-nfts.png",
       profileMintedPostIdsMax: 36, // max number of minted post ids to show in the profile page
       projectMetadataTitle: "NFTdegen.lol | NFT Launchpad & Marketplace on Degen Chain",
       projectName: "NFTdegen.lol",

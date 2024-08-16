@@ -93,6 +93,13 @@
             </NuxtLink>
           </li>
 
+          <!-- Video NFTs -->
+          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
+            <NuxtLink class="nav-link" :class="$route.path == '/nft/video-nfts' ? 'active' : ''" aria-current="page" to="/nft/video-nfts">
+              <i class="bi bi-camera-reels me-1"></i> Video NFTs
+            </NuxtLink>
+          </li>
+
           <!-- Featured NFTs -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.nftLaunchpadBondingAddress && $config.showFeatures.nftLaunchpad">
             <NuxtLink class="nav-link" :class="$route.path == '/nft/featured' ? 'active' : ''" aria-current="page" to="/nft/featured">
