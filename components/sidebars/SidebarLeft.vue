@@ -258,7 +258,7 @@
             </a>
           </li>
 
-          <!-- Grants -->
+          <!-- Grants 
           <li class="nav-item p-1 dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
               <i class="bi bi-piggy-bank me-1"></i> Grants
@@ -280,6 +280,7 @@
 
             </ul>
           </li>
+          -->
 
           <!-- More 
           <li class="nav-item p-1 dropdown">
