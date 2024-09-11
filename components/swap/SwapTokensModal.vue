@@ -123,6 +123,7 @@ export default {
 
       const inputTokenAmountWei = ethers.utils.parseUnits(this.inputTokenAmount, this.inputToken?.decimals);
 
+      //const referrer = ethers.constants.AddressZero;
       const referrer = fetchReferrer(window);
 
       try {
@@ -134,8 +135,7 @@ export default {
           inputTokenAmountWei,
           this.outputTokenAmountWei,
           this.routerAddress,
-          //referrer 
-          ethers.constants.AddressZero // referrer not used, because of an issue with the contract
+          referrer 
         );
 
         const toastWait = this.toast(
