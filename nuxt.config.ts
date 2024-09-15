@@ -53,6 +53,9 @@ export default defineNuxtConfig({
       activityPointsAddress: "0x50045895e1983F39FDC149C9a5AC29C39BEA18fe",
       airdropApAddress: "", // chat token claim for APs
       airdropClaimDomainsAddress: "", // chat token claim for domain holders
+      arweaveAddress: process.env.ARWEAVE_ADDRESS,
+      arweaveGateway: 'https://arweave.net/',
+      arweaveMinBalance: 0.02, // minimum AR balance to upload files
       blockExplorerBaseUrl: "https://explorer.degen.tips",
       chatChannels: { // go to Orbis Dashboard (https://useorbis.com/dashboard), create a new Project and then create a new Context for each of the channels below
         "general": "kjzl6cwe1jw149zsapqlwdgyu1eu3a489jlhpmwsrcxbh7z3wh09lwgpclgay81", // general discussion channel
@@ -68,8 +71,9 @@ export default defineNuxtConfig({
       expiryCollections: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       favicon: "/img/favicon.svg",
-      fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. IPFS via Thirdweb)
+      fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. arweave)
       fileUploadSizeLimit: 1 * 1024 * 1024, // max file upload size in bytes (1 * 1024 * 1024 = 1 MB)
+      fileUploadStorageType: "arweave", // "arweave" or "imagekit"
       fileUploadTokenService: process.env.FILE_UPLOAD_SERVICE || "netlify", // "netlify" or "vercel" (or leave empty for no file uploads)
       getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
       governanceUrl: "https://warpcast.com/~/channel/degen", // governance url (snapshot, Tally, etc.)
@@ -140,7 +144,6 @@ export default defineNuxtConfig({
       swapPriceImpactMaxBps: 1000, // max price impact in bips (1 bps = 0.01%, 1000bps = 10%) for the swap function
       swapRouterAddress: "0x0b7F9c544FAF10DFc6137Bd2ba9fF423cC62FBD7", // iggy swap router contract address
       tenorApiKey: process.env.TENOR_KEY || "",
-      thirdwebClientId: process.env.THIRDWEB_CLIENT_ID || "",
       tldName: ".degen",
       tokenAddress: null, // leave null if it's a native token of the chain
       tokenDecimals: 18,

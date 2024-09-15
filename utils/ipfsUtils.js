@@ -1,19 +1,8 @@
 import axios from "axios";
-import { ThirdwebStorage } from "@thirdweb-dev/storage";
 
-export async function uploadFileToThirdWeb(file) {
-  const config = useRuntimeConfig();
+const abortTimeout = 5000
 
-  const storage = new ThirdwebStorage({
-    clientId: config.thirdwebClientId,
-  });
-
-  const fileUri = await storage.upload(file);
-
-  return fileUri;
-}
-
-export async function getIpfsUrl(url) {
+export function getIpfsUrl(url) {
   let cid;
 
   if (url.startsWith("https://ipfs.io/ipfs/")) {
@@ -35,7 +24,13 @@ export async function getIpfsUrl(url) {
   } else if (url.startsWith("https://ipfs.filebase.io/ipfs/")) {
     cid = url.replace("https://ipfs.filebase.io/ipfs/", "");
   } else if (url.includes("pinata.cloud/ipfs/")) {
-    cid = url.split("pinata.cloud/ipfs/")[1];
+    cid = url.split(".pinata.cloud/ipfs/")[1];
+    cid = cid.replace("http://", "");
+    cid = cid.replace("https://", "");
+  } else if (url.includes(".ipfs.sphn.link/")) {
+    cid = url.split(".ipfs.sphn.link/")[1];
+    cid = cid.replace("http://", "");
+    cid = cid.replace("https://", "");
   }
 
   if (cid) {
@@ -51,14 +46,14 @@ export async function getWorkingUrl(url) {
   if (url.startsWith("http")) {
     // fetch head() with axios to check if the url is working
     try {
-      const response = await axios.head(url)
+      const response = await axios.head(url, { signal: AbortSignal.timeout(abortTimeout) })
       if (response.status === 200) {
         return { success: true, url: url, format: response.headers['content-type'] }
       } else {
-        ipfsUrl = await getIpfsUrl(url)
+        ipfsUrl = getIpfsUrl(url)
       }
     } catch (error) {
-      ipfsUrl = await getIpfsUrl(url)
+      ipfsUrl = getIpfsUrl(url)
     }
   }
 
@@ -84,13 +79,24 @@ export async function getWorkingUrl(url) {
 
       // fetch head() with axios to check if the url is working
       try {
-        const response = await axios.head(gatewayUrl)
+        const response = await axios.head(gatewayUrl, { signal: AbortSignal.timeout(abortTimeout) })
         if (response.status === 200) {
           return { success: true, url: gatewayUrl, format: response.headers['content-type'] }
         }
       } catch (error) {
         continue
       }
+    }
+  } else if (url.startsWith("ar://")) {
+    const arweaveUrl = url.replace("ar://", this.$config.arweaveGateway)
+    
+    try {
+      const response = await axios.head(arweaveUrl, { signal: AbortSignal.timeout(abortTimeout) })
+      if (response.status === 200) {
+        return { success: true, url: arweaveUrl, format: response.headers['content-type'] }
+      }
+    } catch (error) {
+      return url
     }
   }
 

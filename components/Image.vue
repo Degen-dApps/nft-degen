@@ -31,6 +31,8 @@ export default {
 
       if (parsedImage && parsedImage.includes("ipfs://")) {
         parsedImage = parsedImage.replace("ipfs://", this.$config.ipfsGateway);
+      } else if (parsedImage && parsedImage.includes("ar://")) {
+        parsedImage = parsedImage.replace("ar://", this.$config.arweaveGateway);
       }
 
       return parsedImage;

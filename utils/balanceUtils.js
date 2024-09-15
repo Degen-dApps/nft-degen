@@ -1,5 +1,13 @@
-import { ethers } from "ethers";
-import Erc20Abi from "~/assets/abi/Erc20Abi.json";
+import Arweave from 'arweave'
+import { ethers } from 'ethers'
+import Erc20Abi from '~/assets/abi/Erc20Abi.json'
+
+// Initialize Arweave
+const arweave = Arweave.init({
+  host: 'arweave.net',
+  port: 443,
+  protocol: 'https'
+})
 
 export async function getActivityPoints(userAddress, signer) {
   const config = useRuntimeConfig();
@@ -27,6 +35,11 @@ export async function getActivityPoints(userAddress, signer) {
   }
 
   return activityPoints;
+}
+
+export async function getArweaveBalance(arweaveAddress) {
+  const balance = await arweave.wallets.getBalance(arweaveAddress)
+  return arweave.ar.winstonToAr(balance)
 }
 
 export async function getTokenAllowance(token, userAddress, beneficiary, signer) {

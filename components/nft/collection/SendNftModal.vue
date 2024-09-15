@@ -154,7 +154,7 @@ export default {
           return;
         }
 
-        const tokenURI = await nftContract.tokenURI(this.tokenId);
+        let tokenURI = await nftContract.tokenURI(this.tokenId);
 
         if (tokenURI.startsWith("ipfs://")) {
           tokenURI = tokenURI.replace("ipfs://", this.$config.ipfsGateway);
@@ -176,7 +176,9 @@ export default {
 
         if (json["image"].startsWith("ipfs://")) {
           json["image"] = json["image"].replace("ipfs://", this.$config.ipfsGateway);
-        } 
+        }  else if (json["image"].startsWith("ar://")) {
+          json["image"] = json["image"].replace("ar://", this.$config.arweaveGateway);
+        }
 
         this.nftImage = json["image"];
         this.nftDataLoaded = true;

@@ -2,9 +2,7 @@
 
 The first NFT launchpad and marketplace on the Degen Chain.
 
-Links:
-- https://nftdegen.lol
-- https://nftdegen.org (if you're of more serious nature 🤪)
+Link: https://nftdegen.lol
 
 ## .env
 
@@ -51,21 +49,37 @@ If you want to have GIF search implemented, create your own Tenor API Key on Goo
 
 Then enter the key in environment variables (`TENOR_KEY`).
 
-## Image upload (ThirdWeb/IPFS)
+## Image upload (Arweave)
 
-To support image uploads on IPFS please create an API key on ThirdWeb: https://thirdweb.com/dashboard/settings/api-keys 
+To support image uploads, create an Arweave Wallet (e.g. here: https://arweave.app/) and send some AR to it.
 
-Make sure to whitelist only your website domain/URL. And also restrict (toggle off) the API key usage for other services apart from Storage Upload service (even Storage Download is not needed).
+Then go to the wallet settings and download Backup Keyfile.
 
-Then add the Client ID of your API key to your environment variables:
+In this file you'll find 10 different variables, enter these into your .env file:
 
 ```bash
-THIRDWEB_CLIENT_ID=
+ARWEAVE_KTY=
+ARWEAVE_N=
+ARWEAVE_E=
+ARWEAVE_D=
+ARWEAVE_P=
+ARWEAVE_Q=
+ARWEAVE_DP=
+ARWEAVE_DQ=
+ARWEAVE_QI=
 ```
 
-## Image upload fallback
+And add the arweave address too:
 
-It is recommended to use ImageKit as the fallback option, in case Thirdweb has technical issues.
+```bash
+ARWEAVE_ADDRESS=
+```
+
+Also make sure these variables are set on your hosting provider (Netlify, Vercel, etc).
+
+## ImageKit upload
+
+It is recommended to use ImageKit as the fallback option, in case Arweave has technical issues.
 
 For this to work, create an account at [ImageKit.io](https://imagekit.io/) and add these environment variables to your project:
 
@@ -74,6 +88,8 @@ IMAGEKIT_ENDPOINT=
 IMAGEKIT_PUBLIC_KEY=
 IMAGEKIT_PRIVATE_KEY=
 ```
+
+You can also use ImageKit as your main image upload, if you set the `fileUploadStorageType` variable in nuxt config to "imagekit".
 
 ## Customize
 
