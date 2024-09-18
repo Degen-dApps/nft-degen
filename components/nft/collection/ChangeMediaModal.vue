@@ -147,7 +147,7 @@ export default {
         url = url.trim();
       }
 
-      if (!url.startsWith("http") && !url.startsWith("ipfs")) {
+      if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ipfs://") && !url.startsWith("ar://")) {
         if (!url.includes("/") && !url.includes(".")) {
           return "ipfs://" + url;
         } else if (url.split(".").length > 2) {
