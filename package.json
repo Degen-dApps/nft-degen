@@ -9,8 +9,9 @@
   },
   "dependencies": {
     "@openzeppelin/merkle-tree": "^1.0.5",
-    "@orbisclub/orbis-sdk": "^0.4.70",
     "@pinia/nuxt": "^0.4.6",
+    "@vue-dapp/core": "^1.5.1",
+    "@vue-dapp/modal": "^1.5.1",
     "@vueuse/core": "^9.2.0",
     "@vueuse/nuxt": "^9.2.0",
     "arweave": "^1.15.1",
@@ -25,6 +26,7 @@
     "metascraper-title": "^5.36.0",
     "pinia": "^2.0.28",
     "sanitize-html": "^2.7.2",
+    "vue": "^3.4.27",
     "vue-dapp": "^0.6.2",
     "vue-toastification": "^2.0.0-rc.5"
   },

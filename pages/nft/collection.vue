@@ -285,11 +285,11 @@
     />
 
     <!-- Chat feed -->
-    <ChatFeed 
-      :key="cAddress"
-      class="mt-3 scroll-500" 
-      :showQuotedPost="$config.showRepliesOnHomepage" 
-      :orbisContext="$config.chatChannels.nftLaunchpad+':'+cAddress" 
+    <ChatFeed
+      :hideCommentBox="false"
+      class="mt-3 scroll-500"
+      :chatContext="$config.chat.contexts.nftLaunchpad"
+      :mainItemId="cAddress"
     />
   </div>
 
@@ -318,7 +318,7 @@
 <script>
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { useEthers, shortenAddress } from 'vue-dapp';
+import { useEthers, shortenAddress } from '~/store/ethers'
 import { useToast } from "vue-toastification/dist/index.mjs";
 import ChatFeed from "~/components/chat/ChatFeed.vue";
 import ConnectWalletButton from "~/components/ConnectWalletButton.vue";

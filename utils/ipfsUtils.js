@@ -24,9 +24,10 @@ export function getIpfsUrl(url) {
   } else if (url.startsWith("https://ipfs.filebase.io/ipfs/")) {
     cid = url.replace("https://ipfs.filebase.io/ipfs/", "");
   } else if (url.includes("pinata.cloud/ipfs/")) {
-    cid = url.split(".pinata.cloud/ipfs/")[1];
+    cid = url.split("pinata.cloud/ipfs/")[1];
     cid = cid.replace("http://", "");
     cid = cid.replace("https://", "");
+    //console.log(cid)
   } else if (url.includes(".ipfs.sphn.link/")) {
     cid = url.split(".ipfs.sphn.link/")[1];
     cid = cid.replace("http://", "");
@@ -44,6 +45,20 @@ export async function getWorkingUrl(url) {
   const config = useRuntimeConfig();
   let ipfsUrl = url
 
+  if (url.startsWith("ar://")) {
+    const arweaveUrl = url.replace("ar://", config.arweaveGateway)
+    
+    try {
+      const response = await axios.head(arweaveUrl, { signal: AbortSignal.timeout(abortTimeout) })
+      
+      if (response.status === 200) {
+        return { success: true, url: arweaveUrl, format: response.headers['content-type'] }
+      }
+    } catch (error) {
+      return url
+    }
+  }
+
   if (url.startsWith("http")) {
     // fetch head() with axios to check if the url is working
     try {
@@ -58,17 +73,13 @@ export async function getWorkingUrl(url) {
     }
   }
 
-  if (!ipfsUrl) {
-    return url
-  }
+  // ar://n2OwADdtvVUVp1MY88PtmX9GdAsRcD7fQD0YQNcDaZk?img
 
   const ipfsGateways = [
     'https://ipfs.io/ipfs/',
     'https://ipfs.filebase.io/ipfs/',
     //'https://cloudflare-ipfs.com/ipfs/',
     'https://gateway.pinata.cloud/ipfs/',
-    'https://ipfs.itslit.org/ipfs/',
-    'https://ipfs.dylmusic.com/ipfs/',
   ]
 
   if (ipfsUrl.startsWith("ipfs://")) {
@@ -87,17 +98,10 @@ export async function getWorkingUrl(url) {
         continue
       }
     }
-  } else if (url.startsWith("ar://")) {
-    const arweaveUrl = url.replace("ar://", config.arweaveGateway)
-    
-    try {
-      const response = await axios.head(arweaveUrl, { signal: AbortSignal.timeout(abortTimeout) })
-      if (response.status === 200) {
-        return { success: true, url: arweaveUrl, format: response.headers['content-type'] }
-      }
-    } catch (error) {
-      return url
-    }
+  }
+
+  if (!ipfsUrl) {
+    return url
   }
 
   return url

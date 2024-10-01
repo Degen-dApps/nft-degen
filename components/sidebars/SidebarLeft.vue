@@ -7,13 +7,14 @@
         <div v-if="isActivated" class="text-center">
 
           <NuxtLink :to="getProfileLink">
-            <ProfileImage 
-              :key="userStore.getOrbisImage"
-              @click="closeLeftSidebar"
-              class="img-fluid mt-3 rounded-circle w-30 sidebar-profile-image" 
-              :address="address" :domain="userStore.getDefaultDomain" :image="userStore.getOrbisImage" 
-            />
-          </NuxtLink>
+              <ProfileImage
+                :key="userStore.getImage"
+                @click="closeLeftSidebar"
+                class="img-fluid mt-3 rounded-circle w-30 sidebar-profile-image"
+                :domain="userStore.getDefaultDomain"
+                :image="userStore.getImage"
+              />
+            </NuxtLink>
 
           <h6 class="mt-3" v-if="userStore.getDefaultDomain">
             {{ getTextWithoutBlankCharacters(userStore.getDefaultDomain) }}
@@ -137,21 +138,6 @@
 
           <hr />
 
-          <!-- Notifications 
-          <li v-if="isActivated" class="nav-item p-1" @click="closeLeftSidebar">
-            <NuxtLink class="nav-link" :class="$route.path.startsWith('/notifications') ? 'active' : ''" aria-current="page" to="/notifications">
-              <i class="bi bi-bell me-1"></i> Notifications
-
-              <span 
-                class="badge text-bg-secondary" 
-                v-if="!notificationsStore.getLoadingNotifications && notificationsStore.getUnreadNotificationsCount > 0">
-                {{ notificationsStore.getUnreadNotificationsCount }}
-              </span>
-
-            </NuxtLink>
-          </li>
-          -->
-
           <!-- Degen Radio -->
           <li class="nav-item p-1" @click="closeLeftSidebar">
             <a class="nav-link" href="https://degenradio.lol" target="_blank">
@@ -188,13 +174,6 @@
             </NuxtLink>
           </li>
 
-          <!-- Search Posts -->
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.showFeatures.searchPosts">
-            <NuxtLink class="nav-link" :class="$route.path.startsWith('/search-posts') ? 'active' : ''" aria-current="page" to="/search-posts">
-              <i class="bi bi-search me-1"></i> Search Posts
-            </NuxtLink>
-          </li>
-
           <!-- Stake & Earn -->
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.stakingContractAddress && $config.showFeatures.stake">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/stake') ? 'active' : ''" aria-current="page" to="/stake">
@@ -206,13 +185,6 @@
           <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.swapRouterAddress && $config.showFeatures.swap">
             <NuxtLink class="nav-link" :class="$route.path.startsWith('/swap') ? 'active' : ''" aria-current="page" to="/swap">
               <i class="bi bi-arrow-down-up me-1"></i> Swap
-            </NuxtLink>
-          </li>
-          
-          <!-- Friend Keys -->
-          <li class="nav-item p-1" @click="closeLeftSidebar" v-if="$config.keysAddress && $config.showFeatures.friendKeys">
-            <NuxtLink class="nav-link" :class="$route.path.startsWith('/keys') ? 'active' : ''" aria-current="page" to="/keys">
-              <i class="bi bi-key me-1"></i> Friend Keys
             </NuxtLink>
           </li>
 
@@ -302,19 +274,6 @@
                 </NuxtLink>
               </li>
 
-              <li class="pt-1 pb-1">
-                <NuxtLink class="dropdown-item" :class="$route.path.startsWith('/notifications') ? 'active' : ''" aria-current="page" to="/notifications">
-                  <i class="bi bi-bell me-1"></i> Notifications
-
-                  <span 
-                    class="badge text-bg-secondary" 
-                    v-if="!notificationsStore.getLoadingNotifications && notificationsStore.getUnreadNotificationsCount > 0">
-                    {{ notificationsStore.getUnreadNotificationsCount }}
-                  </span>
-
-                </NuxtLink>
-              </li>
-
               <li class="pt-1 pb-1" @click="closeLeftSidebar">
                 <a class="dropdown-item" href="https://snapshot.org/#/sgbchat.eth" target="_blank">
                   <i class="bi bi-box2 me-1"></i> Governance <small><i class="bi bi-box-arrow-up-right ms-1"></i></small>
@@ -340,9 +299,8 @@
 </template>
 
 <script>
-import { useEthers } from 'vue-dapp';
+import { useEthers } from '~/store/ethers'
 import { useToast } from "vue-toastification/dist/index.mjs";
-import { useNotificationsStore } from '~/store/notifications';
 import { useSidebarStore } from '~/store/sidebars';
 import { useUserStore } from '~/store/user';
 import ProfileImage from "~/components/profile/ProfileImage.vue";
@@ -404,12 +362,10 @@ export default {
     const { address, isActivated } = useEthers();
 
     const toast = useToast();
-
-    const notificationsStore = useNotificationsStore();
     const sidebarStore = useSidebarStore();
     const userStore = useUserStore();
 
-    return { address, isActivated, notificationsStore, sidebarStore, toast, userStore }
+    return { address, isActivated, sidebarStore, toast, userStore }
   },
 }
 </script>

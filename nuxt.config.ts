@@ -57,48 +57,43 @@ export default defineNuxtConfig({
       arweaveGateway: 'https://arweave.net/',
       arweaveMinBalance: 0.02, // minimum AR balance to upload files
       blockExplorerBaseUrl: "https://explorer.degen.tips",
-      chatChannels: { // go to Orbis Dashboard (https://useorbis.com/dashboard), create a new Project and then create a new Context for each of the channels below
-        "general": "kjzl6cwe1jw149zsapqlwdgyu1eu3a489jlhpmwsrcxbh7z3wh09lwgpclgay81", // general discussion channel
-        "memesImages": "kjzl6cwe1jw148vo99d9oxi3eythf8lj1dluo9b2c53hxurj0swa9vy2rs50bme",
-        "shill": "kjzl6cwe1jw146ovuujljzgifqngnau17coortsp5adn6ma7ylwtupa97x099eb",
-        "nftLaunchpad": "kjzl6cwe1jw146vywbt9pa43w3yciyj9o3qp122hfghk4vh6fgvptplyaqqyyul",
-        "friendKeys": "kjzl6cwe1jw1479c4tqbw9uxoxfa9gq5w4ttrwsx374t3hi6j7o25320tf71x8s",
+      chat: {
+        contexts: {
+          general: '0x2FbE49507442d8d4B7d2d3010bCac2e76b01a248', // general discussion channel
+          memesImages: '0x2FbE49507442d8d4B7d2d3010bCac2e76b01a248',
+          shill: '0x2FbE49507442d8d4B7d2d3010bCac2e76b01a248',
+          nftLaunchpad: '0x7f8fAc07e9F55f7016113E44A49D4d15Eb895928', // comments context
+        },
+        storage: 'arweave', // storage type: 'arweave' or 'ipfs'
       },
       chatTokenAddress: "", // chat token address
       chatTokenImage: "", // chat token image
       chatTokenSymbol: "", // chat token symbol or name
       domainRequiredToPost: false,
       expiryCollections: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
+      expiryMods: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
+      expiryPfps: 1000 * 60 * 60 * 24 * 10, // must be in milliseconds (0 means no expiration)
       expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       favicon: "/img/favicon.svg",
       fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. arweave)
       fileUploadSizeLimit: 1 * 1024 * 1024, // max file upload size in bytes (1 * 1024 * 1024 = 1 MB)
       fileUploadStorageType: "arweave", // "arweave" or "imagekit"
       fileUploadTokenService: process.env.FILE_UPLOAD_SERVICE || "netlify", // "netlify" or "vercel" (or leave empty for no file uploads)
-      getPostsLimit: 30, // number of posts to fetch from Orbis in the getPosts() function
+      getPostsLimit: 10, // number of posts to fetch
       governanceUrl: "https://warpcast.com/~/channel/degen", // governance url (snapshot, Tally, etc.)
-      iggyPostAddress: "0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A",
-      iggyPostMinterAddress: "0xabf9960132818049340253C3Ca0551F92Db856d7",
-      iggyPostStatsAddress: "0x0BF6333Fc85159663A30Ac89FD02c5031B97c5ee",
       imagekitEndpoint: process.env.IMAGEKIT_ENDPOINT,
       imagekitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
       ipfsGateway: "https://ipfs.io/ipfs/", 
       ipfsGateway2: "https://ipfs.filebase.io/ipfs/", 
-      ipfsGateway3: "https://cloudflare-ipfs.com/ipfs/", 
-      keysAddress: "", // FriendKeys contract address 
-      keysFeatured: ["tempe", "tekr"],
+      ipfsGateway3: "https://cloudflare-ipfs.com/ipfs/",
       linkPreviews: process.env.LINK_PREVIEW_SERVICE || "netlify", // "netlify", "vercel", or "microlink" (or leave empty for no link previews)
       lpTokenAddress: "", // liquidity pool token (token to stake in the staking contract)
       lpTokenSymbol: "LP tokens", // LP token symbol
-      marketplacePostNftUrl: "https://explorer.degen.tips/token/0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A",
-      marketplacePostNftItemUrl: "https://explorer.degen.tips/token/0x99Dbf11aCd46baFBCE82506FaeB4F13E6Ea1726A/instance/", // url (append nft id to it)
       marketplaceNftCollectionBaseUrl: "https://explorer.degen.tips/token/", // url (append nft address to it)
       newsletterLink: "https://paragraph.xyz/@iggy?modal=subscribe",
       nftDefaultRatio: 169, // default ratio for the NFT price bonding curve
       nftLaunchpadBondingAddress: "0x1EB2Adc19eB3Df26D84427Be11F1eB1887c6631c", // NFT launchpad with bonding curve contract address
       nftLaunchpadLatestItems: 8, // number of latest NFTs to show in the NFT launchpad
-      orbisTest: false, // if true, test context will be used instead of the production one
-      orbisTestContext: "kjzl6cwe1jw145tfqv2eqv8tiz6puo27meyz4smz40atppuc13tulqca87k35z2", // test context
       previewImage: "/img/covers/cover.png",
       previewImageAirdrop: "/img/covers/cover-airdrop.png",
       previewImageNftCollection: "/img/covers/cover-nft-collection.png",
@@ -120,16 +115,12 @@ export default defineNuxtConfig({
       punkNumberOfPrices: 5, // number of different prices (based on domain length), usually 1 (price()) or 5 (price1char() - price5char())
       punkTldAddress: "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1", // punk domain TLD address
       randomPostsNumber: 1, // number of random post NFTs to show in the sidebar widget
-      rpcCustom: process.env.RPC_CUSTOM || "https://rpc.degen.tips", // Custom RPC URL
       showFeatures: { // show/hide features in sidebars (if you have too many "true", make the sidebar scrollable --> sidebarLeftSticky: false)
         "activityPoints": true, 
         "airdrop": false, 
-        "friendKeys": false, 
         "governance": false,
         "newsletter": false, 
         "nftLaunchpad": true, 
-        "randomMintedPosts": true, 
-        "searchPosts": false, 
         "swap": false, 
         "stake": false, 
         "sendTokens": true, 

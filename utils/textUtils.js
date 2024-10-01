@@ -73,7 +73,7 @@ export function findFirstUrl(text) {
 }
 
 export function getAllImagesFromText(text) {
-  const config = useRuntimeConfig();
+  const config = useRuntimeConfig()
 
   if (!text) {
     return []
@@ -113,7 +113,7 @@ export function getAllImagesFromText(text) {
 }
 
 export function getImageFromText(text) {
-  const config = useRuntimeConfig();
+  const config = useRuntimeConfig()
 
   if (!text) {
     return null
@@ -407,7 +407,8 @@ export function hasTextBlankCharacters(text) {
 }
 
 export function imgParsing(text) {
-  const config = useRuntimeConfig();
+  const config = useRuntimeConfig()
+
   const imageRegex = /(?:https?:\/\/|ipfs:\/\/|ar:\/\/)(?:[^\/\s]+\/)+[^\s]+\.(?:jpe?g|gif|webp|png|img)/gi
 
   if (!imageRegex.test(text)) {
@@ -427,7 +428,7 @@ export function imgParsing(text) {
 }
 
 export function imgWithoutExtensionParsing(text) {
-  const config = useRuntimeConfig();
+  const config = useRuntimeConfig()
 
   // if image doesn't have an extension, it won't be parsed by imgParsing
   // so we need to parse it here
@@ -525,7 +526,7 @@ export function youtubeParsing(text) {
     )[1]
 
     return (
-      "<iframe class='rounded' width='100%' height='315' src='https://www.youtube.com/embed/" +
+      "<iframe class='rounded youtube-embed' width='100%' height='315' src='https://www.youtube.com/embed/" +
       videoId +
       "' frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe>"
     )

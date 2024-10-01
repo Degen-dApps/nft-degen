@@ -50,7 +50,7 @@
 
 <script>
 import { ethers } from 'ethers';
-import { useEthers } from 'vue-dapp';
+import { useEthers } from '~/store/ethers'
 import { useToast } from "vue-toastification/dist/index.mjs";
 import Image from '~/components/Image.vue';
 import WaitingToast from "~/components/WaitingToast";

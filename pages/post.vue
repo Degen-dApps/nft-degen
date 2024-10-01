@@ -1,134 +1,208 @@
 <template>
-<div>
-  <Head>
-    <Meta name="description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+  <div>
+    <Head>
+      <Meta name="description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
 
-    <Meta property="og:image" :content="$config.projectUrl+$config.previewImagePost" />
-    <Meta property="og:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+      <Meta property="og:image" :content="$config.projectUrl + $config.previewImagePost" />
+      <Meta property="og:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
 
-    <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImagePost" />
-    <Meta name="twitter:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+      <Meta name="twitter:image" :content="$config.projectUrl + $config.previewImagePost" />
+      <Meta name="twitter:description" :content="'Check out this chat post on ' + $config.projectName + '!'" />
+    </Head>
+  </div>
 
-    <Link rel="canonical" :href="$config.projectUrl+'/post'" />
-  </Head>
+  <div :key="message?.url">
+    <!-- Main message -->
+    <ChatMessage v-if="message" :message="message" :chatContext="getChatContext" />
 
-  <ChatPost class="m-4" v-if="masterPost" :post="masterPost" :orbisContext="getOrbisContext" />
+    <!-- reply -->
+    <ChatMessage v-if="reply" :message="reply" :mainItemId="getMessageId" :chatContext="getChatContext" />
 
-  <ChatPost v-if="post" :post="post" :orbisContext="getOrbisContext" />
+    <!-- Chat feed of replies -->
+    <ChatFeed v-if="!isReply" :chatContext="getChatContext" :mainItemId="getMessageId" />
 
-  <ChatFeed v-if="post" :id="post.stream_id" :master="post.master" :masterPost="post" :orbisContext="getOrbisContext" />
-</div>
+    <!-- See other replies button -->
+    <NuxtLink v-if="isReply" :to="mainMessagePage" class="btn btn-primary">See other replies</NuxtLink>
+  </div>
+  
 </template>
 
 <script>
-import ChatPost from "~/components/chat/ChatPost.vue";
-import ChatFeed from "~/components/chat/ChatFeed.vue";
-import { useToast } from "vue-toastification/dist/index.mjs";
+import { ethers } from 'ethers'
+import { useToast } from 'vue-toastification/dist/index.mjs'
+import ChatFeed from '~/components/chat/ChatFeed.vue'
+import ChatMessage from '~/components/chat/ChatMessage.vue'
 
 export default {
   data() {
     return {
-      hasMaster: false,
-      masterPost: null,
-      post: null,
-      replyNotMaster: false
+      message: null,
+      reply: null,
     }
   },
 
   components: {
     ChatFeed,
-    ChatPost
+    ChatMessage,
   },
 
   created() {
-    this.getPostObject();
+    this.getMessage()
   },
 
   computed: {
-    getOrbisContext() {
-      if (this.post?.context) {
-        return this.post.context;
-      } else if (this.post?.content.context) {
-        return this.post.content.context;
-      } else if (this.post?.context_details.context_id) {
-        return this.post.context_details.context_id;
+    getChatContext() {
+      return this.route.query.context
+    },
+
+    getMessageId() {
+      return this.route.query.id
+    },
+
+    getReplyId() {
+      return this.route.query.reply
+    },
+
+    isReply() {
+      if (this.route.query.reply) {
+        return true
       } else {
-        if (this.$config.orbisTest) {
-          return this.$config.orbisTestContext;
-        } else {
-          return this.$config.chatChannels.general;
-        }
+        return false
       }
     },
-    
-    getPostAuthor() {
-      if (this.post) {
-        return this.post.creator_details.metadata.address;
-      }
 
-      return null;
-    },
-
-    getQueryId() {
-      return this.route.query.id;
+    mainMessagePage() {
+      return `/post/?id=${this.getMessageId}&context=${this.getChatContext}`
     }
   },
 
   methods: {
-    async getPostObject() {
-      this.post = null;
-      this.masterPost = null;
-      this.hasMaster = false;
-      this.replyNotMaster = false;
+    async getMessage() {
+      this.message = null
+      this.reply = null
 
-      let { data, error } = await this.$orbis.getPost(this.route.query.id);
+      try {
+        const provider = this.$getFallbackProvider(this.$config.supportedChainId);
 
-      this.post = data;
-
-      if (error) {
-        console.log("Orbis error");
-        console.log(error)
-        this.toast("Orbis error", {type: "error"});
-        this.toast(error, {type: "error"});
-      } else {
-        if (this.post.master) {
-          // fetch master post
-          this.hasMaster = true;
-
-          if (this.post.master !== this.post.reply_to) {
-            this.replyNotMaster = true;
+        const intrfc = new ethers.utils.Interface([
+          {
+            "inputs": [{"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"}],
+            "name": "getMainMessage",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"}
+                ],
+                "internalType": "struct ChatFeed.Message",
+                "name": "",
+                "type": "tuple"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+          },
+          {
+            "inputs": [
+              {"internalType": "uint256", "name": "mainMsgIndex_", "type": "uint256"},
+              {"internalType": "uint256", "name": "replyMsgIndex_", "type": "uint256"}
+            ],
+            "name": "getReply",
+            "outputs": [
+              {
+                "components": [
+                  {"internalType": "address", "name": "author", "type": "address"},
+                  {"internalType": "uint256", "name": "createdAt", "type": "uint256"},
+                  {"internalType": "bool", "name": "deleted", "type": "bool"},
+                  {"internalType": "uint256", "name": "index", "type": "uint256"},
+                  {"internalType": "uint256", "name": "repliesCount", "type": "uint256"},
+                  {"internalType": "string", "name": "url", "type": "string"}
+                ],
+                "internalType": "struct ChatFeed.Message",
+                "name": "",
+                "type": "tuple"
+              }
+            ],
+            "stateMutability": "view",
+            "type": "function"
           }
+        ]);
 
-          let { data, error } = await this.$orbis.getPost(this.post.master);
+        const contract = new ethers.Contract(this.getChatContext, intrfc, provider);
 
-          this.masterPost = data;
+        let msg;
+        let replyObj;
 
-          if (error) {
-            console.log("Orbis error");
-            console.log(error)
-            this.toast("Orbis error", {type: "error"});
-            this.toast(error, {type: "error"});
+        msg = await contract.getMainMessage(this.getMessageId);
+        
+        if (this.isReply) {
+          replyObj = await contract.getReply(this.getMessageId, this.getReplyId);
+        }
+
+        if (!msg.deleted) {
+          this.message = {
+            author: msg.author,
+            url: msg.url,
+            createdAt: msg.createdAt.toNumber(),
+            deleted: msg.deleted,
+            repliesCount: msg.repliesCount.toNumber(),
+            index: msg.index.toNumber(),
+          };
+        } else {
+          this.toast('This message has been deleted.', { type: 'info' });
+        }
+
+        if (replyObj) {
+          if (!replyObj.deleted) {
+            this.reply = {
+              author: replyObj.author,
+              url: replyObj.url,
+              createdAt: replyObj.createdAt.toNumber(),
+              deleted: replyObj.deleted,
+              repliesCount: replyObj.repliesCount.toNumber(),
+              index: replyObj.index.toNumber(),
+            };
+          } else {
+            this.toast('This reply has been deleted.', { type: 'info' });
           }
         }
+
+      } catch (error) {
+        console.error(error);
+        this.toast('Failed to load the message', { type: 'error' });
       }
     }
   },
 
   setup() {
-    const route = useRoute();
-    const toast = useToast();
+    const route = useRoute()
+    const toast = useToast()
 
     return {
       route,
-      toast
+      toast,
     }
   },
 
   watch: {
-    getQueryId(val, oldVal) {
-      // refresh post object if id in query has changed
-      this.getPostObject();
-    }
+    getChatContext(val, oldVal) {
+      // TODO: refresh post object if id in query has changed
+      this.getMessage()
+    },
+
+    getMessageId(val, oldVal) {
+      // TODO: refresh post object if id in query has changed
+      this.getMessage()
+    },
+
+    getReplyId(val, oldVal) {
+      // TODO: refresh post object if id in query has changed
+      this.getMessage()
+    },
   },
 }
 </script>

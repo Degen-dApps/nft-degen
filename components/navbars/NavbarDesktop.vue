@@ -60,62 +60,61 @@
 </template>
 
 <script>
-import { useEthers, useWallet, shortenAddress } from 'vue-dapp';
-import { useSiteStore } from '~/store/site';
-import { useUserStore } from '~/store/user';
-import ConnectWalletButton from "~/components/ConnectWalletButton.vue";
-import SwitchChainButton from "~/components/SwitchChainButton.vue";
-import { addTokenToMetaMask } from '~/utils/tokenUtils';
-import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
+import { useEthers, shortenAddress } from '~/store/ethers'
+import { useSiteStore } from '~/store/site'
+import { useUserStore } from '~/store/user'
+import ConnectWalletButton from '~/components/ConnectWalletButton.vue'
+import SwitchChainButton from '~/components/SwitchChainButton.vue'
+import { addTokenToMetaMask } from '~/utils/tokenUtils'
+import { getTextWithoutBlankCharacters } from '~/utils/textUtils'
 
 export default {
-  name: "Navbar",
+  name: 'Navbar',
 
   components: {
     ConnectWalletButton,
-    SwitchChainButton
+    SwitchChainButton,
   },
 
   computed: {
     showDomainOrAddress() {
       if (this.userStore.getDefaultDomain) {
-        return getTextWithoutBlankCharacters(this.userStore.getDefaultDomain);
+        return getTextWithoutBlankCharacters(this.userStore.getDefaultDomain)
       } else if (this.address) {
-        return this.shortenAddress(this.address);
+        return this.shortenAddress(this.address)
       }
 
-      return "Profile"
-    }
+      return 'Profile'
+    },
   },
 
   methods: {
     addToMetaMask() {
       addTokenToMetaMask(
         window.ethereum,
-        this.$config.chatTokenAddress, 
-        this.$config.chatTokenSymbol, 
+        this.$config.chatTokenAddress,
+        this.$config.chatTokenSymbol,
         18, // decimals
-        this.$config.chatTokenImage
-      );
+        this.$config.chatTokenImage,
+      )
     },
 
     changeColorMode(newMode) {
-      this.siteStore.setColorMode(newMode);
-      document.documentElement.setAttribute("data-bs-theme", this.siteStore.getColorMode);
+      this.siteStore.setColorMode(newMode)
+      document.documentElement.setAttribute('data-bs-theme', this.siteStore.getColorMode)
     },
 
     async disconnectWallet() {
-      this.disconnect();
-    }
+      this.disconnect()
+    },
   },
 
   setup() {
-    const { disconnect } = useWallet();
-    const { address, isActivated } = useEthers();
-    const siteStore = useSiteStore();
-    const userStore = useUserStore();
+    const { address, isActivated, disconnect } = useEthers()
+    const siteStore = useSiteStore()
+    const userStore = useUserStore()
 
     return { address, disconnect, isActivated, shortenAddress, siteStore, userStore }
-  }
+  },
 }
 </script>

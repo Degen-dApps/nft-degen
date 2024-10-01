@@ -18,7 +18,7 @@
 
 <script>
 import { ethers } from 'ethers';
-import { useEthers } from 'vue-dapp';
+import { useEthers } from '~/store/ethers'
 import Image from '~/components/Image.vue';
 import { fetchCollection, storeCollection } from '~/utils/storageUtils';
 

@@ -88,7 +88,7 @@
 <script>
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { useEthers } from 'vue-dapp';
+import { useEthers } from '~/store/ethers'
 import Image from '~~/components/Image.vue';
 import SearchNftModal from '~/components/nft/SearchNftModal.vue';
 import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';

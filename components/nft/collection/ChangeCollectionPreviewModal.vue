@@ -30,7 +30,7 @@
             <input v-model="imageUrl" type="text" class="form-control">
 
             <div v-if="imageUrl" class="mt-3">
-              <img :src="parseImageLink" class="img-thumbnail img-fluid" style="max-width: 100px;" />
+              <Image :url="parseImageLink" cls="img-thumbnail img-fluid" style="max-width: 100px;" />
               <br />
               <small>If image didn't appear above, then something is wrong with the link you added (wait until the loading indicator completes).</small>
             </div>
@@ -52,16 +52,17 @@
 <script>
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { useEthers } from 'vue-dapp';
+import { useEthers } from '~/store/ethers'
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 import FileUploadInput from '~/components/storage/FileUploadInput.vue';
+import Image from '~~/components/Image.vue';
 
 export default {
   name: 'ChangeCollectionPreviewModal',
   props: ["cAddress", "mdAddress"],
   emits: ["saveCollection"],
-  components: { FileUploadInput },
+  components: { FileUploadInput, Image },
 
   data() {
     return {

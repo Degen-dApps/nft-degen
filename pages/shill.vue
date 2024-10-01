@@ -2,24 +2,19 @@
   <Head>
     <Title>Shill and discuss projects | {{ $config.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'Shill and discuss projects | ' + $config.projectMetadataTitle" />
-    <Link rel="canonical" :href="$config.projectUrl+'/shill'" />
   </Head>
 
-  <ChatFeed 
-    class="mt-1" 
-    :showQuotedPost="$config.showRepliesOnHomepage" 
-    :orbisContext="$config.chatChannels.shill" 
-  />
+  <ChatFeed class="mt-1" :chatContext="$config.chat.contexts.shill" />
 </template>
 
 <script>
-import ChatFeed from "../components/chat/ChatFeed.vue"
+import ChatFeed from '../components/chat/ChatFeed.vue'
 
 export default {
-  name: "shill",
+  name: 'shill',
 
   components: {
-    ChatFeed
-  }
+    ChatFeed,
+  },
 }
 </script>

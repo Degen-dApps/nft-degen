@@ -20,10 +20,6 @@
         </div>
       </div>
 
-      <!-- Keys list 
-      <KeysListWidget v-if="$config.keysAddress && $config.showFeatures.friendKeys" />
-      -->
-
       <!-- Swap tokens -->
       <SimpleSwapWidget 
         v-if="$config.swapRouterAddress && $config.showFeatures.swap" 
@@ -31,9 +27,6 @@
         :tokens="tokens" 
         poweredBy="DegenSwap" 
         title="Swap tokens" />
-
-      <!-- Random minted post(s) -->
-      <MintedPostsWidget v-if="$config.showFeatures.randomMintedPosts" @closeRightSidebar="closeRightSidebar" />
 
       <!-- Newsletter -->
       <div v-if="$config.newsletterLink && $config.showFeatures.newsletter" class="card m-2 bg-light">
@@ -54,8 +47,6 @@
 <script>
 import tokens from '~/assets/data/tokens.json';
 import { useSidebarStore } from '~/store/sidebars';
-import KeysListWidget from '~/components/keys/KeysListWidget.vue';
-import MintedPostsWidget from '~/components/minted-posts/MintedPostsWidget.vue';
 import NameMintWidget from '~/components/names/NameMintWidget.vue';
 import PoidhSidebarWidget from '~/components/poidh/PoidhSidebarWidget.vue';
 import ReferralWidget from '~/components/referrals/ReferralWidget.vue';
@@ -66,8 +57,6 @@ export default {
     props: ["rSidebar", "isMobile"],
 
     components: { 
-      KeysListWidget,
-      MintedPostsWidget,
       NameMintWidget,
       PoidhSidebarWidget,
       ReferralWidget,

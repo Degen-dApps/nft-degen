@@ -5,7 +5,7 @@
     <h4 class="text-center mt-5">{{ title }}</h4>
 
     <div class="d-flex justify-content-center mt-4 mb-4">
-      <img :src="nftImage" class="img-thumbnail" :class="imageClass" style="max-width: 200px;" alt="NFT image">
+      <img :src="nftImage" class="img-thumbnail" :class="imageClass" style="max-width: 200px;" alt="NFT image" />
     </div>
 
     <p v-if="!isUserEligible" class="text-center">
@@ -33,7 +33,7 @@
 
 <script>
 import { ethers } from 'ethers';
-import { useEthers } from 'vue-dapp';
+import { useEthers } from '~/store/ethers'
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "~/components/WaitingToast";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
