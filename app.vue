@@ -15,7 +15,20 @@
     <Meta name="twitter:description" :content="$config.public.projectDescription" />
     <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImage" />
     
-    <Meta name="fc:miniapp" :content="farcasterMetaContent" />
+    <Meta name="fc:miniapp" :content='{
+        "version":"next",
+        "imageUrl":"https://nftdegen.lol/img/farcaster/fc-image.png",
+        "button":{
+          "title":"Launch and Trade Liquid NFTs",
+          "action":{
+            "type":"launch_miniapp",
+            "name":"NFTdegen",
+            "url":"https://nftdegen.lol",
+            "splashImageUrl":"https://nftdegen.lol/img/farcaster/fc-icon.png",
+            "splashBackgroundColor":"#212529"
+          }
+        }
+      }' />
   </Head>
 
   <NavbarDesktop v-if="!isMobile" />
@@ -152,7 +165,7 @@ export default {
     
     farcasterMetaContent() {
       return JSON.stringify({
-        version: 'next',
+        version: farcasterConfig.miniapp.version,
         imageUrl: farcasterConfig.miniapp.imageUrl,
         button: {
           title: farcasterConfig.miniapp.buttonTitle,
