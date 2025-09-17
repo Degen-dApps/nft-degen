@@ -152,7 +152,7 @@ export default {
     
     farcasterMetaContent() {
       return JSON.stringify({
-        version: farcasterConfig.miniapp.version,
+        version: 'next',
         imageUrl: farcasterConfig.miniapp.imageUrl,
         button: {
           title: farcasterConfig.miniapp.buttonTitle,

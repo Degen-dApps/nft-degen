@@ -1,19 +1,20 @@
 {
   "accountAssociation": {
-    "header": "",
-    "payload": "",
-    "signature": ""
+    "header": "eyJmaWQiOjExMjk5LCJ0eXBlIjoiY3VzdG9keSIsImtleSI6IjB4YjYyOTViQWU4OWNlOTAwZDNCOUIyZDA5ODBGZkI5NDQwZjVDZjhCRiJ9",
+    "payload": "eyJkb21haW4iOiJuZnRkZWdlbi5sb2wifQ",
+    "signature": "MHhlYmY5OTUzYjliYTRjNDI5MmM0NGVjYWFkODI1NmY1YzQ5YzU3N2NhYzhmNWJhODdmZjJjYjdhNDNjMzM1ODAwMmIyZjg0OThlMDJhOTk4MWNkY2Q0ZTBhMmJhM2YwOWRhOTdjYzgxNTViZWJjODBlNmY4Y2M1MjRjNmRkM2MyODFj"
   },
   "miniapp": {
     "version": "1",
     "name": "NFTdegen",
     "subtitle": "NFT Launchpad And Marketplace",
+    "buttonTitle": "Launch and Trade Liquid NFTs",
     "description": "NFT Launchpad And Marketplace on Degen Chain",
     "tags": ["nft", "launchpad", "marketplace", "degen"],
     "primaryCategory": "art-creativity",
     "homeUrl": "https://nftdegen.lol",
     "iconUrl": "https://nftdegen.lol/img/farcaster/fc-icon.png",
-    "heroImageUrl": "https://nftdegen.lol/img/covers/cover.png",
+    "heroImageUrl": "https://nftdegen.lol/img/farcaster/fc-hero.png",
     "imageUrl": "https://nftdegen.lol/img/farcaster/fc-image.png",
     "splashImageUrl": "https://nftdegen.lol/img/farcaster/fc-icon.png",
     "splashBackgroundColor": "#212529"
