@@ -94,10 +94,9 @@
 
 <script>
 import axios from 'axios';
-import { ethers } from 'ethers';
-import { useEthers } from '~/store/ethers'
 import { useToast } from "vue-toastification/dist/index.mjs";
-import WaitingToast from "~/components/WaitingToast";
+import WaitingToast from "@/components/WaitingToast";
+import { useWeb3 } from '@/composables/useWeb3'
 
 export default {
   name: 'ChangeMediaModal',
@@ -122,19 +121,16 @@ export default {
   methods: {
     async removeAudio() {
       this.audioUrl = "";
-
       await this.setAudio();
     },
 
     async removeVideo() {
       this.videoUrl = "";
-
       await this.setVideo();
     },
 
     async removeYoutube() {
       this.youtubeUrl = "";
-
       await this.setYoutube();
     },
 
@@ -163,18 +159,33 @@ export default {
     async setAudio() {
       this.waitingAudio = true;
       this.audioUrl = this.sanitizeUrl(this.audioUrl);
-
-      const metadataInterface = new ethers.utils.Interface([
-        "function setAudioUrl(address nftAddress_, string memory audioUrl_) external "
-      ]);
       
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
-
       try {
-        const tx = await metadataContract.setAudioUrl(
-          this.cAddress, 
-          this.audioUrl
-        ); 
+        const hash = await this.writeData({
+          address: this.mdAddress,
+          abi: [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "nftAddress_",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "audioUrl_",
+                  "type": "string"
+                }
+              ],
+              "name": "setAudioUrl",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          functionName: 'setAudioUrl',
+          args: [this.cAddress, this.audioUrl]
+        });
 
         const toastWait = this.toast(
           {
@@ -185,18 +196,18 @@ export default {
           },
           {
             type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           }
         );
 
-        const receipt = await tx.wait();
+        const receipt = await this.waitForTxReceipt(hash);
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
 
           this.toast("You have successfully set a new audio URL/CID.", {
             type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
 
           try {
@@ -206,14 +217,13 @@ export default {
           }
 
           this.audioUrl = null;
-
           this.waitingAudio = false;
         } else {
           this.toast.dismiss(toastWait);
           this.waitingAudio = false;
           this.toast("Transaction has failed.", {
             type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
           console.log(receipt);
         }
@@ -221,10 +231,10 @@ export default {
         console.error(e);
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace(/"/g, "");
-          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, '')
+          extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
           console.log(extractMessage);
           
@@ -241,17 +251,32 @@ export default {
       this.waitingVideo = true;
       this.videoUrl = this.sanitizeUrl(this.videoUrl);
 
-      const metadataInterface = new ethers.utils.Interface([
-        "function setAnimationUrl(address nftAddress_, string memory animationUrl_) external "
-      ]);
-      
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
-
       try {
-        const tx = await metadataContract.setAnimationUrl(
-          this.cAddress, 
-          this.videoUrl
-        ); 
+        const hash = await this.writeData({
+          address: this.mdAddress,
+          abi: [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "nftAddress_",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "animationUrl_",
+                  "type": "string"
+                }
+              ],
+              "name": "setAnimationUrl",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          functionName: 'setAnimationUrl',
+          args: [this.cAddress, this.videoUrl]
+        });
 
         const toastWait = this.toast(
           {
@@ -262,18 +287,18 @@ export default {
           },
           {
             type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           }
         );
 
-        const receipt = await tx.wait();
+        const receipt = await this.waitForTxReceipt(hash);
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
 
           this.toast("You have successfully set a new video URL/CID.", {
             type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
 
           try {
@@ -283,14 +308,13 @@ export default {
           }
 
           this.videoUrl = null;
-
           this.waitingVideo = false;
         } else {
           this.toast.dismiss(toastWait);
           this.waitingVideo = false;
           this.toast("Transaction has failed.", {
             type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
           console.log(receipt);
         }
@@ -298,10 +322,10 @@ export default {
         console.error(e);
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace(/"/g, "");
-          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, '')
+          extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
           console.log(extractMessage);
           
@@ -317,21 +341,36 @@ export default {
     async setYoutube() {
       this.waitingYoutube = true;
 
-      const metadataInterface = new ethers.utils.Interface([
-        "function setYoutubeUrl(address nftAddress_, string memory youtubeUrl_) external "
-      ]);
-      
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
-
       if (!this.youtubeUrl) {
         this.youtubeUrl = "";
       }
 
       try {
-        const tx = await metadataContract.setYoutubeUrl(
-          this.cAddress, 
-          this.youtubeUrl
-        ); 
+        const hash = await this.writeData({
+          address: this.mdAddress,
+          abi: [
+            {
+              "inputs": [
+                {
+                  "internalType": "address",
+                  "name": "nftAddress_",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "youtubeUrl_",
+                  "type": "string"
+                }
+              ],
+              "name": "setYoutubeUrl",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function"
+            }
+          ],
+          functionName: 'setYoutubeUrl',
+          args: [this.cAddress, this.youtubeUrl]
+        });
 
         const toastWait = this.toast(
           {
@@ -342,18 +381,18 @@ export default {
           },
           {
             type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           }
         );
 
-        const receipt = await tx.wait();
+        const receipt = await this.waitForTxReceipt(hash);
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
 
           this.toast("You have successfully set a new YouTube URL.", {
             type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
 
           try {
@@ -363,14 +402,13 @@ export default {
           }
 
           this.youtubeUrl = null;
-
           this.waitingYoutube = false;
         } else {
           this.toast.dismiss(toastWait);
           this.waitingYoutube = false;
           this.toast("Transaction has failed.", {
             type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
           console.log(receipt);
         }
@@ -378,10 +416,10 @@ export default {
         console.error(e);
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace(/"/g, "");
-          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, '')
+          extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
           console.log(extractMessage);
           
@@ -396,10 +434,14 @@ export default {
   },
 
   setup() {
-    const { signer } = useEthers();
+    const { writeData, waitForTxReceipt } = useWeb3();
     const toast = useToast();
 
-    return { signer, toast };
+    return { 
+      writeData,
+      waitForTxReceipt,
+      toast 
+    };
   },
 }
 </script>

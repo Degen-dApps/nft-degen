@@ -1,9 +1,7 @@
 <template>
   <Head>
-    <Title>Activity Points | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Activity Points | ' + $config.projectMetadataTitle" />
-
-    <Link rel="canonical" :href="$config.projectUrl+'/activity-points'" />
+    <Title>Activity Points | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Activity Points | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <div class="card border scroll-500">
@@ -14,47 +12,37 @@
 
       <h3 class="mb-3 mt-3">Activity Points</h3>
 
-      <p class="text-break mt-3">
-        Your current Activity Points balance:
-      </p>
+      <p class="text-break mt-3">Your current Activity Points balance:</p>
 
       <!-- Input field -->
       <div class="row">
-      <div class="col-md-5">
-        <div class="input-group">
-          <input 
-            :value="userStore.getCurentUserActivityPoints"
-            type="text"
-            class="form-control"
-            disabled
-          >
+        <div class="col-md-5">
+          <div class="input-group">
+            <input :value="getLessDecimals(getCurentUserActivityPoints())" type="text" class="form-control" disabled />
 
-          <button class="btn btn-primary disabled" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Activity Points
-          </button>
+            <button class="btn btn-primary disabled" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Activity Points
+            </button>
+          </div>
         </div>
-      </div>
       </div>
 
       <div class="mt-4 mb-3">
         <span>How to earn more Activity Points:</span>
 
         <ul>
-          <li v-if="$config.showFeatures.nftLaunchpad">Launch NFTs via the NFT Launchpad</li>
-          <li v-if="$config.showFeatures.nftLaunchpad">Buy or sell NFTs</li>
-          <li>Mint {{ $config.tldName }} domains</li>
-          <li v-if="$config.showFeatures.swap">Swap tokens (when the receiving token is {{ $config.tokenSymbol }})</li>
-          <li>Mint posts (each NFT has a built-in chat where you can post messages and mint them.)</li>
-          <li>Invite others to {{ $config.projectName }} using referral links</li>
+          <li v-if="$config.public.showFeatures.nftLaunchpad">Launch NFTs via the NFT Launchpad</li>
+          <li v-if="$config.public.showFeatures.nftLaunchpad">Buy or sell NFTs</li>
+          <li>Mint {{ $config.public.tldName }} domains</li>
+          <li v-if="$config.public.showFeatures.swap">Swap tokens (when the receiving token is {{ $config.public.tokenSymbol }})</li>
+          <li>Invite others to {{ $config.public.projectName }} using referral links</li>
           <li>Other kinds of earning APs are coming soon, stay tuned!</li>
         </ul>
       </div>
 
       <hr />
 
-      <h5 class="text-break mt-4 mb-3">
-        Share referral link to earn more APs
-      </h5>
+      <h5 class="text-break mt-4 mb-3">Share referral link to earn more APs</h5>
 
       <p class="text-break mt-2 mb-3">
         Earn additional activity points (and referral fees) by sharing your referral link:
@@ -65,16 +53,15 @@
           <ShareReferralLink />
         </div>
       </div>
-
     </div>
   </div>
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
-import { useUserStore } from '~/store/user';
-import { getActivityPoints } from '~/utils/balanceUtils';
-import ShareReferralLink from '~/components/referrals/ShareReferralLink.vue';
+import ShareReferralLink from '@/components/referrals/ShareReferralLink.vue'
+import { useAccountData } from '@/composables/useAccountData'
+import { getActivityPoints } from '@/utils/balanceUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
 
 export default {
   name: 'ActivityPoints',
@@ -84,25 +71,32 @@ export default {
   },
 
   mounted() {
-    this.fetchActivityPoints();
+    this.fetchActivityPoints()
   },
 
   methods: {
     getActivityPoints,
 
     async fetchActivityPoints() {
-      if (this.$config.activityPointsAddress && this.address) {
-        const activityPoints = await this.getActivityPoints(this.address);
-        this.userStore.setCurrentUserActivityPoints(activityPoints);
+      if (this.$config.public.activityPointsAddress && this.address) {
+        const activityPoints = await this.getActivityPoints(this.address)
+        this.setCurrentUserActivityPoints(activityPoints)
       }
-    }
+    },
   },
 
   setup() {
-    const { address } = useEthers();
-    const userStore = useUserStore();
+    const { 
+      address, 
+      getCurentUserActivityPoints, 
+      setCurrentUserActivityPoints 
+    } = useAccountData()
 
-    return { address, userStore }
+    return { 
+      address, 
+      getCurentUserActivityPoints, 
+      setCurrentUserActivityPoints 
+    }
   },
 }
 </script>

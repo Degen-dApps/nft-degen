@@ -1,26 +1,28 @@
 <template>
   <Head>
-    <Title>Most Traded NFTs | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Most Traded NFTs | '+$config.projectMetadataTitle" />
+    <Title>Most Traded NFTs | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Most Traded NFTs | '+$config.public.projectMetadataTitle" />
   
     <Meta name="description" content="Check these NFTs that were traded the most!" />
   
-    <Meta property="og:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
+    <Meta property="og:image" :content="$config.public.projectUrl+$config.public.previewImageNftLaunchpad" />
     <Meta property="og:description" content="Check these NFTs that were traded the most!" />
   
-    <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl+$config.public.previewImageNftLaunchpad" />
     <Meta name="twitter:description" content="Check these NFTs that were traded the most!" />
 
-    <Link rel="canonical" :href="$config.projectUrl+'/nft/most-traded'" />
+    <Link rel="canonical" :href="$config.public.projectUrl+'/nft/most-traded'" />
   </Head>
   
   <div class="card border scroll-500">
     <div class="card-body">
   
+      <!--
       <p v-if="!hideBackButton" class="fs-3">
         <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
       </p>
-  
+      -->
+      
       <h3 class="d-flex flex-row flex-wrap mt-3 mb-3">
         <div class="mb-3 me-auto">NFT Launchpad</div>
         
@@ -51,9 +53,9 @@
   
 <script>
 import axios from 'axios';
-import SearchNftModal from '~/components/nft/SearchNftModal.vue';
-import NftCollectionsList from '~/components/nft/list/NftCollectionsList.vue';
-import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';
+import SearchNftModal from '@/components/nft/SearchNftModal.vue';
+import NftCollectionsList from '@/components/nft/list/NftCollectionsList.vue';
+import NftListDropdown from '@/components/nft/list/NftListDropdown.vue';
 
 export default {
   name: 'NftsMostTraded',

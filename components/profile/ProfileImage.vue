@@ -3,16 +3,12 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
-import Image from '~/components/Image.vue'
-import { useEthers } from '~/store/ethers'
-import { getWorkingUrl } from '~/utils/ipfsUtils'
-import { fetchData, storeData } from '~/utils/storageUtils'
+import { getWorkingUrl } from '@/utils/fileUtils'
+import { fetchData, storeData } from '@/utils/browserStorageUtils'
 
 export default {
   name: 'ProfileImage',
   props: ['domain', 'image'],
-  components: { Image },
 
   data() {
     return {
@@ -35,7 +31,7 @@ export default {
         return null
       }
 
-      return this.domain.replace(this.$config.tldName, '')
+      return this.domain.replace(this.$config.public.tldName, '')
     },
   },
 
@@ -51,9 +47,8 @@ export default {
       
       // Check if domain name is passed as a prop
       if (this.domainName) {
-
         // Check if domain name has an image (domainName-img key)
-        const dataObject = fetchData(window, this.domainName, "img", this.$config.expiryPfps)
+        const dataObject = fetchData(window, this.domainName, "img", this.$config.public.expiryPfps)
 
         if (dataObject) {
           const prefetchRes = await getWorkingUrl(dataObject.image)
@@ -63,36 +58,41 @@ export default {
           }
         } else {
           // fetch image from blockchain
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId)
+          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
+            try {
+              // Use readData from useWeb3 composable to read from contract
+              const contractConfig = {
+                address: this.$config.public.punkTldAddress,
+                abi: [
+                  {
+                    name: 'getDomainData',
+                    type: 'function',
+                    stateMutability: 'view',
+                    inputs: [{ name: '_domainName', type: 'string' }],
+                    outputs: [{ name: '', type: 'string' }]
+                  }
+                ],
+                functionName: 'getDomainData',
+                args: [String(this.domainName).toLowerCase()]
+              }
 
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-            // fetch provider from user's wallet
-            provider = this.signer
-          }
+              const domainData = await this.readData(contractConfig)
 
-          const punkInterface = new ethers.utils.Interface([
-            'function getDomainData(string calldata _domainName) public view returns(string memory) ', // returns a stringified JSON object
-          ])
+              if (domainData) {
+                const domainDataJson = JSON.parse(domainData)
 
-          const punkContract = new ethers.Contract(this.$config.punkTldAddress, punkInterface, provider)
+                if (domainDataJson?.image) {
+                  const res = await getWorkingUrl(domainDataJson.image)
 
-          try {
-            const domainData = await punkContract.getDomainData(String(this.domainName).toLowerCase())
-
-            if (domainData) {
-              const domainDataJson = JSON.parse(domainData)
-
-              if (domainDataJson?.image) {
-                const res = await getWorkingUrl(domainDataJson.image)
-
-                if (res.success) {
-                  this.imgPath = res.url
-                  return storeData(window, this.domainName, { image: domainDataJson.image }, "img")
+                  if (res.success) {
+                    this.imgPath = res.url
+                    return storeData(window, this.domainName, { image: domainDataJson.image }, "img")
+                  }
                 }
               }
+            } catch (error) {
+              console.error('Error fetching domain data:', error)
             }
-          } catch (error) {
-            console.error('Error fetching domain data:', error)
           }
         }
       }
@@ -103,12 +103,13 @@ export default {
   },
 
   setup() {
-    const { signer, chainId, isActivated } = useEthers()
+    const { chainId, isActivated } = useAccountData()
+    const { readData } = useWeb3()
 
     return {
-      signer,
       chainId,
       isActivated,
+      readData,
     }
   },
 

@@ -3,9 +3,7 @@
   <div
     class="modal fade"
     :id="'changeImageModal' + componentId"
-    tabindex="-1"
     :aria-labelledby="'changeImageModalLabel' + componentId"
-    aria-hidden="true"
   >
     <div class="modal-dialog">
       <div class="modal-content">
@@ -17,6 +15,7 @@
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
+            @click="handleCloseClick"
           ></button>
         </div>
 
@@ -25,7 +24,7 @@
           <ul class="nav nav-tabs nav-fill">
             <li class="nav-item">
               <button
-                :disabled="!this.fileUploadEnabled"
+                :disabled="!fileUploadEnabled"
                 class="nav-link"
                 :class="currentTab === 'upload' ? 'active' : ''"
                 @click="currentTab = 'upload'"
@@ -49,7 +48,7 @@
 
               <FileUploadInput
                 btnCls="btn btn-primary"
-                :maxFileSize="$config.fileUploadSizeLimit"
+                :maxFileSize="$config.public.fileUploadSizeLimit"
                 :storageType="storageType"
                 @processUploadedFileUrl="processUploadedFileUrl"
               />
@@ -74,7 +73,7 @@
                 Submit to blockchain
               </button>
 
-              <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
+              <ConnectWalletButton v-if="!isActivated" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
               <SwitchChainButton v-if="isActivated && !isSupportedChain" />
             </div>
           </div>
@@ -85,15 +84,12 @@
 </template>
 
 <script>
-import { ethers } from 'ethers'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import ConnectWalletButton from '~/components/ConnectWalletButton'
-import Image from '~/components/Image.vue'
-import SwitchChainButton from '~/components/SwitchChainButton.vue'
-import WaitingToast from '~/components/WaitingToast'
-import FileUploadInput from '~/components/storage/FileUploadInput.vue'
-import { useEthers } from '~/store/ethers'
-import { useSiteStore } from '~/store/site'
+import ConnectWalletButton from '@/components/connect/ConnectWalletButton'
+import Image from '@/components/Image.vue'
+import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
+import WaitingToast from '@/components/WaitingToast'
+import FileUploadInput from '@/components/storage/FileUploadInput.vue'
 
 export default {
   name: 'ChangePfpModal',
@@ -117,15 +113,15 @@ export default {
 
   computed: {
     domainNameWithoutTld() {
-      return this.domainName.replace(this.$config.tldName, '')
+      return this.domainName.replace(this.$config.public.tldName, '')
     },
 
     fileUploadEnabled() {
-      return this.siteStore.getFileUploadEnabled
+      return this.$config.public.fileUploadEnabled
     },
 
     isSupportedChain() {
-      if (this.chainId === this.$config.supportedChainId) {
+      if (this.chainId === this.$config.public.supportedChainId) {
         return true
       } else {
         return false
@@ -134,6 +130,14 @@ export default {
   },
 
   methods: {
+    handleCloseClick() {
+      // Remove focus from the close button to prevent aria-hidden warning
+      const closeButton = document.getElementById('closeChangeImageModal' + this.componentId)
+      if (closeButton) {
+        closeButton.blur()
+      }
+    },
+
     processUploadedFileUrl(fileUrl) {
       this.imageLink = fileUrl
       this.currentTab = 'paste'
@@ -142,34 +146,63 @@ export default {
     async submitToBlockchain() {
       this.waitingSubmit = true
 
-      const punkInterface = new ethers.utils.Interface([
-        'function getDomainData(string calldata _domainName) public view returns(string memory)',
-        'function editData(string calldata _domainName, string calldata _data) external',
-      ])
-
-      const punkContract = new ethers.Contract(this.$config.punkTldAddress, punkInterface, this.signer)
-
-      // get domain data
-      let domainData = await punkContract.getDomainData(String(this.domainNameWithoutTld).toLowerCase())
-
-      //console.log('Domain name:', this.domainNameWithoutTld)
-      //console.log('Domain data:', domainData)
+      let toastWait;
 
       try {
-        domainData = JSON.parse(domainData)
-      } catch (e) {
-        domainData = {}
-      }
+        // Get domain data first
+        const domainDataResult = await this.readData({
+          address: this.$config.public.punkTldAddress,
+          abi: [
+            {
+              inputs: [{ name: '_domainName', type: 'string' }],
+              name: 'getDomainData',
+              outputs: [{ name: '', type: 'string' }],
+              stateMutability: 'view',
+              type: 'function'
+            }
+          ],
+          functionName: 'getDomainData',
+          args: [String(this.domainNameWithoutTld).toLowerCase()]
+        })
 
-      domainData['image'] = this.imageLink
+        let domainData = {}
+        
+        if (domainDataResult) {
+          try {
+            domainData = JSON.parse(domainDataResult)
+          } catch (e) {
+            console.warn('Failed to parse domain data as JSON, using empty object:', e)
+            domainData = {}
+          }
+        } else {
+          console.log('No existing domain data found, creating new domain data for:', this.domainNameWithoutTld)
+        }
 
-      try {
-        const tx = await punkContract.editData(
-          String(this.domainNameWithoutTld).toLowerCase(), 
-          JSON.stringify(domainData),
-        )
+        domainData['image'] = this.imageLink
 
-        const toastWait = this.toast(
+        // Submit to blockchain
+        const txHash = await this.writeData({
+          address: this.$config.public.punkTldAddress,
+          abi: [
+            {
+              inputs: [
+                { name: '_domainName', type: 'string' },
+                { name: '_data', type: 'string' }
+              ],
+              name: 'editData',
+              outputs: [],
+              stateMutability: 'nonpayable',
+              type: 'function'
+            }
+          ],
+          functionName: 'editData',
+          args: [
+            String(this.domainNameWithoutTld).toLowerCase(),
+            JSON.stringify(domainData)
+          ]
+        })
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -178,20 +211,21 @@ export default {
           },
           {
             type: 'info',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + txHash, '_blank').focus(),
           },
         )
 
-        const receipt = await tx.wait()
+        // Wait for transaction receipt
+        const receipt = await this.waitForTxReceipt(txHash)
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.waitingSubmit = false
 
           this.toast.dismiss(toastWait)
 
           this.toast('You have successfully changed your profile image!', {
             type: 'success',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + txHash, '_blank').focus(),
           })
 
           this.$emit('processFileUrl', this.imageLink)
@@ -201,7 +235,7 @@ export default {
           this.toast.dismiss(toastWait)
           this.toast('Transaction has failed.', {
             type: 'error',
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + txHash, '_blank').focus(),
           })
           console.log(receipt)
         }
@@ -209,8 +243,8 @@ export default {
         console.error(e)
 
         try {
-          let extractMessage = e.message.split('reason=')[1]
-          extractMessage = extractMessage.split(', method=')[0]
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, '')
           extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -222,6 +256,9 @@ export default {
         }
 
         this.waitingSubmit = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waitingSubmit = false
       }
 
       this.waitingSubmit = false
@@ -229,15 +266,18 @@ export default {
   },
 
   setup() {
-    const { signer, chainId, isActivated } = useEthers()
-    const siteStore = useSiteStore()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
+    const { fileUploadEnabled } = useSiteSettings()
+    const { isActivated, chainId } = useAccountData()
     const toast = useToast()
 
     return {
-      signer,
-      chainId,
+      readData,
+      writeData,
+      waitForTxReceipt,
+      fileUploadEnabled,
       isActivated,
-      siteStore,
+      chainId,
       toast,
     }
   },

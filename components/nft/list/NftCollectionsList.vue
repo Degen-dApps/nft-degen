@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import NftCollectionsListItem from './NftCollectionsListItem.vue';
+import NftCollectionsListItem from '@/components/nft/list/NftCollectionsListItem.vue';
 
 export default {
   name: 'NftCollectionsList',

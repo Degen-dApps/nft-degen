@@ -1,26 +1,28 @@
 <template>
   <Head>
     <Title>Video NFTs on NFTdegen.lol</Title>
-    <Meta property="og:title" :content="'Video NFTs | '+$config.projectMetadataTitle" />
+    <Meta property="og:title" :content="'Video NFTs | '+$config.public.projectMetadataTitle" />
   
     <Meta name="description" content="Video NFTs have come to Degen Chain. Check them out here!" />
   
-    <Meta property="og:image" :content="$config.projectUrl+$config.previewVideoNfts" />
+    <Meta property="og:image" :content="$config.public.projectUrl+$config.public.previewVideoNfts" />
     <Meta property="og:description" content="Video NFTs have come to Degen Chain. Check them out here!" />
   
-    <Meta name="twitter:image" :content="$config.projectUrl+$config.previewVideoNfts" />
+    <Meta name="twitter:image" :content="$config.public.projectUrl+$config.public.previewVideoNfts" />
     <Meta name="twitter:description" content="Video NFTs have come to Degen Chain. Check them out here!" />
 
-    <Link rel="canonical" :href="$config.projectUrl+currentPath" />
+    <Link rel="canonical" :href="$config.public.projectUrl+currentPath" />
   </Head>
   
   <div class="card border scroll-500">
     <div class="card-body">
   
+      <!--
       <p v-if="!hideBackButton" class="fs-3">
         <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
       </p>
-  
+      -->
+      
       <h3 class="d-flex flex-row flex-wrap mt-3 mb-3">
         <div class="mb-3 me-auto">NFT Launchpad</div>
         
@@ -58,9 +60,9 @@
   
 <script>
 import axios from 'axios';
-import SearchNftModal from '~/components/nft/SearchNftModal.vue';
-import NftCollectionsList from '~/components/nft/list/NftCollectionsList.vue';
-import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';
+import SearchNftModal from '@/components/nft/SearchNftModal.vue';
+import NftCollectionsList from '@/components/nft/list/NftCollectionsList.vue';
+import NftListDropdown from '@/components/nft/list/NftListDropdown.vue';
 
 export default {
   name: 'NftsMostHolders',

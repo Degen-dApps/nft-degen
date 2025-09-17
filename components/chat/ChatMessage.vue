@@ -3,7 +3,7 @@
     <div class="card-body row">
 
       <!-- Author profile image -->
-      <div class="col-2 col-md-1 pfp-sizing">
+      <div class="col-2 col-md-1 pfp-sizing" title="Profile image and link to the profile">
         <NuxtLink :to="'/profile/?id=' + String(showDomainOrFullAddress)">
           <ProfileImage
             class="img-fluid rounded-circle pfp-img force-circle"
@@ -16,22 +16,30 @@
 
         <!-- post author and timestamp -->
         <p class="card-subtitle mb-2 text-muted">
-          <NuxtLink class="link-without-color hover-color" :to="'/profile/?id=' + String(showDomainOrFullAddress)">
+          <NuxtLink 
+            class="link-without-color hover-color" 
+            :to="'/profile/?id=' + String(showDomainOrFullAddress)"
+            title="Go to profile page"
+          >
             {{ showDomainOrAddress }}
           </NuxtLink>
           <span v-if="message?.createdAt && !isComment">
             ·
-            <NuxtLink class="link-without-color hover-color" :to="postUrl">
+            <NuxtLink 
+              class="link-without-color hover-color" 
+              :to="postUrl"
+              title="Time since post was created and link to the post page"
+            >
               {{ timeSince }}
             </NuxtLink>
           </span>
-          <span v-if="message?.createdAt && isComment">
+          <span v-if="message?.createdAt && isComment" title="Time since post was created">
             ·
             {{ timeSince }}
           </span>
           <span v-if="message?.url">
             ·
-            <a class="link-without-color hover-color" :href="getArweaveUrl" target="_blank">
+            <a class="link-without-color hover-color" :href="getArweaveUrl" target="_blank" title="Link to post stored on Arweave">
               <span style="font-size: 0.9em;">ⓐ</span>
             </a>
           </span>
@@ -39,14 +47,14 @@
 
         <!-- post text -->
         <div v-if="parsedText">
-          <p class="card-text text-break" v-if="parsedText.length > messageLengthLimit && !showFullText">
+          <p class="card-text text-break post-text-color" v-if="parsedText.length > messageLengthLimit && !showFullText">
             <span v-html="parsedText.substring(0, messageLengthLimit) + ' ... '"> </span>
             <span class="cursor-pointer hover-color" @click="showFullText = true">Read more</span>
           </p>
 
           <p
             v-if="parsedText.length < messageLengthLimit || showFullText"
-            class="card-text text-break"
+            class="card-text text-break post-text-color"
             v-html="parsedText"
           ></p>
         </div>
@@ -55,11 +63,11 @@
         <div v-if="linkPreview?.title" class="row mt-3 mb-3">
           <div class="card col-md-6 preview-card">
             <a target="_blank" :href="linkPreview.url" class="text-decoration-none text-reset">
-              <Image :url="linkPreview.image.url" :alt="linkPreview.title" cls="card-img-top preview-card-img" />
+              <Image v-if="linkPreviewImage" :url="linkPreviewImage" :alt="linkPreview.title" cls="card-img-top preview-card-img" />
 
               <div class="card-body bg-body rounded-bottom-3 border-end border-bottom border-start preview-card-body">
                 <h5 class="card-title text-break">{{ linkPreview.title }}</h5>
-                <p class="card-text text-break text-reset">{{ linkPreview.description }}</p>
+                <p class="card-text text-break post-text-color text-reset">{{ linkPreview.description }}</p>
               </div>
             </a>
           </div>
@@ -70,7 +78,7 @@
         <p class="card-subtitle mt-3 text-muted">
 
           <!-- Replies count -->
-          <NuxtLink v-if="isMainChatMessage" class="link-without-color hover-color" :to="postUrl">
+          <NuxtLink v-if="isMainChatMessage" class="link-without-color hover-color" :to="postUrl" title="See replies to this post">
             <i class="bi bi-chat"></i>
             {{ message.repliesCount }} replies
           </NuxtLink>
@@ -82,6 +90,7 @@
             :class="{ 'ms-3': isMainChatMessage }"
             data-bs-toggle="modal"
             :data-bs-target="'#deleteModal' + storageId"
+            title="Delete the post"
           >
             <i class="bi bi-trash" /> Delete
           </span>
@@ -95,9 +104,7 @@
     <div
       class="modal fade"
       :id="'deleteModal' + storageId"
-      tabindex="-1"
       :aria-labelledby="'deleteModalLabel' + storageId"
-      aria-hidden="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
@@ -109,6 +116,7 @@
               :id="'closeDeleteModal' + storageId"
               data-bs-dismiss="modal"
               aria-label="Close"
+              @click="handleCloseClick"
             ></button>
           </div>
           <div class="modal-body">Do you really want to delete this post?</div>
@@ -133,15 +141,13 @@
 
 <script>
 import axios from 'axios'
-import { ethers } from 'ethers'
-import sanitizeHtml from 'sanitize-html'
+import { isAddress } from 'viem'
+import DOMPurify from 'dompurify'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import Image from '~/components/Image.vue'
-import WaitingToast from '~/components/WaitingToast'
-import ProfileImage from '~/components/profile/ProfileImage.vue'
-import { useEthers, shortenAddress } from '~/store/ethers'
-import { useUserStore } from '~/store/user'
-import { getDomainName } from '~/utils/domainUtils'
+import Image from '@/components/Image.vue'
+import WaitingToast from '@/components/WaitingToast'
+import ProfileImage from '@/components/profile/ProfileImage.vue'
+import { getDomainName } from '@/utils/domainUtils'
 import {
   getTextWithoutBlankCharacters,
   findFirstUrl,
@@ -149,8 +155,8 @@ import {
   imgWithoutExtensionParsing,
   urlParsing,
   youtubeParsing,
-} from '~/utils/textUtils'
-import { fetchData, fetchUsername, storeData, storeUsername } from '~/utils/storageUtils'
+} from '@/utils/textUtils'
+import { fetchData, fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
 
 export default {
   name: 'ChatMessage',
@@ -201,7 +207,6 @@ export default {
     }
 
     this.storageId = this.message.url.split('://')[1]
-    //console.log('storageId', this.storageId)
 
     this.fetchMessageFromStorage()
 
@@ -225,8 +230,16 @@ export default {
   },
 
   computed: {
+    linkPreviewImage() {
+      if (this.linkPreview?.image?.url) {
+        return this.linkPreview.image.url
+      } else {
+        return null
+      }
+    },
+
     isComment() {
-      if (this.mainItemId && ethers.utils.isAddress(this.mainItemId)) {
+      if (this.mainItemId && isAddress(this.mainItemId)) {
         return true
       } else {
         return false
@@ -246,7 +259,7 @@ export default {
     },
 
     isReply() {
-      if (this.mainItemId && !ethers.utils.isAddress(this.mainItemId)) {
+      if (this.mainItemId && !isAddress(this.mainItemId)) {
         return true
       } else {
         return false
@@ -255,7 +268,7 @@ export default {
 
     getArweaveUrl() {
       if (this.message?.url) {
-        return this.message.url.replace("ar://", this.$config.arweaveGateway)
+        return this.message.url.replace("ar://", this.$config.public.arweaveGateway)
       }
     },
 
@@ -295,7 +308,11 @@ export default {
 
   methods: {
     async checkIfCurrenctUserIsMod() {
-      const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.expiryMods)
+      if (!this.address) {
+        return this.currUserIsMod = false
+      }
+
+      const value = fetchData(window, this.chatContext, 'mod-' + this.address, this.$config.public.expiryMods)
 
       if (value) {
         if (value?.isMod || value?.isMod === "true") {
@@ -305,13 +322,16 @@ export default {
         }
       }
 
-      const provider = this.$getFallbackProvider(this.$config.supportedChainId)
-      const intrfc = new ethers.utils.Interface(['function isUserMod(address) external view returns (bool)'])
-      const contract = new ethers.Contract(this.chatContext, intrfc, provider)
+      try {
+        const contractConfig = {
+          address: this.chatContext,
+          abi: [{ name: 'isUserMod', type: 'function', inputs: [{ name: 'user', type: 'address' }], outputs: [{ name: '', type: 'bool' }], stateMutability: 'view' }],
+          functionName: 'isUserMod',
+          args: [this.address]
+        }
 
-      try { 
-        const isMod = await contract.isUserMod(this.address)
-        storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address) // TODO: change 0 to something else (e.g. 1 week)
+        const isMod = await this.readData(contractConfig)
+        storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address)
         return this.currUserIsMod = Boolean(isMod)
       } catch (error) {
         console.error(error)
@@ -320,28 +340,40 @@ export default {
     },
 
     async deleteMessage() {
-      if (this.signer) {
+      if (this.address) {
         this.waitingDeleteMessage = true
-
-        const intrfc = new ethers.utils.Interface([
-          'function deleteComment(address subjectAddress_, uint256 commentIndex_) external',
-          'function deleteMessage(uint256 mainMsgIndex_) external',
-          'function deleteReply(uint256 mainMsgIndex_, uint256 replyMsgIndex_) external'
-        ])
-
-        const contract = new ethers.Contract(this.chatContext, intrfc, this.signer)
+        let toastWait;
 
         try {
-          let tx;
+          let txHash;
+          let contractConfig;
+
           if (this.isReply) {
-            tx = await contract.deleteReply(this.mainItemId, this.message.index)
+            contractConfig = {
+              address: this.chatContext,
+              abi: [{ name: 'deleteReply', type: 'function', inputs: [{ name: 'mainMsgIndex_', type: 'uint256' }, { name: 'replyMsgIndex_', type: 'uint256' }], outputs: [], stateMutability: 'nonpayable' }],
+              functionName: 'deleteReply',
+              args: [BigInt(this.mainItemId), BigInt(this.message.index)]
+            }
           } else if (this.isComment) {
-            tx = await contract.deleteComment(this.mainItemId, this.message.index)
+            contractConfig = {
+              address: this.chatContext,
+              abi: [{ name: 'deleteComment', type: 'function', inputs: [{ name: 'subjectAddress_', type: 'address' }, { name: 'commentIndex_', type: 'uint256' }], outputs: [], stateMutability: 'nonpayable' }],
+              functionName: 'deleteComment',
+              args: [this.mainItemId, BigInt(this.message.index)]
+            }
           } else {
-            tx = await contract.deleteMessage(this.message.index)
+            contractConfig = {
+              address: this.chatContext,
+              abi: [{ name: 'deleteMessage', type: 'function', inputs: [{ name: 'mainMsgIndex_', type: 'uint256' }], outputs: [], stateMutability: 'nonpayable' }],
+              functionName: 'deleteMessage',
+              args: [BigInt(this.message.index)]
+            }
           }
 
-          const toastWait = this.toast(
+          txHash = await this.writeData(contractConfig)
+
+          toastWait = this.toast(
             {
               component: WaitingToast,
               props: {
@@ -350,18 +382,18 @@ export default {
             },
             {
               type: 'info',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + txHash, '_blank').focus(),
             },
           )
 
-          const receipt = await tx.wait()
+          const receipt = await this.waitForTxReceipt(txHash)
           
-          if (receipt.status === 1) {
+          if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
 
             this.toast('You have successfully deleted the message.', {
               type: 'success',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + txHash, '_blank').focus(),
             })
 
             document.getElementById('closeDeleteModal' + this.storageId).click()
@@ -371,7 +403,7 @@ export default {
             this.toast.dismiss(toastWait)
             this.toast('Transaction has failed.', {
               type: 'error',
-              onClick: () => window.open(this.$config.blockExplorerBaseUrl + '/tx/' + tx.hash, '_blank').focus(),
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + txHash, '_blank').focus(),
             })
             console.log(receipt)
           }
@@ -379,8 +411,8 @@ export default {
           console.error(error)
 
           try {
-            let extractMessage = error.message.split('reason=')[1]
-            extractMessage = extractMessage.split(', method=')[0]
+            let extractMessage = error.message.split('Details:')[1]
+            extractMessage = extractMessage.split('Version: viem')[0]
             extractMessage = extractMessage.replace(/"/g, '')
             extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
@@ -388,9 +420,12 @@ export default {
 
             this.toast(extractMessage, { type: 'error' })
           } catch (e) {
-            this.toast('Transaction has failed.', { type: 'error' })
+            
+            this.toast("Transaction has failed.", {type: "error"});
+
           }
         } finally {
+          this.toast.dismiss(toastWait)
           this.waitingDeleteMessage = false
         }
       }
@@ -407,18 +442,15 @@ export default {
         if (storedDomain) {
           this.authorDomain = storedDomain
         } else {
-          // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId)
-
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-            // fetch provider from user's MetaMask
-            provider = this.signer
-          }
-
-          const domainName = await getDomainName(this.authorAddress, provider)
+          const domainName = await getDomainName(this.authorAddress, window)
 
           if (domainName) {
-            this.authorDomain = domainName + this.$config.tldName
+            if (!domainName.endsWith(this.$config.public.tldName)) {
+              this.authorDomain = domainName + this.$config.public.tldName
+            } else {
+              this.authorDomain = domainName
+            }
+            
             storeUsername(window, this.authorAddress, this.authorDomain)
           }
         }
@@ -426,38 +458,51 @@ export default {
     },
 
     async fetchLinkPreview() {
-      if (this.$config.linkPreviews) {
-        const thisAppUrl = window.location.origin
-        const firstLinkHttps = this.firstLink.replace('http://', 'https://')
+      try {
+        if (this.$config.public.linkPreviews) {
+          const thisAppUrl = window.location.origin
+          const firstLinkHttps = this.firstLink.replace('http://', 'https://')
 
-        if (firstLinkHttps.startsWith(thisAppUrl.replace('http://', 'https://'))) {
-          return
-        }
-
-        // check in localStorage if link preview is already stored (key is the link)
-        const storedLinkPreviewString = localStorage.getItem(this.firstLink)
-
-        if (storedLinkPreviewString) {
-          this.linkPreview = JSON.parse(storedLinkPreviewString)
-        } else {
-          let fetcherService
-
-          if (this.$config.linkPreviews === 'netlify') {
-            fetcherService = thisAppUrl + '/.netlify/functions/linkPreviews?url=' + this.firstLink
-          } else if (this.$config.linkPreviews === 'vercel') {
-            fetcherService = thisAppUrl + '/api/linkPreviews?url=' + this.firstLink
-          } else if (this.$config.linkPreviews === 'microlink') {
-            fetcherService = 'https://api.microlink.io/?url=' + this.firstLink
+          if (firstLinkHttps.startsWith(thisAppUrl.replace('http://', 'https://'))) {
+            return
           }
 
-          if (fetcherService) {
-            try {
+          // check in localStorage if link preview is already stored (key is the link)
+          const storedLinkPreviewString = localStorage.getItem(this.firstLink)
+
+          if (storedLinkPreviewString) {
+            this.linkPreview = JSON.parse(storedLinkPreviewString)
+          } else {
+            let fetcherService
+
+            if (this.$config.public.linkPreviews === 'netlify') {
+              fetcherService = thisAppUrl + '/.netlify/functions/linkPreviews?url=' + this.firstLink
+            } else if (this.$config.public.linkPreviews === 'vercel') {
+              fetcherService = thisAppUrl + '/api/linkPreviews?url=' + this.firstLink
+            } else if (this.$config.public.linkPreviews === 'microlink') {
+              fetcherService = 'https://api.microlink.io/?url=' + this.firstLink
+            }
+
+            if (fetcherService) {
+              try {
               const resp = await $fetch(fetcherService).catch(error => error.data)
 
               let response = resp
+              //console.log(resp)
 
               if (typeof resp === 'string') {
-                response = JSON.parse(resp)
+                // Check if the response is HTML (error page) instead of JSON
+                if (resp.trim().startsWith('<!DOCTYPE') || resp.trim().startsWith('<html')) {
+                  console.log('Error fetching link preview: Function returned HTML instead of JSON')
+                  return
+                }
+                
+                try {
+                  response = JSON.parse(resp)
+                } catch (parseError) {
+                  console.log('Error parsing link preview response: ', parseError)
+                  return
+                }
               }
 
               if (response?.error) {
@@ -476,8 +521,11 @@ export default {
             } catch (e) {
               console.log('Error fetching link preview: ', e)
             }
+            }
           }
         }
+      } catch (e) {
+        console.log('Error fetching link preview: ', e)
       }
     },
 
@@ -486,9 +534,9 @@ export default {
 
       let response;
       if (this.message.url.startsWith('ar://')) {
-        response = await axios.get(`${this.$config.arweaveGateway}${this.storageId}`)
+        response = await axios.get(`${this.$config.public.arweaveGateway}${this.storageId}`)
       } else if (this.message.url.startsWith('ipfs://')) {
-        response = await axios.get(`${this.$config.ipfsGateway}${this.storageId}`)
+        response = await axios.get(`${this.$config.public.ipfsGateway}${this.storageId}`)
       } else if (this.message.url.startsWith('http')) {
         response = await axios.get(this.message.url)
       }
@@ -500,15 +548,23 @@ export default {
       this.parseMessageText()
     },
 
+    handleCloseClick() {
+      // Remove focus from the close button to prevent aria-hidden warning
+      const closeButton = document.getElementById('closeDeleteModal' + this.storageId)
+      if (closeButton) {
+        closeButton.blur()
+      }
+    },
+
     parseMessageText() {
       let postText = this.messageFromStorage.text
 
-      postText = sanitizeHtml(postText, {
-        allowedTags: ['li', 'ul', 'ol', 'br', 'em', 'strong', 'i', 'b'],
-        allowedAttributes: {},
+      postText = DOMPurify.sanitize(postText, {
+        ALLOWED_TAGS: ['li', 'ul', 'ol', 'br', 'em', 'strong', 'i', 'b'],
+        ALLOWED_ATTR: [],
       })
 
-      if (this.$config.linkPreviews) {
+      if (this.$config.public.linkPreviews) {
         // get first link in post
         this.firstLink = findFirstUrl(postText)
         if (this.firstLink) {
@@ -528,11 +584,21 @@ export default {
 
   setup() {
     const route = useRoute()
-    const { address, chainId, isActivated, signer } = useEthers()
+    const { address, chainId, isActivated, shortenAddress } = useAccountData()
+    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
-    const userStore = useUserStore()
 
-    return { address, chainId, isActivated, route, shortenAddress, signer, toast, userStore }
+    return { 
+      address, 
+      chainId, 
+      isActivated, 
+      route, 
+      shortenAddress, 
+      toast,
+      readData,
+      writeData,
+      waitForTxReceipt
+    }
   },
 
   

@@ -149,6 +149,10 @@
   color: var(--bs-primary);
 }
 
+[data-bs-theme=light] .post-text-color {
+  color: #2f2f2f !important;
+}
+
 [data-bs-theme=light] .preview-card-body.bg-body {
   background-color: #f5f5f6 !important;
 }

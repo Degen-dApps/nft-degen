@@ -15,7 +15,7 @@
 
 <script>
 import axios from 'axios';
-import NftCollectionsList from '~/components/nft/list/NftCollectionsList.vue';
+import NftCollectionsList from '@/components/nft/list/NftCollectionsList.vue';
 
 export default {
   name: "UserCreatedNfts",

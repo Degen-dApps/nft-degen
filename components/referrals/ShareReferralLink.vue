@@ -1,73 +1,72 @@
 <template>
-<div class="input-group mb-3" v-if="address" @click="copyToClipboard">
-  <input 
-    v-model="getReferralLink"
-    type="text" class="form-control cursor-pointer" 
-    aria-label="Recipient's username" aria-describedby="basic-addon2" 
-    readonly 
-  />
-  
-  <button class="btn btn-outline-secondary" type="button" id="button-addon2">
-    <i v-if="!copied" class="bi bi-clipboard"></i>
-    <i v-if="copied" class="bi bi-clipboard-check"></i>
-  </button>
-</div>
+  <div class="input-group mb-3" v-if="address" @click="copyToClipboard">
+    <input
+      v-model="getReferralLink"
+      type="text"
+      class="form-control cursor-pointer"
+      aria-label="Recipient's username"
+      aria-describedby="basic-addon2"
+      readonly
+    />
+
+    <button class="btn btn-outline-secondary" type="button" id="button-addon2" title="Copy to clipboard">
+      <i v-if="!copied" class="bi bi-clipboard"></i>
+      <i v-if="copied" class="bi bi-clipboard-check"></i>
+    </button>
+  </div>
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
-import { useToast } from "vue-toastification/dist/index.mjs";
-import { useUserStore } from '~/store/user';
-import { getTextWithoutBlankCharacters } from '~/utils/textUtils';
+import { useToast } from 'vue-toastification/dist/index.mjs'
+import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
-  name: "ShareReferralLink",
+  name: 'ShareReferralLink',
 
   data() {
     return {
-      copied: false
+      copied: false,
     }
   },
 
   computed: {
     getDomainNameOrAddress() {
-      if (this.userStore.getDefaultDomain) {
-        return getTextWithoutBlankCharacters(this.userStore.getDefaultDomain);
+      if (this.domainName) {
+        return getTextWithoutBlankCharacters(this.domainName)
       }
 
-      return this.address;
+      return this.address
     },
 
     getReferralLink() {
-      if (this.$route.href.includes("/nft/collection")) {
-        let baseUrl = window.location.origin + this.$route.href;
-        baseUrl = baseUrl.replace(window.location.origin, "https://frames.nftdegen.org");
-        baseUrl = baseUrl.replace("/nft/collection?id=", "/frame/nft/");
-        return baseUrl + `?ref=${this.getDomainNameOrAddress}`;
+      if (this.route.fullPath.includes('?')) {
+        return window.location.origin + this.route.fullPath + `&ref=${this.getDomainNameOrAddress}`
       }
 
-      if (this.$route.href.includes("?")) {
-        return window.location.origin + this.$route.href + `&ref=${this.getDomainNameOrAddress}`;
-      }
-
-      return window.location.origin + this.$route.href + `?ref=${this.getDomainNameOrAddress}`;
-    }
+      return window.location.origin + this.route.fullPath + `?ref=${this.getDomainNameOrAddress}`
+    },
   },
 
   methods: {
     copyToClipboard() {
-      navigator.clipboard.writeText(this.getReferralLink);
-      this.copied = true;
-      this.toast("Referral link copied to your clipboard!", {type: "success"});
-    }
+      navigator.clipboard.writeText(this.getReferralLink)
+      this.copied = true
+      this.toast('Referral link copied to your clipboard!', { type: 'success' })
+    },
   },
 
   setup() {
-    const { address } = useEthers();
-    const toast = useToast();
-    const userStore = useUserStore();
+    const { address, domainName } = useAccountData()
+    const toast = useToast()
+    const route = useRoute()
 
-    return { address, toast, userStore }
+    return { 
+      address,
+      domainName,
+      toast,
+      route
+    }
   },
 }
 </script>

@@ -1,0 +1,21 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "NFTdegen",
+    "subtitle": "NFT Launchpad & Marketplace on Degen Chain",
+    "description": "NFT Launchpad & Marketplace on Degen Chain",
+    "tags": ["nft", "launchpad", "marketplace", "degen"],
+    "primaryCategory": "art-creativity",
+    "homeUrl": "https://nftdegen.lol",
+    "iconUrl": "https://nftdegen.lol/img/logo.svg",
+    "heroImageUrl": "https://nftdegen.lol/img/covers/cover.png",
+    "imageUrl": "https://nftdegen.lol/img/covers/cover.png",
+    "splashImageUrl": "https://nftdegen.lol/img/logo.svg",
+    "splashBackgroundColor": "#212529"
+  }
+}

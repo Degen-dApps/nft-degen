@@ -1,25 +1,27 @@
 <template>
 <Head>
-  <Title>New NFTs | {{ $config.projectMetadataTitle }}</Title>
-  <Meta property="og:title" :content="$config.projectMetadataTitle" />
+  <Title>New NFTs | {{ $config.public.projectMetadataTitle }}</Title>
+  <Meta property="og:title" :content="$config.public.projectMetadataTitle" />
 
-  <Meta name="description" :content="$config.projectDescription" />
+  <Meta name="description" :content="$config.public.projectDescription" />
 
-  <Meta property="og:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
-  <Meta property="og:description" :content="$config.projectDescription" />
+  <Meta property="og:image" :content="$config.public.projectUrl+$config.public.previewImageNftLaunchpad" />
+  <Meta property="og:description" :content="$config.public.projectDescription" />
 
-  <Meta name="twitter:image" :content="$config.projectUrl+$config.previewImageNftLaunchpad" />
-  <Meta name="twitter:description" :content="$config.projectDescription" />
+  <Meta name="twitter:image" :content="$config.public.projectUrl+$config.public.previewImageNftLaunchpad" />
+  <Meta name="twitter:description" :content="$config.public.projectDescription" />
 
-  <Link rel="canonical" :href="$config.projectUrl+'/nft'" />
+  <Link rel="canonical" :href="$config.public.projectUrl+'/nft'" />
 </Head>
 
 <div class="card border scroll-500">
   <div class="card-body">
 
+    <!--
     <p v-if="!hideBackButton" class="fs-3">
       <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
     </p>
+    -->
 
     <h3 class="d-flex flex-row flex-wrap mt-3 mb-3">
       <div class="mb-3 me-auto">NFT Launchpad</div>
@@ -37,7 +39,7 @@
     <!-- NFT competition alert 
     <div class="alert alert-primary mb-3 text-center" role="alert">
       <NuxtLink to="/post/?id=kjzl6cwe1jw149z0ddpcygc1nhgjdppg1zpr8r4s0j8siaq0bod6u0v5dyaqr2c">
-        Create your NFT and win a 2000 {{ $config.tokenSymbol }} prize! Hurry up, the competition ends on Friday, 29 September!
+        Create your NFT and win a 2000 {{ $config.public.tokenSymbol }} prize! Hurry up, the competition ends on Friday, 29 September!
       </NuxtLink>
     </div>
     -->
@@ -61,7 +63,7 @@
 
           <div class="card-body rounded-bottom-3">
             <p class="card-text mb-1"><strong>{{ nft.name }}</strong></p>
-            <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.tokenSymbol }}</small>
+            <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.public.tokenSymbol }}</small>
           </div>
         </div>
       </NuxtLink>
@@ -87,12 +89,14 @@
 
 <script>
 import axios from 'axios';
-import { ethers } from 'ethers';
-import { useEthers } from '~/store/ethers'
-import Image from '~~/components/Image.vue';
-import SearchNftModal from '~/components/nft/SearchNftModal.vue';
-import NftListDropdown from '~/components/nft/list/NftListDropdown.vue';
-import { fetchCollection, storeCollection } from '~/utils/storageUtils';
+import { formatEther } from 'viem';
+import Image from '@/components/Image.vue';
+import SearchNftModal from '@/components/nft/SearchNftModal.vue';
+import NftListDropdown from '@/components/nft/list/NftListDropdown.vue';
+import { useAccountData } from '@/composables/useAccountData';
+import { useWeb3 } from '@/composables/useWeb3';
+import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils';
+import { getLessDecimals } from '@/utils/numberUtils';
 
 export default {
   name: 'Nft',
@@ -115,7 +119,7 @@ export default {
   },
 
   mounted() {
-    if (this.$config.nftLaunchpadBondingAddress) {
+    if (this.$config.public.nftLaunchpadBondingAddress) {
       this.fetchLastNfts();
     }
 
@@ -148,64 +152,89 @@ export default {
     async fetchLastNfts() {
       this.waitingData = true;
 
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
-
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer;
-      }
-
-      // create launchpad contract object
-      const launchpadInterface = new ethers.utils.Interface([
-        "function getLastNftContracts(uint256 amount) external view returns(address[] memory)",
-        "function getNftContracts(uint256 fromIndex, uint256 toIndex) external view returns(address[] memory)",
-        "function getNftContractsArrayLength() external view returns(uint256)"
-      ]);
-
-      const launchpadContract = new ethers.Contract(
-        this.$config.nftLaunchpadBondingAddress,
-        launchpadInterface,
-        provider
-      );
+      // create launchpad contract configuration
+      const launchpadContractConfig = {
+        address: this.$config.public.nftLaunchpadBondingAddress,
+        abi: [
+          {
+            name: 'getLastNftContracts',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [{ name: 'amount', type: 'uint256' }],
+            outputs: [{ name: '', type: 'address[]' }]
+          },
+          {
+            name: 'getNftContracts',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [
+              { name: 'fromIndex', type: 'uint256' },
+              { name: 'toIndex', type: 'uint256' }
+            ],
+            outputs: [{ name: '', type: 'address[]' }]
+          },
+          {
+            name: 'getNftContractsArrayLength',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'uint256' }]
+          }
+        ]
+      };
 
       // get all NFTs array length
       if (Number(this.allNftsArrayLength) === 0) {
-        this.allNftsArrayLength = await launchpadContract.getNftContractsArrayLength();
+        const arrayLengthConfig = {
+          ...launchpadContractConfig,
+          functionName: 'getNftContractsArrayLength',
+          args: []
+        };
+        this.allNftsArrayLength = await this.readData(arrayLengthConfig);
       }
 
       if (Number(this.allNftsArrayLength) === 1) {
-        const lNfts = await launchpadContract.getLastNftContracts(1);
-        await this.parseNftsArray(lNfts, this.lastNfts, provider);
+        const lastNftsConfig = {
+          ...launchpadContractConfig,
+          functionName: 'getLastNftContracts',
+          args: [1]
+        };
+        const lNfts = await this.readData(lastNftsConfig);
+        await this.parseNftsArray(lNfts, this.lastNfts);
       } else if (Number(this.allNftsArrayLength) > 1) {
         // set the start and end index, if end index is 0
         if (this.allNftsIndexEnd === 0) {
-          this.allNftsIndexEnd = this.allNftsArrayLength - 1;
+          this.allNftsIndexEnd = Number(this.allNftsArrayLength) - 1;
 
-          if (this.allNftsArrayLength < this.$config.nftLaunchpadLatestItems) {
+          if (Number(this.allNftsArrayLength) < Number(this.$config.public.nftLaunchpadLatestItems)) {
             this.allNftsIndexStart = 0;
           } else {
-            this.allNftsIndexStart = this.allNftsArrayLength - this.$config.nftLaunchpadLatestItems;
+            this.allNftsIndexStart = Number(this.allNftsArrayLength) - Number(this.$config.public.nftLaunchpadLatestItems);
           }
         }
 
         // get last NFTs
-        const lNfts = await launchpadContract.getNftContracts(this.allNftsIndexStart, this.allNftsIndexEnd);
+        const nftsConfig = {
+          ...launchpadContractConfig,
+          functionName: 'getNftContracts',
+          args: [BigInt(this.allNftsIndexStart), BigInt(this.allNftsIndexEnd)]
+        };
+        const lNfts = await this.readData(nftsConfig);
         const lNftsWritable = [...lNfts]; // copy the lNfts array to make it writable (for reverse() method)
 
         // reverse the lNftsWritable array (to show the latest NFTs first)
         lNftsWritable.reverse();
 
-        await this.parseNftsArray(lNftsWritable, this.lastNfts, provider);
+        await this.parseNftsArray(lNftsWritable, this.lastNfts);
 
-        if (this.allNftsIndexEnd > this.$config.nftLaunchpadLatestItems) {
-          this.allNftsIndexEnd = this.allNftsIndexEnd - this.$config.nftLaunchpadLatestItems;
+        if (this.allNftsIndexEnd > Number(this.$config.public.nftLaunchpadLatestItems)) {
+          this.allNftsIndexEnd = this.allNftsIndexEnd - Number(this.$config.public.nftLaunchpadLatestItems);
         } else {
           this.allNftsIndexEnd = 0;
         }
 
-        if (this.allNftsIndexStart > this.$config.nftLaunchpadLatestItems) {
-          this.allNftsIndexStart = this.allNftsIndexStart - this.$config.nftLaunchpadLatestItems;
+        if (this.allNftsIndexStart > Number(this.$config.public.nftLaunchpadLatestItems)) {
+          this.allNftsIndexStart = this.allNftsIndexStart - Number(this.$config.public.nftLaunchpadLatestItems);
         } else {
           this.allNftsIndexStart = 0;
         }
@@ -219,35 +248,36 @@ export default {
         return null;
       }
 
-      const price = Number(ethers.utils.formatEther(priceWei));
-
-      if (price > 100) {
-        return price.toFixed(0);
-      } else if (price > 1) {
-        return price.toFixed(2);
-      } else if (price > 0.1) {
-        return price.toFixed(4);
-      } else if (price > 0.01) {
-        return price.toFixed(5);
-      } else if (price > 0.001) {
-        return price.toFixed(6);
-      } else if (price > 0.0001) {
-        return price.toFixed(7);
-      } else if (price > 0.00001) {
-        return price.toFixed(8);
-      } else if (price > 0.000001) {
-        return price.toFixed(9);
-      } else {
-        return price;
-      }
+      const price = Number(formatEther(priceWei));
+      return getLessDecimals(price);
     },
 
-    async parseNftsArray(inputArray, outputArray, provider) {
-      const nftInterface = new ethers.utils.Interface([
-        "function collectionPreview() public view returns (string memory)",
-        "function getMintPrice() public view returns (uint256)",
-        "function name() public view returns (string memory)"
-      ]);
+    async parseNftsArray(inputArray, outputArray) {
+      const nftContractConfig = {
+        abi: [
+          {
+            name: 'collectionPreview',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'string' }]
+          },
+          {
+            name: 'getMintPrice',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'uint256' }]
+          },
+          {
+            name: 'name',
+            type: 'function',
+            stateMutability: 'view',
+            inputs: [],
+            outputs: [{ name: '', type: 'string' }]
+          }
+        ]
+      };
 
       // for loop to get NFTs data (price, name & image)
       for (let i = 0; i < inputArray.length; i++) {
@@ -255,9 +285,11 @@ export default {
           const nftData = await this.getNftDataFromApi(inputArray[i]);
 
           if (nftData) {
-            let mPriceWei = 0;
+            let mPriceWei = BigInt(0);
             if (nftData?.mintPrice) {
-              mPriceWei = ethers.utils.parseEther(String(nftData.mintPrice));
+              // Convert to number first, then to BigInt to avoid mixing types
+              const priceNumber = Number(nftData.mintPrice);
+              mPriceWei = BigInt(Math.floor(priceNumber * 1e18));
             }
 
             outputArray.push({
@@ -274,8 +306,6 @@ export default {
           console.log(error);
         }
 
-        const nftContract = new ethers.Contract(inputArray[i], nftInterface, provider);
-
         // fetch collection object from storage
         let collection = fetchCollection(window, inputArray[i]);
         
@@ -291,12 +321,24 @@ export default {
         if (collection?.name) {
           cName = collection.name;
         } else {
-          cName = await nftContract.name();
+          const nameConfig = {
+            ...nftContractConfig,
+            address: inputArray[i],
+            functionName: 'name',
+            args: []
+          };
+          cName = await this.readData(nameConfig);
           collection["name"] = cName;
         }
 
         // get price
-        const mintPriceWei = await nftContract.getMintPrice();
+        const priceConfig = {
+          ...nftContractConfig,
+          address: inputArray[i],
+          functionName: 'getMintPrice',
+          args: []
+        };
+        const mintPriceWei = await this.readData(priceConfig);
 
         // get image
         let cImage;
@@ -304,15 +346,21 @@ export default {
         if (collection?.image) {
           cImage = collection.image;
         } else {
-          cImage = await nftContract.collectionPreview();
+          const imageConfig = {
+            ...nftContractConfig,
+            address: inputArray[i],
+            functionName: 'collectionPreview',
+            args: []
+          };
+          cImage = await this.readData(imageConfig);
           collection["image"] = cImage;
         }
 
         // check if collection image uses Spheron IPFS gateway (in that case replace it with the IPFS gateway defined in the config)
-        if (collection.image.includes(".ipfs.sphn.link/")) {
+        if (collection.image && collection.image.includes(".ipfs.sphn.link/")) {
           const linkParts = collection.image.split(".ipfs.sphn.link/");
           const cid = linkParts[0].replace("https://", "");
-          const newImageLink = this.$config.ipfsGateway + cid + "/" + linkParts[1];
+          const newImageLink = this.$config.public.ipfsGateway + cid + "/" + linkParts[1];
           collection["image"] = newImageLink;
           cImage = newImageLink;
         }
@@ -331,9 +379,15 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers();
+    const { readData } = useWeb3();
+    const { address, chainId, isActivated } = useAccountData();
 
-    return { address, chainId, isActivated, signer }
+    return { 
+      readData,
+      address, 
+      chainId, 
+      isActivated
+    }
   }
 }
 </script>

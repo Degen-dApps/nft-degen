@@ -1,41 +1,55 @@
 <template>
-  <div class="modal fade" id="changeCollectionPreviewModal" tabindex="-1" :aria-labelledby="'modalLabel-'+componentId" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="changeCollectionPreviewModal"
+    tabindex="-1"
+    :aria-labelledby="'modalLabel-' + componentId"
+    aria-hidden="true"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" :id="'modalLabel-'+componentId">Change Collection Preview Image</h1>
-          <button :id="'closeModal-'+componentId" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h1 class="modal-title fs-5" :id="'modalLabel-' + componentId">Change Collection Preview Image</h1>
+          <button
+            :id="'closeModal-' + componentId"
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
 
         <div class="modal-body">
           <p>Change your collection preview image.</p>
 
           <div class="mt-4">
-            <div v-if="!imageUrl && $config.fileUploadEnabled">
+            <div v-if="!imageUrl && $config.public.fileUploadEnabled">
               <p>Upload new image (and then click Submit below):</p>
 
-              <FileUploadInput 
+              <FileUploadInput
                 btnCls="btn btn-primary"
-                :storageType="$config.fileUploadStorageType" 
-                :maxFileSize="$config.fileUploadSizeLimit" 
+                :storageType="$config.public.fileUploadStorageType"
+                :maxFileSize="$config.public.fileUploadSizeLimit"
                 @processUploadedFileUrl="insertImageLink"
               />
-              
 
               <p class="mt-3">Or paste image link here:</p>
             </div>
 
-            <p v-if="!$config.fileUploadEnabled">Paste image link here:</p>
+            <p v-if="!$config.public.fileUploadEnabled">Paste image link here:</p>
 
-            <input v-model="imageUrl" type="text" class="form-control">
+            <input v-model="imageUrl" type="text" class="form-control" />
 
             <div v-if="imageUrl" class="mt-3">
-              <Image :url="parseImageLink" cls="img-thumbnail img-fluid" style="max-width: 100px;" />
+              <Image :url="imageUrl" cls="img-thumbnail img-fluid" style="max-width: 100px" />
               <br />
-              <small>If image didn't appear above, then something is wrong with the link you added (wait until the loading indicator completes).</small>
+              <small
+                >If image didn't appear above, then something is wrong with the link you added (wait until the loading
+                indicator completes). If you have an IPFS link, it also helps to cut/paste the same link a couple of
+                times.</small
+              >
             </div>
           </div>
-
         </div>
 
         <div class="modal-footer">
@@ -50,79 +64,89 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { ethers } from 'ethers';
-import { useEthers } from '~/store/ethers'
-import { useToast } from "vue-toastification/dist/index.mjs";
-import WaitingToast from "~/components/WaitingToast";
-import FileUploadInput from '~/components/storage/FileUploadInput.vue';
-import Image from '~~/components/Image.vue';
+import axios from 'axios'
+import { useToast } from 'vue-toastification/dist/index.mjs'
+import Image from '@/components/Image.vue'
+import WaitingToast from '@/components/WaitingToast'
+import FileUploadInput from '@/components/storage/FileUploadInput.vue'
+import { useWeb3 } from '@/composables/useWeb3'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
   name: 'ChangeCollectionPreviewModal',
-  props: ["cAddress", "mdAddress"],
-  emits: ["saveCollection"],
+  props: ['cAddress', 'mdAddress'],
+  emits: ['saveCollection'],
   components: { FileUploadInput, Image },
 
   data() {
     return {
       componentId: null,
       imageUrl: null,
-      waiting: false
+      waiting: false,
     }
   },
 
   mounted() {
-    this.componentId = this.$.uid;
-  },
-
-  computed: {
-    parseImageLink() {
-      let parsedImage = this.imageUrl;
-
-      if (parsedImage && parsedImage.includes("ipfs://")) {
-        parsedImage = parsedImage.replace("ipfs://", this.$config.ipfsGateway);
-      }
-
-      return parsedImage;
-    }
+    this.componentId = this.$.uid
   },
 
   methods: {
     async updateImage() {
-      this.waiting = true;
+      if (!this.isActivated) {
+        this.toast('Please connect your wallet first.', { type: 'error' })
+        return
+      }
 
-      const metadataInterface = new ethers.utils.Interface([
-        "function setCollectionPreview(address nftAddress_, string memory collectionPreview_) external"
-      ]);
-      
-      const metadataContract = new ethers.Contract(this.mdAddress, metadataInterface, this.signer);
+      this.waiting = true
+
+      let toastWait;
 
       try {
-        const tx = await metadataContract.setCollectionPreview(this.cAddress, this.imageUrl); 
+        // Contract configuration for the write operation
+        const contractConfig = {
+          address: this.mdAddress,
+          abi: [
+            {
+              name: 'setCollectionPreview',
+              type: 'function',
+              stateMutability: 'nonpayable',
+              inputs: [
+                { name: 'nftAddress_', type: 'address' },
+                { name: 'collectionPreview_', type: 'string' }
+              ],
+              outputs: []
+            }
+          ],
+          functionName: 'setCollectionPreview',
+          args: [this.cAddress, this.imageUrl]
+        }
 
-        const toastWait = this.toast(
+        // Write the transaction
+        const hash = await this.writeData(contractConfig)
+
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
-              text: "Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer."
-            }
+              text: 'Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer.',
+            },
           },
           {
-            type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          }
-        );
+            type: 'info',
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+          },
+        )
 
-        const receipt = await tx.wait();
+        // Wait for transaction receipt
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
-          this.toast.dismiss(toastWait);
+        if (receipt.status === 'success') {
+          this.toast.dismiss(toastWait)
 
-          this.toast("You have updated the NFT collection preview image.", {
-            type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
+          this.toast('You have updated the NFT collection preview image.', {
+            type: 'success',
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+          })
 
           try {
             await axios.get('https://api.nftdegen.org/endpoints/collections/update?scope=previewImage&nftAddress='+this.cAddress);
@@ -130,55 +154,64 @@ export default {
             console.error(e);
           }
 
-          this.$emit("saveCollection", {
-            image: this.imageUrl
-          });
+          this.$emit('saveCollection', {
+            image: this.imageUrl,
+          })
 
-          this.imageUrl = null;
+          this.imageUrl = null
 
           // close the modal
-          document.getElementById('closeModal-'+this.componentId).click();
+          document.getElementById('closeModal-' + this.componentId).click()
 
-          this.waiting = false;
+          this.waiting = false
         } else {
-          this.toast.dismiss(toastWait);
-          this.waiting = false;
-          this.toast("Transaction has failed.", {
-            type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
-          console.log(receipt);
+          this.toast.dismiss(toastWait)
+          this.waiting = false
+          this.toast('Transaction has failed.', {
+            type: 'error',
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+          })
+          console.log(receipt)
         }
       } catch (e) {
-        console.error(e);
+        console.error(e)
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace(/"/g, "");
-          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, '')
+          extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
-          console.log(extractMessage);
-          
-          this.toast(extractMessage, {type: "error"});
+          console.log(extractMessage)
+
+          this.toast(extractMessage, { type: 'error' })
         } catch (e) {
-          this.toast("Transaction has failed.", {type: "error"});
+          this.toast('Transaction has failed.', { type: 'error' })
         }
 
-        this.waiting = false;
+        this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
 
     insertImageLink(fileUrl) {
-      this.imageUrl = fileUrl;
+      this.imageUrl = fileUrl
     },
   },
 
   setup() {
-    const { signer } = useEthers();
-    const toast = useToast();
+    const { writeData, waitForTxReceipt } = useWeb3()
+    const { isActivated } = useAccountData()
+    const toast = useToast()
 
-    return { signer, toast };
-  }
+    return { 
+      writeData, 
+      waitForTxReceipt, 
+      isActivated, 
+      toast 
+    }
+  },
 }
 </script>

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { useEthers } from '~/store/ethers'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
   name: "index",
@@ -21,7 +21,7 @@ export default {
   },
 
   setup() {
-    const { address, chainId } = useEthers()
+    const { address, chainId } = useAccountData()
 
     return { address, chainId }
   }

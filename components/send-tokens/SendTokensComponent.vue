@@ -1,12 +1,16 @@
 <template>
   <div>
-
     <div class="mb-3">
       <div class="input-group">
-        <span v-if="hasBlankCharacter" class="input-group-text" id="basic-addon3"><i class="bi bi-exclamation-triangle-fill"></i></span>
-        <input 
-          v-model="inputReceiver" 
-          type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3 basic-addon4" 
+        <span v-if="hasBlankCharacter" class="input-group-text" id="basic-addon3"
+          ><i class="bi bi-exclamation-triangle-fill"></i
+        ></span>
+        <input
+          v-model="inputReceiver"
+          type="text"
+          class="form-control"
+          id="basic-url"
+          aria-describedby="basic-addon3 basic-addon4"
           placeholder="Enter recipient's domain name or address"
           @keyup="findBlankCharacter"
         />
@@ -25,51 +29,35 @@
       </button>
 
       <ul class="dropdown-menu p-2">
-        <input 
-          class="form-control mb-2" 
-          placeholder="Filter tokens"
-          v-model="filterTextInput" 
-        />
+        <input class="form-control mb-2" placeholder="Filter tokens" v-model="filterTextInput" />
 
         <li v-for="token in filteredTokensInput" :key="token.address" class="cursor-pointer">
           <span @click="selectInputToken(token)" class="dropdown-item">{{ token.symbol }} ({{ token.name }})</span>
         </li>
       </ul>
 
-      <input 
-        v-model="inputTokenAmount"
-        type="text" 
-        class="form-control" 
-        placeholder="0.00"
-      >
+      <input v-model="inputTokenAmount" type="text" class="form-control" placeholder="0.00" />
 
-      <button
-        @click="setMaxInputTokenAmount" 
-        class="btn btn-outline-secondary" 
-        type="button" id="button-addon2"
-      >
+      <button @click="setMaxInputTokenAmount" class="btn btn-outline-secondary" type="button" id="button-addon2">
         <small>MAX</small>
       </button>
     </div>
 
     <small @click="setMaxInputTokenAmount">
-      <em>Balance: </em>  
-      <em class="cursor-pointer hover-color">
-        {{ formatInputTokenBalance }} {{ inputToken?.symbol }}
-      </em>
+      <em>Balance: </em>
+      <em class="cursor-pointer hover-color"> {{ formatInputTokenBalance }} {{ inputToken?.symbol }} </em>
     </small>
 
     <!-- BUTTONS -->
     <div class="d-flex justify-content-center mt-4">
-
       <!-- Connect Wallet button -->
-      <ConnectWalletButton v-if="!isActivated" class="btn btn-outline-primary" btnText="Connect wallet" />
+      <ConnectWalletButton v-if="!isActivated" customClass="btn-outline-primary" btnText="Connect wallet" />
 
       <!-- Disabled Send tokens button (if not input amount is entered) -->
       <button
         v-if="isActivated && !inputTokenAmount && isSupportedChain"
-        :disabled="true" 
-        class="btn btn-outline-primary" 
+        :disabled="true"
+        class="btn btn-outline-primary"
         type="button"
       >
         Send tokens
@@ -78,8 +66,16 @@
       <!-- Send tokens button -->
       <button
         v-if="isActivated && inputTokenAmount && inputAmountLessThanBalance && isSupportedChain"
-        :disabled="waiting || !inputToken || !inputTokenAmount || !isActivated || !inputAmountLessThanBalance || !inputReceiver || !isSupportedChain" 
-        class="btn btn-outline-primary" 
+        :disabled="
+          waiting ||
+          !inputToken ||
+          !inputTokenAmount ||
+          !isActivated ||
+          !inputAmountLessThanBalance ||
+          !inputReceiver ||
+          !isSupportedChain
+        "
+        class="btn btn-outline-primary"
         type="button"
         @click="send"
       >
@@ -90,8 +86,8 @@
       <!-- Balance too low button -->
       <button
         v-if="isActivated && inputTokenAmount && !inputAmountLessThanBalance && isSupportedChain"
-        :disabled="true" 
-        class="btn btn-outline-primary" 
+        :disabled="true"
+        class="btn btn-outline-primary"
         type="button"
       >
         Balance too low
@@ -99,26 +95,25 @@
 
       <!-- Wrong network button -->
       <SwitchChainButton v-if="isActivated && !isSupportedChain" />
-
     </div>
-
   </div>
 </template>
 
 <script>
-import { ethers } from 'ethers';
-import { useEthers } from '~/store/ethers'
-import { useToast } from "vue-toastification/dist/index.mjs";
-import { getTokenBalance } from '~/utils/balanceUtils';
-import { hasTextBlankCharacters } from '~/utils/textUtils';
-import WaitingToast from "~/components/WaitingToast";
-import ConnectWalletButton from '~/components/ConnectWalletButton.vue';
-import SwitchChainButton from '~/components/SwitchChainButton.vue';
-import Erc20Abi from "~/assets/abi/Erc20Abi.json";
+import { isAddress, parseUnits, zeroAddress } from 'viem'
+import { useAccountData } from '@/composables/useAccountData'
+import { useWeb3 } from '@/composables/useWeb3'
+import { useToast } from 'vue-toastification/dist/index.mjs'
+import { getTokenBalance } from '@/utils/balanceUtils'
+import { hasTextBlankCharacters } from '@/utils/textUtils'
+import WaitingToast from '@/components/WaitingToast'
+import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
+import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
+import Erc20Abi from '@/data/abi/Erc20Abi.json'
 
 export default {
   name: 'SendTokensComponent',
-  props: ["recipient", "tokens"],
+  props: ['recipient', 'tokens'],
 
   data() {
     return {
@@ -130,62 +125,61 @@ export default {
       inputTokenBalance: null,
       recipientAddress: null,
       tokenList: [],
-      waiting: false
+      waiting: false,
     }
   },
 
   components: {
     ConnectWalletButton,
-    SwitchChainButton
+    SwitchChainButton,
+    WaitingToast,
   },
 
   mounted() {
-    this.inputReceiver = this.recipient;
-    this.processRecipient(this.recipient);
+    this.inputReceiver = this.recipient
+    this.processRecipient(this.recipient)
 
-    this.findBlankCharacter();
+    this.findBlankCharacter()
 
-    this.tokenList = this.tokens.tokens;
-    this.selectInputToken(this.tokenList[0]);
+    this.tokenList = this.tokens.tokens
+    this.selectInputToken(this.tokenList[0])
   },
 
   computed: {
-
     filteredTokensInput() {
-      const regex = new RegExp(this.filterTextInput, 'i');
-      return this.tokenList.filter(token => regex.test(token.symbol));
+      const regex = new RegExp(this.filterTextInput, 'i')
+      return this.tokenList.filter(token => regex.test(token.symbol))
     },
 
     formatInputTokenBalance() {
       if (this.inputTokenBalance) {
         if (this.inputTokenBalance == 0) {
-          return 0;
+          return 0
         } else if (this.inputTokenBalance > 100) {
-          return Number(this.inputTokenBalance).toFixed(2);
+          return Number.parseFloat(Number(this.inputTokenBalance).toFixed(2))
         } else {
-          return Number(this.inputTokenBalance).toFixed(4);
+          return Number.parseFloat(Number(this.inputTokenBalance).toFixed(8))
         }
       }
 
-      return 0;
+      return 0
     },
 
     inputAmountLessThanBalance() {
       if (this.inputTokenAmount && this.inputTokenBalance) {
         if (Number(this.inputTokenAmount) <= Number(this.inputTokenBalance)) {
-          return true;
+          return true
         } else {
-          return false;
+          return false
         }
       }
 
-      return false;
+      return false
     },
 
     isSupportedChain() {
-      return this.chainId == this.$config.supportedChainId;
-    }
-
+      return this.chainId == this.$config.public.supportedChainId
+    },
   },
 
   methods: {
@@ -193,221 +187,284 @@ export default {
     hasTextBlankCharacters, // imported from text utils
 
     findBlankCharacter() {
-      this.hasBlankCharacter = false;
-      this.hasBlankCharacter = hasTextBlankCharacters(this.inputReceiver);
+      this.hasBlankCharacter = false
+      this.hasBlankCharacter = hasTextBlankCharacters(this.inputReceiver)
     },
 
     async processRecipient(recipient) {
       if (recipient) {
-        if (ethers.utils.isAddress(recipient)) {
-          this.recipientAddress = recipient;
+        if (isAddress(recipient)) {
+          this.recipientAddress = recipient
         } else {
-          const domainName = String(recipient).trim().toLowerCase().replace(this.$config.tldName, "");
+          const domainName = String(recipient).trim().toLowerCase().replace(this.$config.public.tldName, '')
 
-          // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId);
-
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-            // fetch provider from user's MetaMask
-            provider = this.signer;
+          // Create contract config for TLD contract
+          const tldContractConfig = {
+            address: this.$config.public.punkTldAddress,
+            abi: [{ 
+              name: 'getDomainHolder', 
+              type: 'function', 
+              stateMutability: 'view', 
+              inputs: [{ name: 'domain', type: 'string' }], 
+              outputs: [{ name: '', type: 'address' }] 
+            }],
+            functionName: 'getDomainHolder',
+            args: [domainName]
           }
 
-          const tldInterface = new ethers.utils.Interface([
-            "function getDomainHolder(string) view returns (address)"
-          ]);
-
-          const tldContract = new ethers.Contract(this.$config.punkTldAddress, tldInterface, provider);
-
-          this.recipientAddress = await tldContract.getDomainHolder(domainName);
+          try {
+            this.recipientAddress = await this.readData(tldContractConfig)
+          } catch (error) {
+            console.error('Error fetching domain holder:', error)
+            this.recipientAddress = null
+          }
         }
       }
     },
 
     async selectInputToken(token) {
-      this.inputToken = token;
-      this.inputTokenAmount = null;
+      this.inputToken = token
+      this.inputTokenAmount = null
 
-      if (this.signer) {
-        this.inputTokenBalance = await this.getTokenBalance(token, this.address, this.signer);
+      if (this.isActivated) {
+        try {
+          this.inputTokenBalance = await this.getTokenBalance(token, this.address)
+        } catch (error) {
+          console.error('Failed to fetch token balance:', error)
+          this.inputTokenBalance = '0'
+          
+          // Provide more specific error messages based on the error type
+          let errorMessage = 'Could not fetch token balance. Showing 0 balance.'
+          
+          if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+            if (error.message.includes('ContractFunctionExecutionError')) {
+              errorMessage = 'Token contract call failed. This might mean the contract has restrictions or you have 0 balance.'
+            } else if (error.message.includes('ContractFunctionRevertedError')) {
+              errorMessage = 'Token contract reverted. This usually means the user has 0 balance or the contract has restrictions.'
+            }
+          }
+          
+          // Show toast notification to the user
+          this.toast(errorMessage, { type: 'info' })
+        }
       }
     },
 
     async send() {
       // if recipient includes a dot, check if it ends with tldName. If not, throw error via toast
-      if (this.inputReceiver.includes(".")) {
-        if (!this.inputReceiver.endsWith(this.$config.tldName)) {
-          return this.toast.error("Invalid domain name. Only " + this.$config.tldName + " domains are supported.");
+      if (this.inputReceiver.includes('.')) {
+        if (!this.inputReceiver.endsWith(this.$config.public.tldName)) {
+          return this.toast.error('Invalid domain name. Only ' + this.$config.public.tldName + ' domains are supported.')
         }
       }
 
-      this.waiting = true;
+      this.waiting = true
 
-      await this.processRecipient(this.inputReceiver);
+      await this.processRecipient(this.inputReceiver)
 
       // prevent sending to 0x0 address
-      if (this.recipientAddress == ethers.constants.AddressZero) {
-        this.waiting = false;
-        return this.toast.error("This domain name does not exist");
+      if (this.recipientAddress == zeroAddress) {
+        this.waiting = false
+        return this.toast.error('This domain name does not exist')
       }
 
       // check if sending native coin or ERC-20 token
-      if (this.inputToken.address == ethers.constants.AddressZero) {
-        this.sendNativeCoin();
+      if (this.inputToken.address == zeroAddress) {
+        this.sendNativeTokens()
       } else {
-        this.sendErc20Tokens();
+        this.sendErc20Tokens()
       }
     },
 
     async sendErc20Tokens() {
-      const tokenContract = new ethers.Contract(this.inputToken.address, Erc20Abi, this.signer);
+      const tokenContractConfig = {
+        address: this.inputToken.address,
+        abi: Erc20Abi,
+        functionName: 'transfer',
+        args: [
+          this.recipientAddress,
+          parseUnits(this.inputTokenAmount, this.inputToken.decimals)
+        ]
+      }
+
+      let toastWait;
 
       try {
-        const tx = await tokenContract.transfer(
-          this.recipientAddress,
-          ethers.utils.parseUnits(this.inputTokenAmount, this.inputToken.decimals)
-        );
+        const hash = await this.writeData(tokenContractConfig)
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
-              text: "Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer."
-            }
+              text: 'Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer.',
+            },
           },
           {
-            type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          }
-        );
+            type: 'info',
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+          },
+        )
 
-        const receipt = await tx.wait();
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
-          this.toast.dismiss(toastWait);
+        if (receipt.status === 'success' || receipt.status === 1) {
+          this.toast.dismiss(toastWait)
 
-          this.toast("You have successfully sent " + String(this.inputTokenAmount) + " " + this.inputToken.symbol + " to " + this.inputReceiver, {
-            type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
+          this.toast(
+            'You have successfully sent ' +
+              String(this.inputTokenAmount) +
+              ' ' +
+              this.inputToken.symbol +
+              ' to ' +
+              this.inputReceiver,
+            {
+              type: 'success',
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+            },
+          )
 
-          this.subtractInputTokenBalance();
+          this.subtractInputTokenBalance()
 
-          this.waiting = false;
+          this.waiting = false
         } else {
-          this.toast.dismiss(toastWait);
-          this.waiting = false;
-          this.toast("Transaction has failed.", {
-            type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
-          console.log(receipt);
+          this.toast.dismiss(toastWait)
+          this.waiting = false
+          this.toast('Transaction has failed.', {
+            type: 'error',
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+          })
+          console.log(receipt)
         }
       } catch (e) {
-        console.error(e);
+        console.error(e)
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace(/"/g, "");
-          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, '')
+          extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
-          console.log(extractMessage);
-          
-          this.toast(extractMessage, {type: "error"});
+          console.log(extractMessage)
+
+          this.toast(extractMessage, { type: 'error' })
         } catch (e) {
-          this.toast("Transaction has failed.", {type: "error"});
+          this.toast('Transaction has failed.', { type: 'error' })
         }
 
-        this.waiting = false;
+        this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
 
-    async sendNativeCoin() {
-      const tokenContract = new ethers.Contract(this.inputToken.address, Erc20Abi, this.signer);
+    async sendNativeTokens() {
+      let toastWait;
 
       try {
-        const tx = await this.signer.sendTransaction({
-          to: this.recipientAddress,
-          value: ethers.utils.parseUnits(this.inputTokenAmount, this.inputToken.decimals)
-        });
+        const hash = await this.sendNativeCoin(
+          this.recipientAddress,
+          this.inputTokenAmount
+        )
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
-              text: "Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer."
-            }
+              text: 'Please wait for your transaction to confirm. Click on this notification to see transaction in the block explorer.',
+            },
           },
           {
-            type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          }
-        );
+            type: 'info',
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+          },
+        )
 
-        const receipt = await tx.wait();
+        const receipt = await this.waitForTxReceipt(hash)
 
-        if (receipt.status === 1) {
-          this.toast.dismiss(toastWait);
+        if (receipt.status === "success" || receipt.status === 1) {
+          this.toast.dismiss(toastWait)
 
-          this.toast("You have successfully sent " + String(this.inputTokenAmount) + " " + this.inputToken.symbol + " to " + this.inputReceiver, {
-            type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
+          this.toast(
+            'You have successfully sent ' +
+              String(this.inputTokenAmount) +
+              ' ' +
+              this.inputToken.symbol +
+              ' to ' +
+              this.inputReceiver,
+            {
+              type: 'success',
+              onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+            },
+          )
 
-          this.subtractInputTokenBalance();
+          this.subtractInputTokenBalance()
 
-          this.waiting = false;
+          this.waiting = false
         } else {
-          this.toast.dismiss(toastWait);
-          this.waiting = false;
-          this.toast("Transaction has failed.", {
-            type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
-          });
-          console.log(receipt);
+          this.toast.dismiss(toastWait)
+          this.waiting = false
+          this.toast('Transaction has failed.', {
+            type: 'error',
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl + '/tx/' + hash, '_blank').focus(),
+          })
+          console.log(receipt)
         }
       } catch (e) {
-        console.error(e);
+        console.error(e)
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
-          extractMessage = extractMessage.replace(/"/g, "");
-          extractMessage = extractMessage.replace('execution reverted:', "Error:");
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
+          extractMessage = extractMessage.replace(/"/g, '')
+          extractMessage = extractMessage.replace('execution reverted:', 'Error:')
 
-          console.log(extractMessage);
-          
-          this.toast(extractMessage, {type: "error"});
+          console.log(extractMessage)
+
+          this.toast(extractMessage, { type: 'error' })
         } catch (e) {
-          this.toast("Transaction has failed.", {type: "error"});
+          this.toast('Transaction has failed.', { type: 'error' })
         }
 
-        this.waiting = false;
+        this.waiting = false
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
 
     setMaxInputTokenAmount() {
-      this.inputTokenAmount = String(this.inputTokenBalance);
+      this.inputTokenAmount = String(this.inputTokenBalance)
     },
 
     subtractInputTokenBalance() {
-      this.inputTokenBalance = Number(this.inputTokenBalance) - Number(this.inputTokenAmount);
+      this.inputTokenBalance = Number(this.inputTokenBalance) - Number(this.inputTokenAmount)
     },
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers();
-    const toast = useToast();
+    const { address, chainId, isActivated } = useAccountData()
+    const { readData, sendNativeCoin, waitForTxReceipt, writeData } = useWeb3()
+    const toast = useToast()
 
-    return { address, chainId, isActivated, signer, toast };
+    return { 
+      address, 
+      chainId, 
+      isActivated, 
+      toast,
+      readData,
+      sendNativeCoin,
+      waitForTxReceipt,
+      writeData,
+    }
   },
 
   watch: {
     async isActivated() {
-      if (this.address) {
-        this.inputTokenBalance = await this.getTokenBalance(this.inputToken, this.address, this.signer);
+      if (this.address && this.inputToken) {
+        this.inputTokenBalance = await this.getTokenBalance(this.inputToken, this.address)
       }
-    }
-  }
+    },
+  },
 }
 </script>

@@ -63,10 +63,10 @@
 
 <script>
 import axios from 'axios';
-import { ethers } from 'ethers';
-import { useEthers } from '~/store/ethers'
+import { isAddress } from 'viem';
+import { useAccountData } from '@/composables/useAccountData';
 import { useToast } from "vue-toastification/dist/index.mjs";
-import NftCollectionsList from '~/components/nft/list/NftCollectionsList.vue';
+import NftCollectionsList from '@/components/nft/list/NftCollectionsList.vue';
 
 export default {
   name: "UserMintedNfts",
@@ -101,7 +101,7 @@ export default {
   methods: {
     async addNftToApi() {
       // check if nftAddressToAdd is a valid address
-      if (!ethers.utils.isAddress(this.nftAddressToAdd)) {
+      if (!isAddress(this.nftAddressToAdd)) {
         this.toast("Invalid NFT address. It has to be a crypto address starting with 0x.", {type: "error"});
         return;
       }
@@ -170,7 +170,7 @@ export default {
   },
 
   setup() {
-    const { address } = useEthers();
+    const { address } = useAccountData();
     const toast = useToast();
 
     return { address, toast };

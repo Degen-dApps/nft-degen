@@ -1,24 +1,22 @@
 <template>
   <Head>
-    <Title>About | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'About | ' + $config.projectMetadataTitle" />
-    <Link rel="canonical" href="https://nftdegen.lol/about" />
+    <Title>About | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'About | ' + $config.public.projectMetadataTitle" />
+    
+    <!-- Farcaster Mini App Embed -->
+    <Meta name="fc:miniapp" :content="farcasterMetaContent" />
   </Head>
 
   <div class="card border scroll-500">
     <div class="card-body">
-      <p class="fs-3" @click="$router.back()">
-        <i class="bi bi-arrow-left-circle cursor-pointer"></i>
+      <p class="fs-3">
+        <i class="bi bi-arrow-left-circle cursor-pointer" @click="$router.back()"></i>
       </p>
 
       <h3 class="mb-3 mt-3">The First NFT Launchpad on the Degen Chain</h3>
 
       <p class="text-break mt-3">
         NFTdegen.lol is the first NFT launchpad and marketplace on the Degen Chain.
-      </p>
-
-      <p class="text-break mt-3">
-        (Also accessible via NFTdegen.org, if you're of a more serious nature 🤪)
       </p>
 
       <h5>New kind of NFTs</h5>
@@ -36,7 +34,7 @@
 
       <ul>
         <li><a href="https://docs.google.com/document/d/1UTTFLszVAwpd7LbvNMbj4vL1NBaN0ImoZYNPJ4T_EJo/edit?usp=sharing" target="_blank">FAQ</a></li>
-        <li><a href="https://warpcast.com/~/channel/nftdegen" target="_blank">Warpcast: NFTdegen channel</a></li>
+        <li><a href="https://farcaster.xyz/~/channel/nftdegen" target="_blank">Farcaster: NFTdegen channel</a></li>
         <li><a href="https://github.com/Degen-dApps" target="_blank">GitHub org</a></li>
         <li><a href="https://degendapps.lol" target="_blank">List of dApps on Degen Chain</a></li>
         <li><a href="https://degenname.lol/" target="_blank">DegenName.lol</a></li>
@@ -67,9 +65,9 @@
 
       <p class="text-break mt-3">
         Feel free to contact 
-        <a href="https://warpcast.com/tempetechie.eth" target="_blank">Tempe Techie 🎩</a> or
-        <a href="https://warpcast.com/tekr0x.eth" target="_blank">Tekr 🎩</a> 
-        via Warpcast. 
+        <a href="https://farcaster.xyz/tempetechie.eth" target="_blank">Tempe Techie 🎩</a> or
+        <a href="https://farcaster.xyz/tekr0x.eth" target="_blank">Tekr 🎩</a> 
+        via Farcaster. 
       </p>
 
     </div>
@@ -77,7 +75,30 @@
 </template>
 
 <script>
+import farcasterConfig from '@/public/.well-known/farcaster.json'
+
 export default {
-  name: 'About'
+  name: 'About',
+
+  computed: {
+
+    farcasterMetaContent() {
+      return JSON.stringify({
+        version: farcasterConfig.miniapp.version,
+        imageUrl: farcasterConfig.miniapp.imageUrl,
+        button: {
+          title: "About " + this.$config.public.projectName,
+          action: {
+            type: 'launch_miniapp',
+            name: this.$config.public.projectName,
+            url: this.$config.public.projectUrl + '/about',
+            splashImageUrl: farcasterConfig.miniapp.splashImageUrl,
+            splashBackgroundColor: farcasterConfig.miniapp.splashBackgroundColor
+          }
+        }
+      })
+    }
+
+  },
 }
 </script>

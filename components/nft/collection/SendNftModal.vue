@@ -10,8 +10,12 @@
         <div class="modal-body">
           <p>
             Send/transfer NFT to another address. 
-            <span v-if="!nftDataLoaded">First load the NFT image:</span>
           </p>
+
+          <button v-if="!tokenId" @click="fetchUsersNft" type="button" class="btn btn-primary mt-2" :disabled="waitingFetchNft">
+            <span v-if="waitingFetchNft" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
+            Find your NFT ID
+          </button>
 
           <div v-if="nftDataLoaded" class="mt-4 row">
             <div class="col-md-4 col-6">
@@ -19,10 +23,25 @@
             </div>
           </div>
 
+          <div class="mt-4">
+            <label :for="'inputTokenId-'+componentId" class="form-label">
+              <strong>
+                NFT (token) ID to send:
+              </strong>
+            </label>
+
+            <input v-model="tokenId" type="text" class="form-control" :id="'inputTokenId-'+componentId">
+          </div>
+
+          <button v-if="!nftDataLoaded && tokenId" @click="loadNftData" type="button" class="btn btn-primary mt-2" :disabled="!tokenId || waiting">
+            <span v-if="waiting" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
+            Load NFT image
+          </button>
+
           <div v-if="nftDataLoaded" class="mt-4">
             <label :for="'inputAddress-'+componentId" class="form-label">
               <strong>
-                Recipient address or .degen name:
+                Recipient address or {{ $config.public.tldName }} name:
               </strong>
             </label>
 
@@ -39,27 +58,6 @@
               This domain name contains a blank character: {{ encodeURIComponent(recipientInput) }}. Proceed with caution.
             </div>
           </div>
-
-          <div class="mt-4">
-            <label :for="'inputTokenId-'+componentId" class="form-label">
-              <strong>
-                NFT (token) ID to send:
-              </strong>
-            </label>
-
-            <input v-model="tokenId" type="text" class="form-control" :id="'inputTokenId-'+componentId">
-
-            <small><em>
-              <span v-if="userSecondTokenId">Alternativelly you can use your second NFT ID: {{ userSecondTokenId }}.</span>
-              Find all NFT IDs that you own 
-              <a target="_blank" :href="`https://explorer.degen.tips/token/${cAddress}?tab=inventory&holder_address_hash=${address}`">on block explorer</a>.
-            </em></small>
-          </div>
-
-          <button v-if="!nftDataLoaded" @click="loadNftData" type="button" class="btn btn-primary mt-2" :disabled="!tokenId || waiting">
-            <span v-if="waiting" class="spinner-border spinner-border-sm mx-1" role="status" aria-hidden="true"></span>
-            Load NFT image
-          </button>
 
         </div>
 
@@ -78,16 +76,16 @@
 
 <script>
 import axios from 'axios';
-import { ethers } from 'ethers';
-import { useEthers } from '~/store/ethers'
+import { isAddress, parseAbi } from 'viem';
 import { useToast } from "vue-toastification/dist/index.mjs";
-import WaitingToast from "~/components/WaitingToast";
-import { hasTextBlankCharacters } from '~/utils/textUtils';
+import { useWeb3 } from '@/composables/useWeb3'
+import { useAccountData } from '@/composables/useAccountData'
+import WaitingToast from "@/components/WaitingToast";
+import { hasTextBlankCharacters } from '@/utils/textUtils';
 
 export default {
   name: 'SendNftModal',
-  props: ["cAddress", "userTokenId"],
-  emits: ["fetchUserTokenId"], 
+  props: ["address", "cAddress"],
 
   data() {
     return {
@@ -100,13 +98,13 @@ export default {
       recipientInput: null,
       tokenId: null,
       userSecondTokenId: null,
-      waiting: false
+      waiting: false,
+      waitingFetchNft: false,
     }
   },
 
   mounted() {
     this.componentId = this.$.uid;
-    this.tokenId = this.userTokenId;
   },
 
   methods: {
@@ -117,47 +115,75 @@ export default {
       this.hasBlankCharacter = hasTextBlankCharacters(this.recipientInput);
     },
 
-    async fetchUsersSecondNft() {
-      // check if user has more than one NFT
+    async fetchUsersNft() {
+      console.log("Fetching user's NFT ID...");
+      this.waitingFetchNft = true;
+
+      console.log("User's address: ", this.address);
+      console.log("NFT contract address: ", this.cAddress);
+
       if (this.cAddress && this.address) {
-        const nftInterface = new ethers.utils.Interface([
+        const nftAbi = parseAbi([
           "function tokenOfOwnerByIndex(address owner, uint256 index) public view returns (uint256)"
         ]);
 
-        const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
-
         try {
-          this.userSecondTokenId = await nftContract.tokenOfOwnerByIndex(this.address, 1); // get second NFT if it exists
+          const result = await this.readData({
+            address: this.cAddress,
+            abi: nftAbi,
+            functionName: 'tokenOfOwnerByIndex',
+            args: [this.address, 0n] // get user's NFT if it exists
+          });
+          
+          if (result) {
+            this.tokenId = result.toString();
+          }
         } catch (e) {
-          this.userSecondTokenId = null;
+          console.log("Could not fetch NFT ID for user.");
         }
       }
+
+      this.waitingFetchNft = false;
     },
 
     async loadNftData() {
       // get NFT metadata from tokenURI
       this.waiting = true;
 
-      const nftInterface = new ethers.utils.Interface([
+      const nftAbi = parseAbi([
         "function ownerOf(uint256 tokenId) external view returns (address)",
         "function tokenURI(uint256 tokenId) external view returns (string)"
       ]);
 
       try {
-        const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
+        // Check ownership first
+        const holder = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'ownerOf',
+          args: [BigInt(this.tokenId)]
+        });
 
-        const holder = await nftContract.ownerOf(this.tokenId);
+        console.log("NFT holder: ", holder);
 
-        if (holder !== this.address) {
+        if (String(holder).toLowerCase() !== String(this.address).toLowerCase()) {
           this.toast(`You are not the owner of NFT with ID ${this.tokenId}. Try some other ID number.`, {type: "error"});
           this.waiting = false;
           return;
         }
 
-        let tokenURI = await nftContract.tokenURI(this.tokenId);
+        // Get token URI
+        let tokenURI = await this.readData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'tokenURI',
+          args: [BigInt(this.tokenId)]
+        });
 
         if (tokenURI.startsWith("ipfs://")) {
-          tokenURI = tokenURI.replace("ipfs://", this.$config.ipfsGateway);
+          tokenURI = tokenURI.replace("ipfs://", this.$config.public.ipfsGateway);
+        } else if (tokenURI.startsWith("ar://")) {
+          tokenURI = tokenURI.replace("ar://", this.$config.public.arweaveGateway);
         }
 
         let json; // NFT metadata JSON
@@ -167,7 +193,7 @@ export default {
             const res = await axios.get(tokenURI);
             json = await res.data;
           } catch (error) {
-            console.log("error fetching metadata from ipfs for token id: ", String(this.tokenId));
+            console.log("error fetching metadata for token id: ", String(this.tokenId));
           }
         } else {
           const result = atob(tokenURI.substring(29));
@@ -175,9 +201,9 @@ export default {
         }
 
         if (json["image"].startsWith("ipfs://")) {
-          json["image"] = json["image"].replace("ipfs://", this.$config.ipfsGateway);
-        }  else if (json["image"].startsWith("ar://")) {
-          json["image"] = json["image"].replace("ar://", this.$config.arweaveGateway);
+          json["image"] = json["image"].replace("ipfs://", this.$config.public.ipfsGateway);
+        } else if (json["image"].startsWith("ar://")) {
+          json["image"] = json["image"].replace("ar://", this.$config.public.arweaveGateway);
         }
 
         this.nftImage = json["image"];
@@ -187,32 +213,30 @@ export default {
         console.error(e);
         this.waiting = false;
       }
-
-      await this.fetchUsersSecondNft();
     },
 
     async processRecipient(recipient) {
       if (recipient) {
-        if (ethers.utils.isAddress(recipient)) {
+        if (isAddress(recipient)) {
           this.recipientAddress = recipient;
         } else {
-          const domainName = String(recipient).trim().toLowerCase().replace(this.$config.tldName, "");
+          const domainName = String(recipient).trim().toLowerCase().replace(this.$config.public.tldName, "");
 
-          // fetch provider from hardcoded RPCs
-          let provider = this.$getFallbackProvider(this.$config.supportedChainId);
-
-          if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-            // fetch provider from user's MetaMask
-            provider = this.signer;
-          }
-
-          const tldInterface = new ethers.utils.Interface([
+          const tldAbi = parseAbi([
             "function getDomainHolder(string) view returns (address)"
           ]);
 
-          const tldContract = new ethers.Contract(this.$config.punkTldAddress, tldInterface, provider);
-
-          this.recipientAddress = await tldContract.getDomainHolder(domainName);
+          try {
+            this.recipientAddress = await this.readData({
+              address: this.$config.public.punkTldAddress,
+              abi: tldAbi,
+              functionName: 'getDomainHolder',
+              args: [domainName]
+            });
+          } catch (error) {
+            console.error("Error fetching domain holder:", error);
+            this.toast("Could not resolve domain name to address.", {type: "error"});
+          }
         }
       }
     },
@@ -222,16 +246,27 @@ export default {
 
       await this.processRecipient(this.recipientInput);
 
-      const nftInterface = new ethers.utils.Interface([
+      if (!this.recipientAddress) {
+        this.toast("Could not resolve recipient address.", {type: "error"});
+        this.waiting = false;
+        return;
+      }
+
+      const nftAbi = parseAbi([
         "function transferFrom(address from, address to, uint256 tokenId) external"
       ]);
+
+      let toastWait;
       
-      const nftContract = new ethers.Contract(this.cAddress, nftInterface, this.signer);
-
       try {
-        const tx = await nftContract.transferFrom(this.address, this.recipientAddress, this.tokenId);
+        const hash = await this.writeData({
+          address: this.cAddress,
+          abi: nftAbi,
+          functionName: 'transferFrom',
+          args: [this.address, this.recipientAddress, BigInt(this.tokenId)]
+        });
 
-        const toastWait = this.toast(
+        toastWait = this.toast(
           {
             component: WaitingToast,
             props: {
@@ -240,18 +275,18 @@ export default {
           },
           {
             type: "info",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           }
         );
 
-        const receipt = await tx.wait();
+        const receipt = await this.waitForTxReceipt(hash);
 
-        if (receipt.status === 1) {
+        if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
 
           this.toast("You have successfully transferred the NFT.", {
             type: "success",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
 
           try {
@@ -263,9 +298,6 @@ export default {
           } catch (e) {
             console.error(e);
           }
-
-          // update sender's NFT balance
-          this.$emit("fetchUserTokenId");
 
           this.recipientAddress = null;
           this.recipientInput = null;
@@ -281,7 +313,7 @@ export default {
           this.waiting = false;
           this.toast("Transaction has failed.", {
             type: "error",
-            onClick: () => window.open(this.$config.blockExplorerBaseUrl+"/tx/"+tx.hash, '_blank').focus()
+            onClick: () => window.open(this.$config.public.blockExplorerBaseUrl+"/tx/"+hash, '_blank').focus()
           });
           console.log(receipt);
         }
@@ -289,8 +321,8 @@ export default {
         console.error(e);
 
         try {
-          let extractMessage = e.message.split("reason=")[1];
-          extractMessage = extractMessage.split(", method=")[0];
+          let extractMessage = e.message.split('Details:')[1]
+          extractMessage = extractMessage.split('Version: viem')[0]
           extractMessage = extractMessage.replace(/"/g, "");
           extractMessage = extractMessage.replace('execution reverted:', "Error:");
 
@@ -302,22 +334,30 @@ export default {
         }
 
         this.waiting = false;
+      } finally {
+        this.toast.dismiss(toastWait)
+        this.waiting = false
       }
     },
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers();
+    const { readData, writeData, waitForTxReceipt } = useWeb3();
+    const { address, chainId, isActivated } = useAccountData();
     const toast = useToast();
 
-    return { address, chainId, isActivated, signer, toast };
+    return { 
+      readData, 
+      writeData, 
+      waitForTxReceipt,
+      address, 
+      chainId, 
+      isActivated, 
+      toast 
+    };
   },
 
   watch: {
-    userTokenId() {
-      this.tokenId = this.userTokenId;
-    },
-
     tokenId() {
       this.nftDataLoaded = false;
     }

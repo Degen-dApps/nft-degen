@@ -1,8 +1,7 @@
 <template>
   <Head>
-    <Title>Find user | {{ $config.projectMetadataTitle }}</Title>
-    <Meta property="og:title" :content="'Find user | ' + $config.projectMetadataTitle" />
-    <Link rel="canonical" :href="$config.projectUrl+'/find-user'" />
+    <Title>Find user | {{ $config.public.projectMetadataTitle }}</Title>
+    <Meta property="og:title" :content="'Find user | ' + $config.public.projectMetadataTitle" />
   </Head>
 
   <div class="scroll-500">
@@ -13,26 +12,25 @@
         </p>
 
         <h3 class="mt-3">Find user</h3>
-        
+
         <div class="d-flex justify-content-center mt-5">
           <div class="col-12 col-lg-8">
             <FindUser />
           </div>
         </div>
-        
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import FindUser from '~/components/search/FindUser.vue';
+import FindUser from '@/components/search/FindUser.vue'
 
 export default {
   name: 'FindUserPage',
 
   components: {
     FindUser,
-  }
+  },
 }
 </script>

@@ -5,7 +5,7 @@
         <Image :url="nft.image" :cls="'card-img-top'" :alt="nft.name" />
         <div class="card-body rounded-bottom-3">
           <p class="card-text mb-1"><strong>{{ nft.name }}</strong></p>
-          <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.tokenSymbol }}</small>
+          <small class="card-text">{{ formatPrice(nft.price) }} {{ $config.public.tokenSymbol }}</small>
         </div>
       </div>
     </NuxtLink>
@@ -17,16 +17,19 @@
 </template>
 
 <script>
-import { ethers } from 'ethers';
-import { useEthers } from '~/store/ethers'
-import Image from '~/components/Image.vue';
-import { fetchCollection, storeCollection } from '~/utils/storageUtils';
+import { formatEther } from 'viem'
+import Image from '@/components/Image.vue'
+import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
+import { useWeb3 } from '@/composables/useWeb3'
+import { useAccountData } from '@/composables/useAccountData'
 
 export default {
   name: "FeaturedNftsBlockchain",
 
   data() {
     return {
+      featuredAmount: 8, // number of featured NFTs to fetch
       featuredNfts: [],
       waitingData: false
     }
@@ -36,140 +39,172 @@ export default {
     Image
   },
 
+
   mounted() {
-    if (this.$config.nftLaunchpadBondingAddress) {
-      this.fetchFeaturedNfts();
+    if (this.$config.public.nftLaunchpadBondingAddress) {
+      this.fetchFeaturedNfts()
     }
   },
 
   methods: {
     async fetchFeaturedNfts() {
-      this.waitingData = true;
+      this.waitingData = true
 
-      // fetch provider from hardcoded RPCs
-      let provider = this.$getFallbackProvider(this.$config.supportedChainId);
-
-      if (this.isActivated && this.chainId === this.$config.supportedChainId) {
-        // fetch provider from user's MetaMask
-        provider = this.signer;
+      // Get featured NFTs from launchpad contract
+      const launchpadContractConfig = {
+        address: this.$config.public.nftLaunchpadBondingAddress,
+        abi: [
+          {
+            "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+            "name": "getFeaturedNftContracts",
+            "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ],
+        functionName: 'getFeaturedNftContracts',
+        args: [this.featuredAmount]
       }
 
-      // create launchpad contract object
-      const launchpadInterface = new ethers.utils.Interface([
-        "function getFeaturedNftContracts(uint256 amount) external view returns(address[] memory)"
-      ]);
-
-      const launchpadContract = new ethers.Contract(
-        this.$config.nftLaunchpadBondingAddress,
-        launchpadInterface,
-        provider
-      );
-
-      // get featured NFTs
-      const fNfts = await launchpadContract.getFeaturedNftContracts(8);
-
-      await this.parseNftsArray(fNfts, this.featuredNfts, provider);
+      try {
+        const fNfts = await this.readData(launchpadContractConfig)
+        
+        if (fNfts) {
+          await this.parseNftsArray(fNfts, this.featuredNfts)
+        }
+      } catch (error) {
+        console.error('Error fetching featured NFTs:', error)
+      } finally {
+        this.waitingData = false
+      }
     },
 
     formatPrice(priceWei) {
       if (priceWei === null) {
-        return null;
+        return null
       }
 
-      const price = Number(ethers.utils.formatEther(priceWei));
-
-      if (price > 100) {
-        return price.toFixed(0);
-      } else if (price > 1) {
-        return price.toFixed(2);
-      } else if (price > 0.1) {
-        return price.toFixed(4);
-      } else if (price > 0.01) {
-        return price.toFixed(5);
-      } else if (price > 0.001) {
-        return price.toFixed(6);
-      } else if (price > 0.0001) {
-        return price.toFixed(7);
-      } else if (price > 0.00001) {
-        return price.toFixed(8);
-      } else if (price > 0.000001) {
-        return price.toFixed(9);
-      } else {
-        return price;
-      }
+      // Convert from wei to ether using viem
+      const price = Number(formatEther(priceWei))
+      
+      // Use getLessDecimals for formatting
+      return getLessDecimals(price)
     },
 
-    async parseNftsArray(inputArray, outputArray, provider) {
-      const nftInterface = new ethers.utils.Interface([
-        "function collectionPreview() public view returns (string memory)",
-        "function getMintPrice() public view returns (uint256)",
-        "function name() public view returns (string memory)"
-      ]);
+    async parseNftsArray(inputArray, outputArray) {
+      const nftInterface = [
+        {
+          "inputs": [],
+          "name": "collectionPreview",
+          "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getMintPrice",
+          "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "name",
+          "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ]
 
       // for loop to get NFTs data (price, name & image)
       for (let i = 0; i < inputArray.length; i++) {
-        const nftContract = new ethers.Contract(inputArray[i], nftInterface, provider);
+        try {
+          // fetch collection object from storage
+          let collection = fetchCollection(window, inputArray[i])
+          
+          if (!collection) {
+            collection = {
+              address: inputArray[i]
+            }
+          }
 
-        // fetch collection object from storage
-        let collection = fetchCollection(window, inputArray[i]);
-        
-        if (!collection) {
-          collection = {
-            address: inputArray[i]
-          };
+          // get collection name
+          let cName
+
+          if (collection?.name) {
+            cName = collection.name
+          } else {
+            const nameContractConfig = {
+              address: inputArray[i],
+              abi: nftInterface,
+              functionName: 'name'
+            }
+            cName = await this.readData(nameContractConfig)
+            if (cName) {
+              collection["name"] = cName
+            }
+          }
+
+          // get price
+          const mintPriceContractConfig = {
+            address: inputArray[i],
+            abi: nftInterface,
+            functionName: 'getMintPrice'
+          }
+          const mintPriceWei = await this.readData(mintPriceContractConfig)
+
+          // get image
+          let cImage
+
+          if (collection?.image) {
+            cImage = collection.image
+          } else {
+            const imageContractConfig = {
+              address: inputArray[i],
+              abi: nftInterface,
+              functionName: 'collectionPreview'
+            }
+            cImage = await this.readData(imageContractConfig)
+            if (cImage) {
+              collection["image"] = cImage
+            }
+          }
+
+          // check if collection image uses Spheron IPFS gateway (in that case replace it with the IPFS gateway defined in the config)
+          if (collection.image && collection.image.includes(".ipfs.sphn.link/")) {
+            const linkParts = collection.image.split(".ipfs.sphn.link/")
+            const cid = linkParts[0].replace("https://", "")
+            const newImageLink = this.$config.public.ipfsGateway + cid + "/" + linkParts[1]
+            collection["image"] = newImageLink
+            cImage = newImageLink
+          }
+
+          // store collection object in storage
+          storeCollection(window, inputArray[i], collection)
+
+          outputArray.push({
+            address: inputArray[i],
+            image: cImage,
+            name: cName,
+            price: mintPriceWei
+          })
+        } catch (error) {
+          console.error(`Error processing NFT ${inputArray[i]}:`, error)
         }
-
-        // get collection name
-        let cName;
-
-        if (collection?.name) {
-          cName = collection.name;
-        } else {
-          cName = await nftContract.name();
-          collection["name"] = cName;
-        }
-
-        // get price
-        const mintPriceWei = await nftContract.getMintPrice();
-
-        // get image
-        let cImage;
-
-        if (collection?.image) {
-          cImage = collection.image;
-        } else {
-          cImage = await nftContract.collectionPreview();
-          collection["image"] = cImage;
-        }
-
-        // check if collection image uses Spheron IPFS gateway (in that case replace it with the IPFS gateway defined in the config)
-        if (collection.image.includes(".ipfs.sphn.link/")) {
-          const linkParts = collection.image.split(".ipfs.sphn.link/");
-          const cid = linkParts[0].replace("https://", "");
-          const newImageLink = this.$config.ipfsGateway + cid + "/" + linkParts[1];
-          collection["image"] = newImageLink;
-          cImage = newImageLink;
-        }
-
-        // store collection object in storage
-        storeCollection(window, inputArray[i], collection);
-
-        outputArray.push({
-          address: inputArray[i],
-          image: cImage,
-          name: cName,
-          price: mintPriceWei
-        });
       }
-
-      this.waitingData = false;
     }
   },
 
   setup() {
-    const { address, chainId, isActivated, signer } = useEthers();
+    const { readData } = useWeb3()
+    const { address, chainId, isActivated } = useAccountData()
 
-    return { address, chainId, isActivated, signer }
+    return {
+      readData,
+      address,
+      chainId,
+      isActivated
+    }
   }
 }
 </script>
