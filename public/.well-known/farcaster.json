@@ -12,10 +12,10 @@
     "tags": ["nft", "launchpad", "marketplace", "degen"],
     "primaryCategory": "art-creativity",
     "homeUrl": "https://nftdegen.lol",
-    "iconUrl": "https://nftdegen.lol/img/logo.svg",
+    "iconUrl": "https://nftdegen.lol/img/farcaster/fc-icon.png",
     "heroImageUrl": "https://nftdegen.lol/img/covers/cover.png",
-    "imageUrl": "https://nftdegen.lol/img/covers/cover.png",
-    "splashImageUrl": "https://nftdegen.lol/img/logo.svg",
+    "imageUrl": "https://nftdegen.lol/img/farcaster/fc-image.png",
+    "splashImageUrl": "https://nftdegen.lol/img/farcaster/fc-icon.png",
     "splashBackgroundColor": "#212529"
   }
 }
