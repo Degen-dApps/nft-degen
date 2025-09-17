@@ -79,7 +79,7 @@ export default defineNuxtConfig({
       expiryMods: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
       expiryPfps: 1000 * 60 * 60 * 24 * 10, // must be in milliseconds (0 means no expiration)
       expiryUsernames: 1000 * 60 * 60 * 24 * 7, // must be in milliseconds (0 means no expiration)
-      farcasterShareText: 'Check out NFTdegen.lol - NFT Launchpad & Marketplace on Degen Chain!',
+      farcasterShareText: 'Check out NFTdegen.lol - NFT Launchpad And Marketplace on Degen Chain!',
       favicon: '/img/favicon.ico',
       fileUploadEnabled: true, // enable/disable file uploads (enable only if external file storage is used, e.g. Arweave)
       fileUploadSizeLimit: 1 * 1024 * 1024, // max file upload size in bytes (1 * 1024 * 1024 = 1 MB)
@@ -112,7 +112,7 @@ export default defineNuxtConfig({
       previewImageStake: '/img/covers/cover-stake.png',
       previewMusicNfts: '/img/covers/cover-music-nfts.png',
       previewVideoNfts: '/img/covers/cover-video-nfts.png',
-      projectMetadataTitle: 'NFTdegen.lol | NFT Launchpad & Marketplace on Degen Chain',
+      projectMetadataTitle: 'NFTdegen.lol | NFT Launchpad And Marketplace on Degen Chain',
       projectName: 'NFTdegen.lol',
       projectDescription: 'NFTdegen.lol is a launchpad and marketplace on Degen Chain where NFTs are always liquid!',
       projectTwitter: '@iggysocial',

@@ -7,8 +7,8 @@
   "miniapp": {
     "version": "1",
     "name": "NFTdegen",
-    "subtitle": "NFT Launchpad & Marketplace on Degen Chain",
-    "description": "NFT Launchpad & Marketplace on Degen Chain",
+    "subtitle": "NFT Launchpad And Marketplace",
+    "description": "NFT Launchpad And Marketplace on Degen Chain",
     "tags": ["nft", "launchpad", "marketplace", "degen"],
     "primaryCategory": "art-creativity",
     "homeUrl": "https://nftdegen.lol",
