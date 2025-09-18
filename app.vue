@@ -115,7 +115,7 @@ export default {
       this.setEnvironment('farcaster')
 
       // Connect to Farcaster wallet
-      this.connect({ connector: this.connectors[1], chainId: this.chainId })
+      this.connect({ connector: this.farcasterConnector, chainId: this.chainId })
     }
 
     // enable popovers everywhere
@@ -195,14 +195,22 @@ export default {
     const { colorMode, setArweaveBalance, setFileUploadEnabled } = useSiteSettings()
 
     const { setEnvironment } = useWeb3()
+
+    let farcasterConnector;
+
+    for (const connector of connectors) {
+      if (connector.name === 'Farcaster') {
+        farcasterConnector = connector
+      }
+    }
     
     return {
       address,
       chainId,
       colorMode,
       connect,
-      connectors,
       domainName,
+      farcasterConnector,
       isActivated,
       mainContent,
       setArweaveBalance,
