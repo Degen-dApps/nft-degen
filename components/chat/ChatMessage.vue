@@ -157,6 +157,7 @@ import {
   youtubeParsing,
 } from '@/utils/textUtils'
 import { fetchData, fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
+import { shortenAddress } from '@/utils/addressUtils'
 
 export default {
   name: 'ChatMessage',
@@ -276,7 +277,7 @@ export default {
       if (this.authorDomain) {
         return getTextWithoutBlankCharacters(this.authorDomain)
       } else {
-        return this.shortenAddress(this.message.author)
+        return shortenAddress(this.message.author)
       }
     },
 
@@ -584,7 +585,7 @@ export default {
 
   setup() {
     const route = useRoute()
-    const { address, chainId, isActivated, shortenAddress } = useAccountData()
+    const { address, chainId, isActivated } = useAccountData()
     const { readData, writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
@@ -593,7 +594,6 @@ export default {
       chainId, 
       isActivated, 
       route, 
-      shortenAddress, 
       toast,
       readData,
       writeData,
