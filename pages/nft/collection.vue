@@ -10,9 +10,6 @@
 
     <Meta name="twitter:image" :content="$config.public.projectUrl + $config.public.previewImageNftCollection" />
     <Meta name="twitter:description" :content="'Check this NFT collection on ' + $config.public.projectName + '!'" />
-
-    <!-- Farcaster Mini App Embed -->
-    <Meta name="fc:miniapp" :content="farcasterMetaContent" />
   </Head>
 
   <div class="card border">
@@ -375,24 +372,6 @@ export default {
 
     collectionMarketplaceLink() {
       return this.$config.public.marketplaceNftCollectionBaseUrl + this.cAddress
-    },
-
-    farcasterMetaContent() {
-      return JSON.stringify({
-        version: farcasterConfig.miniapp.version,
-        imageUrl: this.cImage,
-        button: {
-          title: this.cName,
-          subtitle: this.cDescription,
-          action: {
-            type: 'launch_miniapp',
-            name: this.cName,
-            url: this.$config.public.projectUrl + '/nft/collection?id=' + this.cAddress,
-            splashImageUrl: farcasterConfig.miniapp.splashImageUrl,
-            splashBackgroundColor: farcasterConfig.miniapp.splashBackgroundColor
-          }
-        }
-      })
     },
 
     getUsernameOrFullAddress() {

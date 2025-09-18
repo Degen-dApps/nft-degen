@@ -2,9 +2,6 @@
   <Head>
     <Title>About | {{ $config.public.projectMetadataTitle }}</Title>
     <Meta property="og:title" :content="'About | ' + $config.public.projectMetadataTitle" />
-    
-    <!-- Farcaster Mini App Embed -->
-    <Meta name="fc:miniapp" :content="farcasterMetaContent" />
   </Head>
 
   <div class="card border scroll-500">
@@ -79,26 +76,5 @@ import farcasterConfig from '@/public/.well-known/farcaster.json'
 
 export default {
   name: 'About',
-
-  computed: {
-
-    farcasterMetaContent() {
-      return JSON.stringify({
-        version: farcasterConfig.miniapp.version,
-        imageUrl: farcasterConfig.miniapp.imageUrl,
-        button: {
-          title: "About " + this.$config.public.projectName,
-          action: {
-            type: 'launch_miniapp',
-            name: this.$config.public.projectName,
-            url: this.$config.public.projectUrl + '/about',
-            splashImageUrl: farcasterConfig.miniapp.splashImageUrl,
-            splashBackgroundColor: farcasterConfig.miniapp.splashBackgroundColor
-          }
-        }
-      })
-    }
-
-  },
 }
 </script>
