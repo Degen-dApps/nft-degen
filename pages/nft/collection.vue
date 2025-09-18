@@ -288,6 +288,8 @@
 import axios from 'axios'
 import { isAddress, formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { readContract, writeContract, getBalance, waitForTransactionReceipt } from '@wagmi/core'
+import { config } from '@/wagmi'
 import ChatFeed from '@/components/chat/ChatFeed.vue'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import Image from '@/components/Image.vue'
@@ -477,7 +479,7 @@ export default {
 
       // fetch the price again to get the latest price
       try {
-        const priceResult = await this.readData({
+        const priceResult = await readContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'getMintPrice',
@@ -494,7 +496,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.writeData({
+        const hash = await writeContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'mint',
@@ -515,7 +517,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTransactionReceipt(config, { hash })
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -535,12 +537,12 @@ export default {
           // Update prices and user data
           try {
             const [newPriceBuy, newPriceSell] = await Promise.all([
-              this.readData({
+              readContract(config, {
                 address: this.cAddress,
                 abi: nftAbi,
                 functionName: 'getMintPrice',
               }),
-              this.readData({
+              readContract(config, {
                 address: this.cAddress,
                 abi: nftAbi,
                 functionName: 'getBurnPrice',
@@ -551,21 +553,33 @@ export default {
             this.priceSellWei = newPriceSell
 
             try {
-              this.userTokenId = Number(await this.readData({
+              const userTokenIdResult = await readContract(config, {
                 address: this.cAddress,
                 abi: nftAbi,
                 functionName: 'tokenOfOwnerByIndex',
                 args: [this.address, BigInt(0)],
-              }))
+              })
+
+              if (userTokenIdResult) {
+                this.userTokenId = Number(userTokenIdResult)
+              } else {
+                this.userTokenId = null
+              }
             } catch (e) {
               this.userTokenId = null
             }
 
-            this.cSupply = await this.readData({
+            const cSupplyResult = await readContract(config, {
               address: this.cAddress,
               abi: nftAbi,
               functionName: 'totalSupply',
             })
+
+            if (cSupplyResult) {
+              this.cSupply = Number(cSupplyResult)
+            } else {
+              this.cSupply = null
+            }
           } catch (e) {
             console.error('Failed to update data after purchase:', e)
           }
@@ -725,7 +739,7 @@ export default {
         this.mdAddress = collection.mdAddress;
       } else {
         try {
-          this.mdAddress = await this.readData({
+          this.mdAddress = await readContract(config, {
             address: this.cAddress,
             abi: nftAbi,
             functionName: 'metadataAddress',
@@ -786,12 +800,12 @@ export default {
       // get collection details
       try {
         const [priceBuy, priceSell] = await Promise.all([
-          this.readData({
+          readContract(config, {
             address: this.cAddress,
             abi: nftAbi,
             functionName: 'getMintPrice',
           }),
-          this.readData({
+          readContract(config, {
             address: this.cAddress,
             abi: nftAbi,
             functionName: 'getBurnPrice',
@@ -808,7 +822,7 @@ export default {
       if (collection?.image) {
         this.cImage = collection.image
       } else {
-        this.cImage = await this.readData({
+        this.cImage = await readContract(config, {
           address: this.mdAddress,
           abi: metadataAbi,
           functionName: 'getCollectionPreviewImage',
@@ -827,7 +841,7 @@ export default {
       if (collection?.description && collection.description !== '' && collection.description !== null) {
         this.cDescription = collection.description
       } else {
-        this.cDescription = await this.readData({
+        this.cDescription = await readContract(config, {
           address: this.mdAddress,
           abi: metadataAbi,
           functionName: 'getCollectionDescription',
@@ -839,7 +853,7 @@ export default {
       if (collection?.type >= 0) {
         this.cType = collection.type
       } else {
-        this.cType = Number(await this.readData({
+        this.cType = Number(await readContract(config, {
           address: this.mdAddress,
           abi: metadataAbi,
           functionName: 'getCollectionMetadataType',
@@ -851,7 +865,7 @@ export default {
       if (collection?.name) {
         this.cName = collection.name
       } else {
-        this.cName = await this.readData({
+        this.cName = await readContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'name',
@@ -861,23 +875,29 @@ export default {
       try {
         // Only call tokenOfOwnerByIndex if user has a valid wallet address
         if (this.address && isAddress(this.address)) {
-          this.userTokenId = await this.readData({
+          const userTokenIdResult = await readContract(config, {
             address: this.cAddress,
             abi: nftAbi,
             functionName: 'tokenOfOwnerByIndex',
             args: [this.address, BigInt(0)],
           })
+
+          if (userTokenIdResult) {
+            this.userTokenId = Number(userTokenIdResult)
+          } else {
+            this.userTokenId = null
+          }
         } else {
           this.userTokenId = null
         }
       } catch (e) {
-        console.warn('Error getting user token ID:', e)
+        //console.warn('Error getting user token ID:', e)
         this.userTokenId = null
       }
 
       this.waitingData = false
 
-      this.cSupply = await this.readData({
+      this.cSupply = await readContract(config, {
         address: this.cAddress,
         abi: nftAbi,
         functionName: 'totalSupply',
@@ -888,7 +908,7 @@ export default {
         this.cAuthorAddress = collection.authorAddress
         this.cAuthorDomain = collection.authorDomain
       } else {
-        this.cAuthorAddress = await this.readData({
+        this.cAuthorAddress = await readContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'owner',
@@ -921,7 +941,7 @@ export default {
       // getMetadata
       let mdTokenId = this.userTokenId ? this.userTokenId : 1;
       
-      let metadata = await this.readData({
+      let metadata = await readContract(config, {
         address: this.mdAddress,
         abi: metadataAbi,
         functionName: 'getMetadata',
@@ -984,7 +1004,7 @@ export default {
       if (this.cType == 0 && this.isCurrentAddressOwner) { // type 0 means onchain metadata
         // check if metadata contract has mdContractType variable and if it's set to "media"
         try {
-          const mdContractType = await this.readData({
+          const mdContractType = await readContract(config, {
             address: this.mdAddress,
             abi: metadataAbi,
             functionName: 'mdContractType',
@@ -1048,7 +1068,7 @@ export default {
       ];
 
       // fetch name
-      this.cName = await this.readData({
+      this.cName = await readContract(config, {
         address: this.cAddress,
         abi: nftAbi,
         functionName: 'name',
@@ -1057,14 +1077,14 @@ export default {
       let tokenURI;
 
       try { // ERC-721
-        tokenURI = await this.readData({
+        tokenURI = await readContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'tokenURI',
           args: [BigInt(1)],
         });
       } catch (e) { // ERC-1155
-        tokenURI = await this.readData({
+        tokenURI = await readContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'uri',
@@ -1145,7 +1165,7 @@ export default {
 
       // try-catch for totalSupply
       try {
-        this.cSupply = await this.readData({
+        this.cSupply = await readContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'totalSupply',
@@ -1156,7 +1176,7 @@ export default {
 
       // try-catch for owner
       try {
-        this.cAuthorAddress = await this.readData({
+        this.cAuthorAddress = await readContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'owner',
@@ -1248,7 +1268,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.writeData({
+        const hash = await writeContract(config, {
           address: this.cAddress,
           abi: nftAbi,
           functionName: 'burn',
@@ -1268,7 +1288,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTransactionReceipt(config, { hash })
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -1288,12 +1308,12 @@ export default {
           // Update prices and user data
           try {
             const [newPriceBuy, newPriceSell] = await Promise.all([
-              this.readData({
+              readContract(config, {
                 address: this.cAddress,
                 abi: nftAbi,
                 functionName: 'getMintPrice',
               }),
-              this.readData({
+              readContract(config, {
                 address: this.cAddress,
                 abi: nftAbi,
                 functionName: 'getBurnPrice',
@@ -1305,18 +1325,24 @@ export default {
 
             try {
               if (this.address) {
-                this.userTokenId = await this.readData({
+                const userTokenIdResult = await readContract(config, {
                   address: this.cAddress,
                   abi: nftAbi,
                   functionName: 'tokenOfOwnerByIndex',
                     args: [this.address, BigInt(0)],
                 })
+
+                if (userTokenIdResult) {
+                  this.userTokenId = Number(userTokenIdResult)
+                } else {
+                  this.userTokenId = null
+                }
               }
             } catch (e) {
               this.userTokenId = null
             }
 
-            this.cSupply = await this.readData({
+            this.cSupply = await readContract(config, {
               address: this.cAddress,
               abi: nftAbi,
               functionName: 'totalSupply',
@@ -1360,7 +1386,6 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const { address, chainId, isActivated, isReady } = useAccountData()
     const toast = useToast()
 
@@ -1369,9 +1394,6 @@ export default {
       chainId, 
       isActivated, 
       isReady,
-      readData, 
-      writeData, 
-      waitForTxReceipt, 
       toast 
     }
   },
