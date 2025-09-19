@@ -72,8 +72,6 @@
 </template>
 
 <script>
-import farcasterConfig from '@/public/.well-known/farcaster.json'
-
 export default {
   name: 'About',
 }

@@ -70,7 +70,8 @@
 import { parseUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast'
-import { useWeb3 } from '@/composables/useWeb3'
+import { writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 import Erc20Abi from '@/data/abi/Erc20Abi.json'
 
 export default {
@@ -126,7 +127,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -141,7 +142,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -188,12 +189,9 @@ export default {
   },
 
   setup() {
-    const { writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
     return {
-      writeData,
-      waitForTxReceipt,
       toast,
     }
   },

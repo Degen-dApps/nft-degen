@@ -5,6 +5,7 @@
 <script>
 import { getWorkingUrl } from '@/utils/fileUtils'
 import { fetchData, storeData } from '@/utils/browserStorageUtils'
+import { readData } from '@/utils/contractUtils'
 
 export default {
   name: 'ProfileImage',
@@ -60,7 +61,7 @@ export default {
           // fetch image from blockchain
           if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
             try {
-              // Use readData from useWeb3 composable to read from contract
+              // Read domain data from contract
               const contractConfig = {
                 address: this.$config.public.punkTldAddress,
                 abi: [
@@ -76,7 +77,7 @@ export default {
                 args: [String(this.domainName).toLowerCase()]
               }
 
-              const domainData = await this.readData(contractConfig)
+              const domainData = await readData(contractConfig)
 
               if (domainData) {
                 const domainDataJson = JSON.parse(domainData)
@@ -104,12 +105,10 @@ export default {
 
   setup() {
     const { chainId, isActivated } = useAccountData()
-    const { readData } = useWeb3()
 
     return {
       chainId,
       isActivated,
-      readData,
     }
   },
 

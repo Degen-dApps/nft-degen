@@ -41,8 +41,8 @@
 </template>
 
 <script>
-import { useWeb3 } from '@/composables/useWeb3'
 import { useAccountData } from '@/composables/useAccountData'
+import { readData } from '@/utils/contractUtils'
 import { zeroAddress } from 'viem'
 
 export default {
@@ -93,7 +93,7 @@ export default {
               args: [this.searchText]
             }
 
-            const nftAddress = await this.readData(contractConfig)
+            const nftAddress = await readData(contractConfig)
 
             if (nftAddress && nftAddress !== zeroAddress) {
               // close the modal
@@ -117,11 +117,9 @@ export default {
   },
 
   setup() {
-    const { readData } = useWeb3()
     const { chainId, isActivated } = useAccountData()
 
     return { 
-      readData,
       chainId, 
       isActivated
     }

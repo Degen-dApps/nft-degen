@@ -102,10 +102,11 @@
 <script>
 import { isAddress, parseUnits, zeroAddress } from 'viem'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import { getTokenBalance } from '@/utils/balanceUtils'
 import { hasTextBlankCharacters } from '@/utils/textUtils'
+import { readData, writeData } from '@/utils/contractUtils'
+import { sendNativeCoin, waitForTxReceipt } from '@/utils/txUtils'
 import WaitingToast from '@/components/WaitingToast'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
@@ -213,7 +214,7 @@ export default {
           }
 
           try {
-            this.recipientAddress = await this.readData(tldContractConfig)
+            this.recipientAddress = await readData(tldContractConfig)
           } catch (error) {
             console.error('Error fetching domain holder:', error)
             this.recipientAddress = null
@@ -290,7 +291,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.writeData(tokenContractConfig)
+        const hash = await writeData(tokenContractConfig)
 
         toastWait = this.toast(
           {
@@ -305,7 +306,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success' || receipt.status === 1) {
           this.toast.dismiss(toastWait)
@@ -362,7 +363,7 @@ export default {
       let toastWait;
 
       try {
-        const hash = await this.sendNativeCoin(
+        const hash = await sendNativeCoin(
           this.recipientAddress,
           this.inputTokenAmount
         )
@@ -380,7 +381,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === "success" || receipt.status === 1) {
           this.toast.dismiss(toastWait)
@@ -444,7 +445,6 @@ export default {
 
   setup() {
     const { address, chainId, isActivated } = useAccountData()
-    const { readData, sendNativeCoin, waitForTxReceipt, writeData } = useWeb3()
     const toast = useToast()
 
     return { 
@@ -452,10 +452,6 @@ export default {
       chainId, 
       isActivated, 
       toast,
-      readData,
-      sendNativeCoin,
-      waitForTxReceipt,
-      writeData,
     }
   },
 

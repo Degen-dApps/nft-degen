@@ -158,6 +158,8 @@ import {
 } from '@/utils/textUtils'
 import { fetchData, fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
 import { shortenAddress } from '@/utils/addressUtils'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChatMessage',
@@ -331,7 +333,7 @@ export default {
           args: [this.address]
         }
 
-        const isMod = await this.readData(contractConfig)
+        const isMod = await readData(contractConfig)
         storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address)
         return this.currUserIsMod = Boolean(isMod)
       } catch (error) {
@@ -372,7 +374,7 @@ export default {
             }
           }
 
-          txHash = await this.writeData(contractConfig)
+          txHash = await writeData(contractConfig)
 
           toastWait = this.toast(
             {
@@ -387,7 +389,7 @@ export default {
             },
           )
 
-          const receipt = await this.waitForTxReceipt(txHash)
+          const receipt = await waitForTxReceipt(txHash)
           
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
@@ -441,18 +443,18 @@ export default {
         const storedDomain = fetchUsername(window, this.authorAddress)
 
         if (storedDomain) {
-          this.authorDomain = storedDomain
+          const fullDomainName = storedDomain.split('.')[0] + this.$config.public.tldName
+          this.authorDomain = fullDomainName
+
+          storeUsername(window, this.authorAddress, fullDomainName)
         } else {
           const domainName = await getDomainName(this.authorAddress, window)
 
           if (domainName) {
-            if (!domainName.endsWith(this.$config.public.tldName)) {
-              this.authorDomain = domainName + this.$config.public.tldName
-            } else {
-              this.authorDomain = domainName
-            }
-            
-            storeUsername(window, this.authorAddress, this.authorDomain)
+            const fullDomainName = domainName.split('.')[0] + this.$config.public.tldName
+            this.authorDomain = fullDomainName
+
+            storeUsername(window, this.authorAddress, fullDomainName)
           }
         }
       }
@@ -586,7 +588,6 @@ export default {
   setup() {
     const route = useRoute()
     const { address, chainId, isActivated } = useAccountData()
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
     return { 
@@ -594,10 +595,7 @@ export default {
       chainId, 
       isActivated, 
       route, 
-      toast,
-      readData,
-      writeData,
-      waitForTxReceipt
+      toast
     }
   },
 

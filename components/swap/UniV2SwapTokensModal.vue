@@ -60,10 +60,11 @@ import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast'
 import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
-import { useWeb3 } from '@/composables/useWeb3'
 import wrappedNativeTokens from '@/data/wrappedNativeTokens.json'
-import { swapTokens } from '@/utils/swap/uniV2'
+
 import { fetchReferrer } from '@/utils/browserStorageUtils'
+import { swapTokens } from '@/utils/swap/uniV2'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'UniV2SwapTokensModal',
@@ -173,7 +174,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -222,7 +223,6 @@ export default {
 
   setup() {
     const { address } = useAccountData()
-    const { waitForTxReceipt } = useWeb3()
     const toast = useToast()
     const { slippage } = useSiteSettings()
 
@@ -230,7 +230,6 @@ export default {
       address, 
       slippage, 
       toast,
-      waitForTxReceipt, 
     }
   },
 }

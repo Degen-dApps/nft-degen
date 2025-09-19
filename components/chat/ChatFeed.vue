@@ -164,8 +164,9 @@ import { getWorkingUrl } from '@/utils/fileUtils'
 import { getAllImagesFromText } from '@/utils/textUtils'
 import { fetchData, storeData } from '@/utils/browserStorageUtils'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChatFeed',
@@ -298,7 +299,7 @@ export default {
             args: [this.address]
           }
 
-          const isMod = await this.readData(contractConfig)
+          const isMod = await readData(contractConfig)
           storeData(window, this.chatContext, { isMod: Boolean(isMod) }, 'mod-' + this.address)
           return this.currentUserIsMod = Boolean(isMod)
         } catch (error) {
@@ -383,7 +384,7 @@ export default {
           }
         }
 
-        tx = await this.writeData(contractConfig)
+        tx = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -398,7 +399,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(tx)
+        const receipt = await waitForTxReceipt(tx)
         
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -425,7 +426,7 @@ export default {
               args: [BigInt(this.mainItemId)]
             }
             
-            fullThreadLength = await this.readData(replyCountConfig)
+            fullThreadLength = await readData(replyCountConfig)
 
           } else if (this.isCommentFeed) {
             const commentCountConfig = {
@@ -441,7 +442,7 @@ export default {
               args: [this.mainItemId]
             }
             
-            fullThreadLength = await this.readData(commentCountConfig)
+            fullThreadLength = await readData(commentCountConfig)
 
           } else {
             const mainMessageCountConfig = {
@@ -457,7 +458,7 @@ export default {
               args: []
             }
             
-            fullThreadLength = await this.readData(mainMessageCountConfig)
+            fullThreadLength = await readData(mainMessageCountConfig)
           }
 
           // prepend message to messages array
@@ -611,7 +612,7 @@ export default {
           }
         }
 
-        msgs = await this.readData(contractConfig)
+        msgs = await readData(contractConfig)
 
         let msgsToAdd = [];
         for (let i = 0; i < msgs.length; i++) {
@@ -755,7 +756,7 @@ export default {
           }
         }
 
-        msgs = await this.readData(contractConfig)
+        msgs = await readData(contractConfig)
 
         let msgsToAdd = []
         for (let i = 0; i < msgs.length; i++) {
@@ -823,7 +824,7 @@ export default {
           args: []
         }
         
-        this.priceWei = await this.readData(contractConfig)
+        this.priceWei = await readData(contractConfig)
         
         // Handle case where price might be 0 or undefined
         if (this.priceWei === null || this.priceWei === undefined) {
@@ -941,11 +942,6 @@ export default {
       domainName
     } = useAccountData()
     
-    const { 
-      readData,
-      writeData,
-      waitForTxReceipt
-    } = useWeb3()
     
     const { 
       arweaveBalance
@@ -960,9 +956,6 @@ export default {
       isCurrentChainSupported,
       shortenAddress,
       domainName,
-      readData,
-      writeData,
-      waitForTxReceipt,
       arweaveBalance,
       formatEther
     }

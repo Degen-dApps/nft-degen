@@ -68,7 +68,8 @@ import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast.vue'
 import RemoveLiquidity from '@/components/stake/RemoveLiquidity.vue'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
+import { writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'StakingWithdrawal',
@@ -199,7 +200,7 @@ export default {
           args: [BigInt(this.withdrawalAmountWei)]
         }
 
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -214,7 +215,7 @@ export default {
           },
         )
 
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           // Update balance directly in the composable using the setter
@@ -269,7 +270,6 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const { 
       address, 
       getStakeTokenBalanceWei, 
@@ -278,9 +278,6 @@ export default {
     const toast = useToast()
 
     return {
-      readData,
-      writeData,
-      waitForTxReceipt,
       address,
       toast,
       getStakeTokenBalanceWei,

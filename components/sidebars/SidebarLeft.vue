@@ -264,10 +264,13 @@
 <script>
 import { sdk } from '@farcaster/miniapp-sdk'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+
 import ProfileImage from '@/components/profile/ProfileImage.vue'
+
 import { useAccountData } from '@/composables/useAccountData'
 import { useSidebars } from '@/composables/useSidebars'
-import { useWeb3 } from '@/composables/useWeb3'
+import { useSiteSettings } from '@/composables/useSiteSettings'
+
 import { getActivityPoints } from '@/utils/balanceUtils'
 import { getLessDecimals } from '@/utils/numberUtils'
 import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
@@ -361,15 +364,14 @@ export default {
 
   setup() {
     const { 
-      address, domainName, getCurentUserActivityPoints, isActivated, 
-      setCurrentUserActivityPoints
+      address, domainName, getCurentUserActivityPoints, isActivated, setCurrentUserActivityPoints
     } = useAccountData()
 
     const { setLeftSidebar, setMainContent } = useSidebars()
 
     const toast = useToast()
 
-    const { environment } = useWeb3()
+    const { environment } = useSiteSettings()
 
     return {
       address,

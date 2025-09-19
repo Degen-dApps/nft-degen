@@ -139,6 +139,5 @@ World MiniKit is not natively supported in this project, but you can implement i
 
 - /components/connect/ConnectWalletButton.vue
 - /composables/useAccountData.ts
-- /composables/useWeb3.ts
 
 And maybe in some others too.

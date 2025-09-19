@@ -21,7 +21,7 @@ import { formatEther } from 'viem'
 import Image from '@/components/Image.vue'
 import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils'
 import { getLessDecimals } from '@/utils/numberUtils'
-import { useWeb3 } from '@/composables/useWeb3'
+import { readData } from '@/utils/contractUtils'
 import { useAccountData } from '@/composables/useAccountData'
 
 export default {
@@ -67,7 +67,7 @@ export default {
       }
 
       try {
-        const fNfts = await this.readData(launchpadContractConfig)
+        const fNfts = await readData(launchpadContractConfig)
         
         if (fNfts) {
           await this.parseNftsArray(fNfts, this.featuredNfts)
@@ -139,7 +139,7 @@ export default {
               abi: nftInterface,
               functionName: 'name'
             }
-            cName = await this.readData(nameContractConfig)
+            cName = await readData(nameContractConfig)
             if (cName) {
               collection["name"] = cName
             }
@@ -151,7 +151,7 @@ export default {
             abi: nftInterface,
             functionName: 'getMintPrice'
           }
-          const mintPriceWei = await this.readData(mintPriceContractConfig)
+          const mintPriceWei = await readData(mintPriceContractConfig)
 
           // get image
           let cImage
@@ -164,7 +164,7 @@ export default {
               abi: nftInterface,
               functionName: 'collectionPreview'
             }
-            cImage = await this.readData(imageContractConfig)
+            cImage = await readData(imageContractConfig)
             if (cImage) {
               collection["image"] = cImage
             }
@@ -196,11 +196,9 @@ export default {
   },
 
   setup() {
-    const { readData } = useWeb3()
     const { address, chainId, isActivated } = useAccountData()
 
     return {
-      readData,
       address,
       chainId,
       isActivated

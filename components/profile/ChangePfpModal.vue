@@ -90,6 +90,8 @@ import Image from '@/components/Image.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import WaitingToast from '@/components/WaitingToast'
 import FileUploadInput from '@/components/storage/FileUploadInput.vue'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChangePfpModal',
@@ -150,7 +152,7 @@ export default {
 
       try {
         // Get domain data first
-        const domainDataResult = await this.readData({
+        const domainDataResult = await readData({
           address: this.$config.public.punkTldAddress,
           abi: [
             {
@@ -181,7 +183,7 @@ export default {
         domainData['image'] = this.imageLink
 
         // Submit to blockchain
-        const txHash = await this.writeData({
+        const txHash = await writeData({
           address: this.$config.public.punkTldAddress,
           abi: [
             {
@@ -216,7 +218,7 @@ export default {
         )
 
         // Wait for transaction receipt
-        const receipt = await this.waitForTxReceipt(txHash)
+        const receipt = await waitForTxReceipt(txHash)
 
         if (receipt.status === 'success') {
           this.waitingSubmit = false
@@ -266,15 +268,11 @@ export default {
   },
 
   setup() {
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const { fileUploadEnabled } = useSiteSettings()
     const { isActivated, chainId } = useAccountData()
     const toast = useToast()
 
     return {
-      readData,
-      writeData,
-      waitForTxReceipt,
       fileUploadEnabled,
       isActivated,
       chainId,

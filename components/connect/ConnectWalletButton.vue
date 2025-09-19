@@ -118,7 +118,7 @@
 
 <script>
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
+import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export default {
   name: 'ConnectWalletButton',
@@ -207,7 +207,7 @@ export default {
 
   setup() {
     const { connect, connectors, chainId, connectionStatus, isConnecting } = useAccountData()
-    const { environment } = useWeb3()
+    const { environment } = useSiteSettings()
 
     let injectedConnector;
     let metaMaskConnector;

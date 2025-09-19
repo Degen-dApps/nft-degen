@@ -115,7 +115,7 @@ import StakingClaim from '@/components/stake/StakingClaim.vue'
 import StakingDeposit from '@/components/stake/StakingDeposit.vue'
 import StakingWithdrawal from '@/components/stake/StakingWithdrawal.vue'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
+import { readData } from '@/utils/contractUtils'
 
 export default {
   name: 'Stake',
@@ -167,7 +167,7 @@ export default {
 
     async fetchClaimRewardsTotal() {
       try {
-        const result = await this.readData({
+        const result = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -189,7 +189,7 @@ export default {
 
     async fetchFutureRewards() {
       try {
-        const result = await this.readData({
+        const result = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -211,7 +211,7 @@ export default {
 
     async fetchLockedTimeLeft() {
       try {
-        const result = await this.readData({
+        const result = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -234,7 +234,7 @@ export default {
 
     async fetchPreviewClaim() {
       try {
-        const result = await this.readData({
+        const result = await readData({
           address: this.$config.public.stakingContractAddress,
           abi: [
             {
@@ -257,7 +257,7 @@ export default {
 
     async fetchLpTokenBalance() {
       try {
-        const result = await this.readData({
+        const result = await readData({
           address: this.$config.public.lpTokenAddress,
           abi: [
             {
@@ -489,7 +489,6 @@ export default {
   },
 
   setup() {
-    const { readData } = useWeb3()
     const { 
       address, 
       getLpTokenBalanceWei, 
@@ -499,7 +498,6 @@ export default {
     } = useAccountData()
 
     return { 
-      readData, 
       address, 
       getLpTokenBalanceWei, 
       setLpTokenBalanceWei,

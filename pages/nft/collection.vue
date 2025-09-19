@@ -295,10 +295,11 @@ import { useAccountData } from '@/composables/useAccountData'
 
 import { shortenAddress } from '@/utils/addressUtils'
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '@/utils/browserStorageUtils'
-import { readData, writeData, waitForTxReceipt } from '@/utils/contractUtils'
+import { readData, writeData } from '@/utils/contractUtils'
 import { getDomainName } from '@/utils/domainUtils'
 import { getIpfsUrl } from '@/utils/fileUtils'
 import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'NftCollection',
@@ -610,8 +611,10 @@ export default {
         const userDomain = await this.getDomainName(this.cAuthorAddress)
 
         if (userDomain) {
-          this.cAuthorDomain = userDomain
-          storeUsername(window, this.cAuthorAddress, userDomain + this.$config.public.tldName)
+          const fullDomainName = userDomain.split('.')[0] + this.$config.public.tldName
+          this.cAuthorDomain = fullDomainName
+
+          storeUsername(window, this.cAuthorAddress, fullDomainName)
         }
       }
     },

@@ -133,7 +133,8 @@
 import axios from 'axios'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast'
-import { useWeb3 } from '@/composables/useWeb3'
+import { writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChangeNftTypeModal',
@@ -202,7 +203,7 @@ export default {
         }
 
         // Write the transaction
-        const hash = await this.writeData(contractConfig)
+        const hash = await writeData(contractConfig)
 
         toastWait = this.toast(
           {
@@ -218,7 +219,7 @@ export default {
         )
 
         // Wait for transaction receipt
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -282,10 +283,9 @@ export default {
   },
 
   setup() {
-    const { writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
-    return { writeData, waitForTxReceipt, toast }
+    return { toast }
   },
 }
 </script>

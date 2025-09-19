@@ -40,7 +40,6 @@
 
 <script>
 import { sdk } from '@farcaster/miniapp-sdk'
-import farcasterConfig from '@/public/.well-known/farcaster.json'
 import SiteSettingsModal from '@/components/SiteSettingsModal.vue'
 import ChangeUsernameModal from '@/components/names/ChangeUsernameModal.vue'
 import NavbarDesktop from '@/components/navbars/NavbarDesktop.vue'
@@ -51,7 +50,6 @@ import SidebarRight from '@/components/sidebars/SidebarRight.vue'
 import { useSidebars } from '@/composables/useSidebars'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { getActivityPoints, getArweaveBalance, getTokenBalanceWei } from '@/utils/balanceUtils'
 import { getDomainName } from '@/utils/domainUtils'
 import { parseReferrer } from '@/utils/referrerUtils'
@@ -164,7 +162,8 @@ export default {
     async fetchArweaveBalance() {
       if (this.$config.public.arweaveAddress) {
         const balance = await getArweaveBalance(this.$config.public.arweaveAddress)
-        console.log('Arweave balance:', balance.toString())
+        console.log('Arweave balance:')
+        console.log(balance)
 
         this.setArweaveBalance(balance)
       }
@@ -192,9 +191,7 @@ export default {
       setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
 
     const { mainContent, setLeftSidebar, setRightSidebar, setMainContent } = useSidebars()
-    const { colorMode, setArweaveBalance, setFileUploadEnabled } = useSiteSettings()
-
-    const { setEnvironment } = useWeb3()
+    const { colorMode, setArweaveBalance, setEnvironment, setFileUploadEnabled } = useSiteSettings()
 
     let farcasterConnector;
 

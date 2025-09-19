@@ -51,8 +51,10 @@
 <script>
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast'
-import { getDomainHolder, getDomainName, validateDomainName } from '@/utils/domainUtils'
+import { getDomainHolder, validateDomainName } from '@/utils/domainUtils'
 import { storeUsername } from '@/utils/browserStorageUtils'
+import { writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChangeUsernameModal',
@@ -99,8 +101,8 @@ export default {
         let toastWait;
 
         try {
-          // Call the contract using writeData from useWeb3
-          const hash = await this.writeData({
+          // Call the contract using writeData from utils/contractUtils
+          const hash = await writeData({
             address: this.$config.public.punkTldAddress,
             abi: tldAbi,
             functionName: 'editDefaultDomain',
@@ -120,8 +122,8 @@ export default {
             },
           )
 
-          // Wait for transaction receipt using waitForTxReceipt from useWeb3
-          const receipt = await this.waitForTxReceipt(hash)
+          // Wait for transaction receipt using waitForTxReceipt from utils/contractUtils
+          const receipt = await waitForTxReceipt(hash)
 
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
@@ -188,18 +190,11 @@ export default {
       setDomainName 
     } = useAccountData()
     
-    const { 
-      writeData, 
-      waitForTxReceipt 
-    } = useWeb3()
-
     return { 
       address, 
       isActivated, 
       toast, 
-      setDomainName,
-      writeData,
-      waitForTxReceipt
+      setDomainName
     }
   },
 }

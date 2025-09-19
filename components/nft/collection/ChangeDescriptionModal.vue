@@ -46,10 +46,11 @@
 
 <script>
 import axios from 'axios'
-import { useWeb3 } from '@/composables/useWeb3'
 import { useAccountData } from '@/composables/useAccountData'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast'
+import { writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChangeDescriptionModal',
@@ -77,7 +78,7 @@ export default {
 
       try {
         // Call the smart contract using writeData
-        const hash = await this.writeData({
+        const hash = await writeData({
           address: this.mdAddress,
           abi: [
             {
@@ -112,7 +113,7 @@ export default {
         )
 
         // Wait for transaction receipt
-        const receipt = await this.waitForTxReceipt(hash)
+        const receipt = await waitForTxReceipt(hash)
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait)
@@ -172,13 +173,10 @@ export default {
   },
 
   setup() {
-    const { writeData, waitForTxReceipt } = useWeb3()
     const { isActivated } = useAccountData()
     const toast = useToast()
 
     return { 
-      writeData, 
-      waitForTxReceipt, 
       isActivated, 
       toast 
     }

@@ -96,7 +96,8 @@
 import axios from 'axios';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import WaitingToast from "@/components/WaitingToast";
-import { useWeb3 } from '@/composables/useWeb3'
+import { writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'ChangeMediaModal',
@@ -161,7 +162,7 @@ export default {
       this.audioUrl = this.sanitizeUrl(this.audioUrl);
       
       try {
-        const hash = await this.writeData({
+        const hash = await writeData({
           address: this.mdAddress,
           abi: [
             {
@@ -200,7 +201,7 @@ export default {
           }
         );
 
-        const receipt = await this.waitForTxReceipt(hash);
+        const receipt = await waitForTxReceipt(hash);
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
@@ -252,7 +253,7 @@ export default {
       this.videoUrl = this.sanitizeUrl(this.videoUrl);
 
       try {
-        const hash = await this.writeData({
+        const hash = await writeData({
           address: this.mdAddress,
           abi: [
             {
@@ -291,7 +292,7 @@ export default {
           }
         );
 
-        const receipt = await this.waitForTxReceipt(hash);
+        const receipt = await waitForTxReceipt(hash);
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
@@ -346,7 +347,7 @@ export default {
       }
 
       try {
-        const hash = await this.writeData({
+        const hash = await writeData({
           address: this.mdAddress,
           abi: [
             {
@@ -385,7 +386,7 @@ export default {
           }
         );
 
-        const receipt = await this.waitForTxReceipt(hash);
+        const receipt = await waitForTxReceipt(hash);
 
         if (receipt.status === 'success') {
           this.toast.dismiss(toastWait);
@@ -434,12 +435,9 @@ export default {
   },
 
   setup() {
-    const { writeData, waitForTxReceipt } = useWeb3();
     const toast = useToast();
 
     return { 
-      writeData,
-      waitForTxReceipt,
       toast 
     };
   },

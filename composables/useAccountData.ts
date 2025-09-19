@@ -9,7 +9,7 @@ import {
   useDisconnect,
   useConnect
 } from '@wagmi/vue'
-import { useWeb3 } from '@/composables/useWeb3'
+import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export function useAccountData() {
 
@@ -19,7 +19,7 @@ export function useAccountData() {
   const { address, isConnected, isConnecting, status } = useAccount()
   const { data: balanceData } = useBalance({ address })
   const { connectors, error: connectError, status: connectStatus } = useConnect()
-  const { environment } = useWeb3()
+  const { environment } = useSiteSettings()
 
   const { disconnect } = useDisconnect({
     mutation: {

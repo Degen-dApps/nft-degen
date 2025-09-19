@@ -218,8 +218,9 @@ import FileUploadModal from '@/components/storage/FileUploadModal.vue'
 import { useAccountData } from '@/composables/useAccountData'
 
 import { fetchReferrer } from '@/utils/browserStorageUtils'
-import { readData, writeData, waitForTxReceipt } from '@/utils/contractUtils'
+import { readData, writeData } from '@/utils/contractUtils'
 import { getLessDecimals } from '@/utils/numberUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'NftCreate',
