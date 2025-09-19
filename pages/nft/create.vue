@@ -214,9 +214,9 @@ import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import WaitingToast from '@/components/WaitingToast'
 import FileUploadModal from '@/components/storage/FileUploadModal.vue'
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
-import { getLessDecimals } from '@/utils/numberUtils'
 import { fetchReferrer } from '@/utils/browserStorageUtils'
+import { readData, writeData, waitForTxReceipt } from '@/utils/contractUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
 
 export default {
   name: 'NftCreate',
@@ -344,7 +344,7 @@ export default {
             value: BigInt(this.createPriceWei) // price for creating collection
           }
 
-          const hash = await this.writeData(launchpadContract)
+          const hash = await writeData(launchpadContract)
 
           toastWait = this.toast(
             {
@@ -359,7 +359,7 @@ export default {
             },
           )
 
-          const receipt = await this.waitForTxReceipt(hash)
+          const receipt = await waitForTxReceipt(hash)
 
           if (receipt.status === 'success') {
             this.toast.dismiss(toastWait)
@@ -387,7 +387,7 @@ export default {
               }
             ]
 
-            const nftContractAddress = await this.readData({
+            const nftContractAddress = await readData({
               address: this.$config.public.nftLaunchpadBondingAddress,
               abi: getNftContractAddressInterface,
               functionName: 'getNftContractAddress',
@@ -462,7 +462,7 @@ export default {
         ]
 
         // check if paused
-        this.launchpadPaused = await this.readData({
+        this.launchpadPaused = await readData({
           address: this.$config.public.nftLaunchpadBondingAddress,
           abi: launchpadInterface,
           functionName: 'paused',
@@ -472,7 +472,7 @@ export default {
         // generate unique ID and check if it's already been used
         this.uniqueId = Math.random().toString(36).slice(2)
 
-        const isUniqueIdAvailable = await this.readData({
+        const isUniqueIdAvailable = await readData({
           address: this.$config.public.nftLaunchpadBondingAddress,
           abi: launchpadInterface,
           functionName: 'isUniqueIdAvailable',
@@ -484,7 +484,7 @@ export default {
         }
 
         // get price for creating collection
-        this.createPriceWei = await this.readData({
+        this.createPriceWei = await readData({
           address: this.$config.public.nftLaunchpadBondingAddress,
           abi: launchpadInterface,
           functionName: 'price',
@@ -505,16 +505,12 @@ export default {
 
   setup() {
     const { address, chainId, isActivated } = useAccountData()
-    const { readData, writeData, waitForTxReceipt } = useWeb3()
     const toast = useToast()
 
     return { 
       address, 
       chainId, 
       isActivated, 
-      readData, 
-      writeData, 
-      waitForTxReceipt, 
       toast 
     }
   },
