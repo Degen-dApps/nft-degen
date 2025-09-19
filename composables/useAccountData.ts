@@ -56,7 +56,6 @@ export function useAccountData() {
   const currentChainId = useState<number | null>('currentChainId', () => null)
   const domainName = useState<string>('domainName', () => '')
   const isCurrentChainSupported = useState<boolean>('isCurrentChainSupported', () => false)
-  const isReady = useState<boolean>('composableReady', () => false)
 
   // GETTERS
 
@@ -151,10 +150,6 @@ export function useAccountData() {
     domainName.value = domain
   }
 
-  function setReadyState(ready: boolean): void {
-    isReady.value = ready
-  }
-
   // UTILS
 
   // Function to shorten address
@@ -180,21 +175,6 @@ export function useAccountData() {
     },
   })
 
-  // Initialize the composable
-  async function initializeComposable() {
-    try {
-      await fetchCurrentChainId()
-      setReadyState(true)
-    } catch (error) {
-      console.error('Failed to initialize composable:', error)
-      // Still mark as ready to prevent infinite loading
-      setReadyState(true)
-    }
-  }
-
-  // Initialize on composable creation
-  initializeComposable()
-
   // UNMOUNTED
   onUnmounted(() => {
     unwatch?.()
@@ -212,7 +192,6 @@ export function useAccountData() {
     isActivated: computed(() => isConnected.value),
     isConnecting: computed(() => isConnecting.value),
     isCurrentChainSupported: computed(() => isCurrentChainSupported.value),
-    isReady: computed(() => isReady.value),
 
     // Enhanced computed properties
     networkName: computed(() => getCurrentChainName()),
@@ -242,6 +221,5 @@ export function useAccountData() {
     getCurrentDomainName,
     setCurrentUserActivityPoints,
     setDomainName,
-    setReadyState,
   }
 } 

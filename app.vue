@@ -164,7 +164,7 @@ export default {
     async fetchArweaveBalance() {
       if (this.$config.public.arweaveAddress) {
         const balance = await getArweaveBalance(this.$config.public.arweaveAddress)
-        console.log('Arweave balance:', balance)
+        console.log('Arweave balance:', balance.toString())
 
         this.setArweaveBalance(balance)
       }

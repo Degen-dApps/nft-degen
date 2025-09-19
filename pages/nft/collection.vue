@@ -12,18 +12,8 @@
     <Meta name="twitter:description" :content="'Check this NFT collection on ' + $config.public.projectName + '!'" />
   </Head>
 
-  <!-- Loading state while composables are initializing -->
-  <div v-if="!isReady" class="card border">
-    <div class="card-body">
-      <div class="d-flex justify-content-center mb-3">
-        <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
-      </div>
-      <p class="text-center text-muted">Initializing...</p>
-    </div>
-  </div>
-
   <!-- Main content when composables are ready -->
-  <div v-else class="card border">
+  <div class="card border">
     <div class="card-body">
       <p class="fs-3">
         <i @click="$router.push({ path: '/nft' })" class="bi bi-arrow-left-circle cursor-pointer"></i>
@@ -222,7 +212,7 @@
   </div>
 
   <!-- Alert to buy an NFT to chat -->
-  <div v-if="isReady && !userTokenId && nativeNft" class="card border mt-3 scroll-500">
+  <div v-if="!userTokenId && nativeNft" class="card border mt-3 scroll-500">
     <div class="card-body">
       <h5 class="mb-2 mt-3 text-center">Buy an NFT to see the chat</h5>
 
@@ -237,7 +227,7 @@
     </div>
   </div>
 
-  <div v-if="isReady && (userTokenId || isCurrentAddressOwner)" :key="userTokenId">
+  <div v-if="userTokenId || isCurrentAddressOwner" :key="userTokenId">
     <!-- Media section -->
     <CollectionMediaSection  
       v-if="audioUrl || videoUrl || youtubeUrl" 
@@ -254,42 +244,39 @@
     
   </div>
 
-  <!-- Modals - only show when composables are ready -->
-  <template v-if="isReady">
-    <!-- Add image modal -->
-    <AddImageToCollectionModal :cAddress="cAddress" :mdAddress="mdAddress" />
+  <!-- Add image modal -->
+  <AddImageToCollectionModal :cAddress="cAddress" :mdAddress="mdAddress" />
 
-    <!-- Change collection preview image modal -->
-    <ChangeCollectionPreviewModal :cAddress="cAddress" :mdAddress="mdAddress" @saveCollection="saveCollection" />
+  <!-- Change collection preview image modal -->
+  <ChangeCollectionPreviewModal :cAddress="cAddress" :mdAddress="mdAddress" @saveCollection="saveCollection" />
 
-    <!-- Change description modal -->
-    <ChangeDescriptionModal
-      :cAddress="cAddress"
-      :cDescription="cDescription"
-      :mdAddress="mdAddress"
-      @saveCollection="saveCollection"
-    />
+  <!-- Change description modal -->
+  <ChangeDescriptionModal
+    :cAddress="cAddress"
+    :cDescription="cDescription"
+    :mdAddress="mdAddress"
+    @saveCollection="saveCollection"
+  />
 
-    <!-- Change media modal -->
-    <ChangeMediaModal :cAddress="cAddress" :mdAddress="mdAddress" />
+  <!-- Change media modal -->
+  <ChangeMediaModal :cAddress="cAddress" :mdAddress="mdAddress" />
 
-    <!-- Change Metadata URL Modal -->
-    <ChangeNftTypeModal :mdAddress="mdAddress" :cType="cType" :cAddress="cAddress" @saveCollection="saveCollection" />
+  <!-- Change Metadata URL Modal -->
+  <ChangeNftTypeModal :mdAddress="mdAddress" :cType="cType" :cAddress="cAddress" @saveCollection="saveCollection" />
 
-    <!-- Remove Image From Collection Modal -->
-    <RemoveImageFromCollectionModal :mdAddress="mdAddress" :cAddress="cAddress" />
+  <!-- Remove Image From Collection Modal -->
+  <RemoveImageFromCollectionModal :mdAddress="mdAddress" :cAddress="cAddress" />
 
-    <!-- Send NFT Modal -->
-    <SendNftModal v-if="address" :address="address" :cAddress="cAddress" />
-  </template>
+  <!-- Send NFT Modal -->
+  <SendNftModal v-if="address" :address="address" :cAddress="cAddress" />
+
 </template>
 
 <script>
 import axios from 'axios'
 import { isAddress, formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
-import { readContract, writeContract, getBalance, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '@/wagmi'
+import { readContract, writeContract, waitForTransactionReceipt } from '@wagmi/core'
 import ChatFeed from '@/components/chat/ChatFeed.vue'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import Image from '@/components/Image.vue'
@@ -304,12 +291,12 @@ import CollectionMediaSection from '@/components/nft/collection/CollectionMediaS
 import RemoveImageFromCollectionModal from '@/components/nft/collection/RemoveImageFromCollectionModal'
 import SendNftModal from '@/components/nft/collection/SendNftModal.vue';
 import { useAccountData } from '@/composables/useAccountData'
-import { useWeb3 } from '@/composables/useWeb3'
 import { getDomainName } from '@/utils/domainUtils'
 import { getIpfsUrl } from '@/utils/fileUtils'
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '@/utils/browserStorageUtils'
 import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
 import { shortenAddress } from '@/utils/addressUtils'
+import { config } from '@/wagmi'
 
 export default {
   name: 'NftCollection',
@@ -1386,14 +1373,13 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated, isReady } = useAccountData()
+    const { address, chainId, isActivated } = useAccountData()
     const toast = useToast()
 
     return { 
       address, 
       chainId, 
       isActivated, 
-      isReady,
       toast 
     }
   },

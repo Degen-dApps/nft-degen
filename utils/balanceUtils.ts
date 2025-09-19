@@ -1,6 +1,8 @@
+import { getBalance, readContract } from '@wagmi/core'
 import Arweave from 'arweave'
-import { formatUnits, getAddress, zeroAddress } from 'viem'
+import { formatEther, formatUnits, getAddress, zeroAddress } from 'viem'
 import Erc20Abi from '@/data/abi/Erc20Abi.json'
+import { config } from '@/wagmi'
 
 // Types
 interface Token {
@@ -15,11 +17,11 @@ interface ActivityPointsContractConfig {
   args: [string]
 }
 
-interface Erc20ContractConfig {
+interface Erc20ContractConfig<T extends readonly unknown[] = readonly [string]> {
   address: `0x${string}`
   abi: any
   functionName: string
-  args: [string] | [string, string]
+  args: T
 }
 
 // Initialize Arweave
@@ -30,11 +32,10 @@ const arweave = Arweave.init({
 })
 
 export async function getActivityPoints(userAddress: string): Promise<number> {
-  const config = useRuntimeConfig()
-  const { readData } = useWeb3()
+  const runtimeConfig = useRuntimeConfig()
 
   const activityPointsContractConfig: ActivityPointsContractConfig = {
-    address: config.public.activityPointsAddress as `0x${string}`,
+    address: runtimeConfig.public.activityPointsAddress as `0x${string}`,
     abi: [
       {
         constant: true,
@@ -53,7 +54,7 @@ export async function getActivityPoints(userAddress: string): Promise<number> {
   let activityPoints = 0;
 
   try {
-    const pointsWei = await readData(activityPointsContractConfig)
+    const pointsWei = await readContract(config, activityPointsContractConfig)
     
     // Handle case where user has no activity points (returns 0 or null)
     if (pointsWei === null || pointsWei === undefined) {
@@ -82,14 +83,13 @@ export async function getArweaveBalance(arweaveAddress: string): Promise<string>
 }
 
 export async function getNativeTokenBalanceWei(address: string): Promise<bigint> {
-  const { getNativeCoinBalanceWei: getNativeBalanceWei } = useWeb3()
-  const balance = await getNativeBalanceWei(address)
-  return balance
+  const balance = await getBalance(config, { address: address as `0x${string}` })
+  return balance.value
 }
 
 export async function getNativeCoinBalanceEth(address: string): Promise<string> {
-  const { getNativeCoinBalanceEth: getNativeBalanceEth } = useWeb3()
-  return await getNativeBalanceEth(address)
+  const balance = await getNativeTokenBalanceWei(address)
+  return formatEther(balance)
 }
 
 export async function getTokenAllowance(
@@ -97,16 +97,15 @@ export async function getTokenAllowance(
   userAddress: string, 
   beneficiary: string
 ): Promise<string> {
-  const { readData } = useWeb3()
 
-  const contractConfig: Erc20ContractConfig = {
+  const contractConfig: Erc20ContractConfig<readonly [string, string]> = {
     address: getAddress(token.address) as `0x${string}`,
     abi: Erc20Abi,
     functionName: 'allowance',
     args: [userAddress, beneficiary]
   }
 
-  const allowanceWei = await readData(contractConfig)
+  const allowanceWei = await readContract(config, contractConfig)
   
   if (!allowanceWei) {
     console.warn(`Token allowance read returned ${allowanceWei}. This is why we are returning 0.`)
@@ -122,7 +121,6 @@ export async function getTokenBalance(
 ): Promise<string> {
   // For native token, use a direct approach
   if (getAddress(token.address) === zeroAddress) {
-    const { getNativeCoinBalanceEth } = useWeb3()
     return await getNativeCoinBalanceEth(userAddress)
   }
   
@@ -135,14 +133,12 @@ export async function getTokenBalanceWei(
   token: Token, 
   userAddress: string
 ): Promise<bigint> {
-  const { readData } = useWeb3()
-
   if (getAddress(token.address) === zeroAddress) {
     // For native token (ETH), use the dedicated function
     return await getNativeTokenBalanceWei(userAddress)
   } else {
     // First, try to check if the contract exists and has the required function
-    const contractConfig: Erc20ContractConfig = {
+    const contractConfig: Erc20ContractConfig<readonly [string]> = {
       address: getAddress(token.address) as `0x${string}`,
       abi: Erc20Abi,
       functionName: 'balanceOf',
@@ -150,7 +146,7 @@ export async function getTokenBalanceWei(
     }
 
     try {
-      const result = await readData(contractConfig)
+      const result = await readContract(config, contractConfig)
       if (!result) {
         //console.warn('Token balance read returned null, returning 0')
         return BigInt(0)
