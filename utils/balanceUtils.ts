@@ -1,8 +1,9 @@
-import { getBalance, readContract } from '@wagmi/core'
+import { getBalance } from '@wagmi/core'
 import Arweave from 'arweave'
 import { formatEther, formatUnits, getAddress, zeroAddress } from 'viem'
 import Erc20Abi from '@/data/abi/Erc20Abi.json'
 import { config } from '@/wagmi'
+import { readData } from '@/utils/contractUtils'
 
 // Types
 interface Token {
@@ -54,7 +55,7 @@ export async function getActivityPoints(userAddress: string): Promise<number> {
   let activityPoints = 0;
 
   try {
-    const pointsWei = await readContract(config, activityPointsContractConfig)
+    const pointsWei = await readData(activityPointsContractConfig)
     
     // Handle case where user has no activity points (returns 0 or null)
     if (pointsWei === null || pointsWei === undefined) {
@@ -105,7 +106,7 @@ export async function getTokenAllowance(
     args: [userAddress, beneficiary]
   }
 
-  const allowanceWei = await readContract(config, contractConfig)
+  const allowanceWei = await readData(contractConfig)
   
   if (!allowanceWei) {
     console.warn(`Token allowance read returned ${allowanceWei}. This is why we are returning 0.`)
@@ -146,7 +147,7 @@ export async function getTokenBalanceWei(
     }
 
     try {
-      const result = await readContract(config, contractConfig)
+      const result = await readData(contractConfig)
       if (!result) {
         //console.warn('Token balance read returned null, returning 0')
         return BigInt(0)

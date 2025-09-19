@@ -208,12 +208,15 @@
 import axios from 'axios'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import { formatEther, parseEther } from 'viem'
+
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import Image from '@/components/Image.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import WaitingToast from '@/components/WaitingToast'
 import FileUploadModal from '@/components/storage/FileUploadModal.vue'
+
 import { useAccountData } from '@/composables/useAccountData'
+
 import { fetchReferrer } from '@/utils/browserStorageUtils'
 import { readData, writeData, waitForTxReceipt } from '@/utils/contractUtils'
 import { getLessDecimals } from '@/utils/numberUtils'

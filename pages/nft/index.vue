@@ -94,9 +94,9 @@ import Image from '@/components/Image.vue';
 import SearchNftModal from '@/components/nft/SearchNftModal.vue';
 import NftListDropdown from '@/components/nft/list/NftListDropdown.vue';
 import { useAccountData } from '@/composables/useAccountData';
-import { useWeb3 } from '@/composables/useWeb3';
 import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils';
 import { getLessDecimals } from '@/utils/numberUtils';
+import { readData } from '@/utils/contractUtils';
 
 export default {
   name: 'Nft',
@@ -190,7 +190,7 @@ export default {
           functionName: 'getNftContractsArrayLength',
           args: []
         };
-        this.allNftsArrayLength = await this.readData(arrayLengthConfig);
+        this.allNftsArrayLength = await readData(arrayLengthConfig);
       }
 
       if (Number(this.allNftsArrayLength) === 1) {
@@ -199,7 +199,7 @@ export default {
           functionName: 'getLastNftContracts',
           args: [1]
         };
-        const lNfts = await this.readData(lastNftsConfig);
+        const lNfts = await readData(lastNftsConfig);
         await this.parseNftsArray(lNfts, this.lastNfts);
       } else if (Number(this.allNftsArrayLength) > 1) {
         // set the start and end index, if end index is 0
@@ -219,7 +219,7 @@ export default {
           functionName: 'getNftContracts',
           args: [BigInt(this.allNftsIndexStart), BigInt(this.allNftsIndexEnd)]
         };
-        const lNfts = await this.readData(nftsConfig);
+        const lNfts = await readData(nftsConfig);
         const lNftsWritable = [...lNfts]; // copy the lNfts array to make it writable (for reverse() method)
 
         // reverse the lNftsWritable array (to show the latest NFTs first)
@@ -327,7 +327,7 @@ export default {
             functionName: 'name',
             args: []
           };
-          cName = await this.readData(nameConfig);
+          cName = await readData(nameConfig);
           collection["name"] = cName;
         }
 
@@ -338,7 +338,7 @@ export default {
           functionName: 'getMintPrice',
           args: []
         };
-        const mintPriceWei = await this.readData(priceConfig);
+        const mintPriceWei = await readData(priceConfig);
 
         // get image
         let cImage;
@@ -352,7 +352,7 @@ export default {
             functionName: 'collectionPreview',
             args: []
           };
-          cImage = await this.readData(imageConfig);
+          cImage = await readData(imageConfig);
           collection["image"] = cImage;
         }
 
@@ -379,11 +379,9 @@ export default {
   },
 
   setup() {
-    const { readData } = useWeb3();
     const { address, chainId, isActivated } = useAccountData();
 
     return { 
-      readData,
       address, 
       chainId, 
       isActivated

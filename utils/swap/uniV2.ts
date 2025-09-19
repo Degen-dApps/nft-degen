@@ -1,6 +1,5 @@
 import { parseUnits, zeroAddress } from 'viem'
-import { readContract, writeContract } from '@wagmi/core'
-import { config } from '@/wagmi'
+import { readData, writeData } from '@/utils/contractUtils'
 import wrappedNativeTokens from '@/data/wrappedNativeTokens.json'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 
@@ -27,7 +26,7 @@ export async function getPriceImpactBps(
 
   const amountInWei = parseUnits(amountIn, inputToken.decimals)
 
-  const impact = await readContract(config, {
+  const impact = await readData({
     address: routerAddress as `0x${string}`,
     abi: routerAbi,
     functionName: 'getPriceImpact',
@@ -89,7 +88,7 @@ export async function getOutputTokenAmount(
     }
   ]
 
-  const amounts = await readContract(config, {
+  const amounts = await readData({
     address: routerAddress as `0x${string}`,
     abi: routerAbi,
     functionName: 'getAmountsOut',
@@ -143,7 +142,7 @@ export async function swapTokens(
 
   if (inputTokenAddress === zeroAddress && outputTokenAddress === wrappedAddress) {
     // if swapping native coin for wrapped token, use the wrapped token contract to deposit
-    return writeContract(config, {
+    return writeData({
       address: wrappedAddress as `0x${string}`,
       abi: wrappedAbi,
       functionName: 'deposit',
@@ -151,7 +150,7 @@ export async function swapTokens(
     })
   } else if (inputTokenAddress === wrappedAddress && outputTokenAddress === zeroAddress) {
     // if swapping wrapped token for native coin, use the wrapped token contract to withdraw
-    return writeContract(config, {
+    return writeData({
       address: wrappedAddress as `0x${string}`,
       abi: wrappedAbi,
       functionName: 'withdraw',
@@ -251,7 +250,7 @@ export async function swapTokens(
     ) {
       // swap the native coin for ERC20 token (which is not wrapped native coin)
       if (referrer === zeroAddress) {
-        return writeContract(config, {
+        return writeData({
           address: routerAddress as `0x${string}`,
           abi: routerAbi,
           functionName: 'swapExactETHForTokens',
@@ -259,7 +258,7 @@ export async function swapTokens(
           value: amountIn,
         })
       } else {
-        return writeContract(config, {
+        return writeData({
           address: routerAddress as `0x${string}`,
           abi: routerAbi,
           functionName: 'swapExactETHForTokensWithReferrer',
@@ -274,14 +273,14 @@ export async function swapTokens(
     ) {
       // swap ERC20 token (which is not wrapped native coin) for native coin
       if (referrer === zeroAddress) {
-        return writeContract(config, {
+        return writeData({
           address: routerAddress as `0x${string}`,
           abi: routerAbi,
           functionName: 'swapExactTokensForETH',
           args: [amountIn, amountOutMin, path, receiver, deadline],
         })
       } else {
-        return writeContract(config, {
+        return writeData({
           address: routerAddress as `0x${string}`,
           abi: routerAbi,
           functionName: 'swapExactTokensForETHWithReferrer',
@@ -297,14 +296,14 @@ export async function swapTokens(
       }
 
       if (referrer === zeroAddress) {
-        return writeContract(config, {
+        return writeData({
           address: routerAddress as `0x${string}`,
           abi: routerAbi,
           functionName: 'swapExactTokensForTokens',
           args: [amountIn, amountOutMin, path, receiver, deadline],
         })
       } else {
-        return writeContract(config, {
+        return writeData({
           address: routerAddress as `0x${string}`,
           abi: routerAbi,
           functionName: 'swapExactTokensForTokensWithReferrer',

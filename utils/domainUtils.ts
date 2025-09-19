@@ -1,7 +1,6 @@
-import { readContract } from '@wagmi/core'
-import { config } from '@/wagmi'
 import { useRuntimeConfig } from 'nuxt/app'
 import { fetchUsername, storeUsername } from './browserStorageUtils'
+import { readData } from './contractUtils'
 
 // TLD contract ABI for the functions we need
 const tldAbi = [
@@ -95,7 +94,7 @@ export async function getDomainName(userAddress: string, window: Window | null =
     }
 
     // If not in storage, fetch from blockchain
-    const result = await readContract(config, {
+    const result = await readData({
       address: runtimeConfig.public.punkTldAddress as `0x${string}`,
       abi: tldAbi,
       functionName: 'defaultNames',
@@ -129,7 +128,7 @@ export async function getDomainHolder(domainName: string) {
       domainName = domainName.replace(runtimeConfig.public.tldName, '')
     }
 
-    const result = await readContract(config, {
+    const result = await readData({
       address: runtimeConfig.public.punkTldAddress as `0x${string}`,
       abi: tldAbi,
       functionName: 'getDomainHolder',
