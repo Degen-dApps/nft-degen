@@ -117,7 +117,8 @@
 </template>
 
 <script>
-import { useAccountData } from '@/composables/useAccountData'
+import { getAccount, watchAccount } from '@wagmi/core'
+import { useAccount, useConfig, useDisconnect, useConnect} from '@wagmi/vue'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export default {
@@ -206,9 +207,48 @@ export default {
   },
 
   setup() {
-    const { connect, connectors, chainId, connectionStatus, isConnecting } = useAccountData()
+    const chainId = ref(null)
+    const { isConnecting, status } = useAccount()
+    const config = useConfig()
+    const { connectors } = useConnect()
     const { environment } = useSiteSettings()
 
+    // DISCONNECT
+    const { disconnect } = useDisconnect({
+      mutation: {
+        onSuccess() {
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            window.location.reload()
+          }
+        },
+      }
+    })
+
+    // CONNECT
+    const { connect } = useConnect({
+      mutation: {
+        onSuccess: (data, variables) => {
+          console.log('Connection successful!')
+        },
+        onError: (error) => {
+          console.error('Connection failed:', error)
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            disconnect()
+            window.location.reload()
+          }
+        }
+      }
+    })
+
+    // FETCH CURRENT CHAIN ID
+    async function fetchCurrentChainId() {
+      const account = await getAccount(config)
+      chainId.value = account.chainId ?? null
+    }
+
+    // CONNECTORS
     let injectedConnector;
     let metaMaskConnector;
     let walletConnectConnector;
@@ -226,10 +266,22 @@ export default {
       }
     }
 
+    // WATCHERS
+    const unwatch = watchAccount(config, {
+      onChange() {
+        fetchCurrentChainId()
+      },
+    })
+
+    // UNMOUNTED
+    onUnmounted(() => {
+      unwatch?.()
+    })
+
     return {
-      connect,
       chainId,
-      connectionStatus,
+      connect,
+      connectionStatus: status,
       environment,
       farcasterConnector,
       injectedConnector,
