@@ -118,7 +118,7 @@
 
 <script>
 import { getAccount, watchAccount } from '@wagmi/core'
-import { useAccount, useConfig, useDisconnect, useConnect} from '@wagmi/vue'
+import { useAccount, useConfig, useDisconnect, useConnect } from '@wagmi/vue'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export default {
@@ -207,9 +207,8 @@ export default {
   },
 
   setup() {
-    const chainId = ref(null)
-    const { isConnecting, status } = useAccount()
     const config = useConfig()
+    const { chainId, isConnecting, status } = useAccount({ config })
     const { connectors } = useConnect()
     const { environment } = useSiteSettings()
 
@@ -242,12 +241,6 @@ export default {
       }
     })
 
-    // FETCH CURRENT CHAIN ID
-    async function fetchCurrentChainId() {
-      const account = await getAccount(config)
-      chainId.value = account.chainId ?? null
-    }
-
     // CONNECTORS
     let injectedConnector;
     let metaMaskConnector;
@@ -265,18 +258,6 @@ export default {
         farcasterConnector = connector
       }
     }
-
-    // WATCHERS
-    const unwatch = watchAccount(config, {
-      onChange() {
-        fetchCurrentChainId()
-      },
-    })
-
-    // UNMOUNTED
-    onUnmounted(() => {
-      unwatch?.()
-    })
 
     return {
       chainId,

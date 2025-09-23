@@ -70,7 +70,7 @@
           />
 
           <button
-            v-if="isActivated && $config.public.fileUploadEnabled !== ''"
+            v-if="isConnected && $config.public.fileUploadEnabled !== ''"
             class="btn btn-outline-secondary rounded-end-2"
             data-bs-toggle="modal"
             :data-bs-target="'#fileUploadModal' + $.uid"
@@ -161,7 +161,7 @@
         <!-- Create Collection button -->
         <button
           :disabled="waitingCreate || !fieldsValid"
-          v-if="isActivated && isSupportedChain && !launchpadPaused"
+          v-if="isConnected && isSupportedChain && !launchpadPaused"
           class="btn btn-primary"
           type="button"
           @click="createCollection"
@@ -176,17 +176,17 @@
         </button>
 
         <!-- Paused button -->
-        <button :disabled="true" v-if="isActivated && isSupportedChain && launchpadPaused" class="btn btn-primary">
+        <button :disabled="true" v-if="isConnected && isSupportedChain && launchpadPaused" class="btn btn-primary">
           Paused
         </button>
 
         <!-- Connect Wallet button -->
         <ConnectWalletButton
-          v-if="!isActivated && !isSupportedChain"
+          v-if="!isConnected && !isSupportedChain"
           class="btn-primary"
           btnText="Connect wallet"
         />
-        <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+        <SwitchChainButton v-if="isConnected && !isSupportedChain" />
       </div>
 
       <!-- Upload Image Modal -->
@@ -208,14 +208,13 @@
 import axios from 'axios'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import { formatEther, parseEther } from 'viem'
+import { useAccount, useConfig } from '@wagmi/vue'
 
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
 import Image from '@/components/Image.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
 import WaitingToast from '@/components/WaitingToast'
 import FileUploadModal from '@/components/storage/FileUploadModal.vue'
-
-import { useAccountData } from '@/composables/useAccountData'
 
 import { fetchReferrer } from '@/utils/browserStorageUtils'
 import { readData, writeData } from '@/utils/contractUtils'
@@ -307,7 +306,7 @@ export default {
 
       let toastWait;
 
-      if (this.isActivated) {
+      if (this.isConnected) {
         try {
           // Create launchpad contract object
           const launchpadInterface = [
@@ -508,13 +507,14 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated } = useAccountData()
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
     const toast = useToast()
 
     return { 
       address, 
-      chainId, 
-      isActivated, 
+      chainId,  
+      isConnected,
       toast 
     }
   },

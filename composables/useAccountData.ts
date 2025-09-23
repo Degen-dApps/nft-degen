@@ -120,10 +120,6 @@ export function useAccountData() {
     return network ? network.networkName : 'Unsupported network'
   }
 
-  function getSupportedChainData(): any {
-    return config.chains[0]
-  }
-
   // SETTERS
   function addToChatTokenBalanceWei(balance: bigint) {
     if (!chatTokenBalanceWei.value) {
@@ -156,16 +152,6 @@ export function useAccountData() {
   function shortenAddress(address: string | null | undefined, chars = 4): string {
     if (!address || typeof address !== 'string') return ''
     return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
-  }
-
-  // Function to switch to a different network
-  async function switchToNetwork(targetChainId: number): Promise<void> {
-    try {
-      await switchChain(config, { chainId: targetChainId as any })
-    } catch (error) {
-      console.error('Failed to switch network:', error)
-      throw new Error('Network switching failed')
-    }
   }
 
   // WATCHERS
@@ -207,13 +193,11 @@ export function useAccountData() {
     addToChatTokenBalanceWei,
     connect,
     disconnect,
-    switchToNetwork,
     getChatTokenBalanceWei,
     getChatTokenBalance,
     getCurrentChainId,
     getCurentUserActivityPoints,
     getCurrentUserAddress,
-    getSupportedChainData,
     shortenAddress,
     getNetworkName,
     getBalanceEth,
