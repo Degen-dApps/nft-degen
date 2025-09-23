@@ -183,8 +183,6 @@ export default {
         this.waiting = false
         return
       }
-
-      this.waiting = false
     },
   },
 

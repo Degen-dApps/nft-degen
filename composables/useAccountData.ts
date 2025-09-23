@@ -1,15 +1,12 @@
 // composables/useAccountData.ts
 import { formatEther, formatUnits } from 'viem'
 import { computed } from 'vue'
-import { getAccount, switchChain, watchAccount } from '@wagmi/core'
+import { getAccount, watchAccount } from '@wagmi/core'
 import {
   useAccount,
   useBalance,
   useConfig,
-  useDisconnect,
-  useConnect
 } from '@wagmi/vue'
-import { useSiteSettings } from '@/composables/useSiteSettings'
 
 export function useAccountData() {
 
@@ -19,37 +16,6 @@ export function useAccountData() {
   const config = useConfig()
   const { address, isConnected, isConnecting, status } = useAccount({config})
   const { data: balanceData } = useBalance({ address, config })
-  const { connectors, error: connectError, status: connectStatus } = useConnect({config})
-  const { environment } = useSiteSettings()
-
-  const { disconnect } = useDisconnect({
-    config,
-    mutation: {
-      onSuccess() {
-        if (environment.value !== 'farcaster') {
-          // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-          window.location.reload()
-        }
-      },
-    }
-  })
-
-  const { connect } = useConnect({
-    config,
-    mutation: {
-      onSuccess: (data, variables) => {
-        console.log('Connection successful!')
-      },
-      onError: (error) => {
-        console.error('Connection failed:', error)
-        if (environment.value !== 'farcaster') {
-          // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-          disconnect()
-          window.location.reload()
-        }
-      }
-    }
-  })
   
   // state variables
   const activityPoints = useState<number | null>('activityPoints', () => null)
@@ -185,15 +151,8 @@ export function useAccountData() {
     
     domainName: computed(() => getCurrentDomainName()),
 
-    // Connect properties
-    connectors,
-    connectError,
-    connectStatus,
-
     // Methods
     addToChatTokenBalanceWei,
-    connect,
-    disconnect,
     getChatTokenBalanceWei,
     getChatTokenBalance,
     getCurrentChainId,

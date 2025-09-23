@@ -141,13 +141,18 @@
 
 <script>
 import axios from 'axios'
-import { isAddress } from 'viem'
 import DOMPurify from 'dompurify'
+import { isAddress } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import Image from '@/components/Image.vue'
 import WaitingToast from '@/components/WaitingToast'
 import ProfileImage from '@/components/profile/ProfileImage.vue'
+import { shortenAddress } from '@/utils/addressUtils'
+import { fetchData, fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
 import { getDomainName } from '@/utils/domainUtils'
+import { readData, writeData } from '@/utils/contractUtils'
 import {
   getTextWithoutBlankCharacters,
   findFirstUrl,
@@ -156,9 +161,6 @@ import {
   urlParsing,
   youtubeParsing,
 } from '@/utils/textUtils'
-import { fetchData, fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
-import { shortenAddress } from '@/utils/addressUtils'
-import { readData, writeData } from '@/utils/contractUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
@@ -587,13 +589,12 @@ export default {
 
   setup() {
     const route = useRoute()
-    const { address, chainId, isActivated } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
     const toast = useToast()
 
     return { 
       address, 
-      chainId, 
-      isActivated, 
       route, 
       toast
     }

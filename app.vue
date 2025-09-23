@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import { useAccount, useConfig, useDisconnect, useConnect } from '@wagmi/vue'
 import { sdk } from '@farcaster/miniapp-sdk'
 import SiteSettingsModal from '@/components/SiteSettingsModal.vue'
 import ChangeUsernameModal from '@/components/names/ChangeUsernameModal.vue'
@@ -186,12 +187,45 @@ export default {
 
   setup() {
     
-    const { 
-      address, chainId, connect, connectors, domainName, isActivated, 
-      setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
+    const { domainName, setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
 
     const { mainContent, setLeftSidebar, setRightSidebar, setMainContent } = useSidebars()
-    const { colorMode, setArweaveBalance, setEnvironment, setFileUploadEnabled } = useSiteSettings()
+    const { colorMode, environment, setArweaveBalance, setEnvironment, setFileUploadEnabled } = useSiteSettings()
+
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
+    const { connectors } = useConnect()
+
+    // DISCONNECT
+    const { disconnect } = useDisconnect({
+      config,
+      mutation: {
+        onSuccess() {
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            window.location.reload()
+          }
+        },
+      }
+    })
+
+    // CONNECT
+    const { connect } = useConnect({
+      config,
+      mutation: {
+        onSuccess: (data, variables) => {
+          console.log('Connection successful!')
+        },
+        onError: (error) => {
+          console.error('Connection failed:', error)
+          if (environment.value !== 'farcaster') {
+            // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
+            disconnect()
+            window.location.reload()
+          }
+        }
+      }
+    })
 
     let farcasterConnector;
 
@@ -208,7 +242,7 @@ export default {
       connect,
       domainName,
       farcasterConnector,
-      isActivated,
+      isConnected,
       mainContent,
       setArweaveBalance,
       setChatTokenBalanceWei,
@@ -264,7 +298,7 @@ export default {
       }
     },
 
-    async isActivated(newIsActivated) {
+    async isConnected(newIsActivated) {
       if (newIsActivated && this.address) {
         const domain = await getDomainName(this.address, window)
         this.setDomainName(domain)

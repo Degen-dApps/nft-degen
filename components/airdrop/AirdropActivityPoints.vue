@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import { useAccount, useConfig } from '@wagmi/vue'
 import { formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
 import WaitingToast from '@/components/WaitingToast'
@@ -180,7 +181,9 @@ export default {
   },
 
   setup() {
-    const { addToChatTokenBalanceWei, address } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+    const { addToChatTokenBalanceWei } = useAccountData()
     const toast = useToast()
 
     return {

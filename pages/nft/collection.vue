@@ -164,12 +164,12 @@
 
           <!-- Buttons -->
           <div class="row mb-3" v-if="nativeNft">
-            <div v-if="!isActivated || !isSupportedChain" class="d-grid gap-2 col">
-              <ConnectWalletButton v-if="!isActivated" class="btn-primary" btnText="Connect wallet" />
-              <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+            <div v-if="!isConnected || !isSupportedChain" class="d-grid gap-2 col">
+              <ConnectWalletButton v-if="!isConnected" class="btn-primary" btnText="Connect wallet" />
+              <SwitchChainButton v-if="isConnected && !isSupportedChain" />
             </div>
 
-            <div v-if="isActivated && isSupportedChain" class="d-grid gap-2 col">
+            <div v-if="isConnected && isSupportedChain" class="d-grid gap-2 col">
               <button @click="buyNft" class="btn btn-primary" type="button" :disabled="waitingData || waitingBuy">
                 <span
                   v-if="waitingBuy"
@@ -181,7 +181,7 @@
               </button>
             </div>
 
-            <div v-if="isActivated && isSupportedChain" class="d-grid gap-2 col">
+            <div v-if="isConnected && isSupportedChain" class="d-grid gap-2 col">
               <button
                 @click="sellNft"
                 class="btn btn-primary"
@@ -199,7 +199,7 @@
             </div>
           </div>
 
-          <small v-if="isActivated && isSupportedChain && nativeNft">
+          <small v-if="isConnected && isSupportedChain && nativeNft">
             <em>
               (Price may still change after pressing the button, so make sure to check the
               {{ $config.public.tokenSymbol }} amount in wallet.)
@@ -276,6 +276,7 @@
 import axios from 'axios'
 import { isAddress, formatEther } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
 
 import ChatFeed from '@/components/chat/ChatFeed.vue'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton.vue'
@@ -290,8 +291,6 @@ import ChangeNftTypeModal from '@/components/nft/collection/ChangeNftTypeModal'
 import CollectionMediaSection from '@/components/nft/collection/CollectionMediaSection.vue';
 import RemoveImageFromCollectionModal from '@/components/nft/collection/RemoveImageFromCollectionModal'
 import SendNftModal from '@/components/nft/collection/SendNftModal.vue';
-
-import { useAccountData } from '@/composables/useAccountData'
 
 import { shortenAddress } from '@/utils/addressUtils'
 import { fetchCollection, fetchUsername, storeCollection, storeUsername } from '@/utils/browserStorageUtils'
@@ -1378,13 +1377,14 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated } = useAccountData()
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
     const toast = useToast()
 
     return { 
       address, 
       chainId, 
-      isActivated, 
+      isConnected, 
       toast 
     }
   },

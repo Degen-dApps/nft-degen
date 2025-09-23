@@ -117,7 +117,6 @@
 </template>
 
 <script>
-import { getAccount, watchAccount } from '@wagmi/core'
 import { useAccount, useConfig, useDisconnect, useConnect } from '@wagmi/vue'
 import { useSiteSettings } from '@/composables/useSiteSettings'
 
