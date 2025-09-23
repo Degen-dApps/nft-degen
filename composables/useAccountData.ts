@@ -16,12 +16,14 @@ export function useAccountData() {
   // VARIABLES
   
   // library variables and functions
-  const { address, isConnected, isConnecting, status } = useAccount()
-  const { data: balanceData } = useBalance({ address })
-  const { connectors, error: connectError, status: connectStatus } = useConnect()
+  const config = useConfig()
+  const { address, isConnected, isConnecting, status } = useAccount({config})
+  const { data: balanceData } = useBalance({ address, config })
+  const { connectors, error: connectError, status: connectStatus } = useConnect({config})
   const { environment } = useSiteSettings()
 
   const { disconnect } = useDisconnect({
+    config,
     mutation: {
       onSuccess() {
         if (environment.value !== 'farcaster') {
@@ -33,6 +35,7 @@ export function useAccountData() {
   })
 
   const { connect } = useConnect({
+    config,
     mutation: {
       onSuccess: (data, variables) => {
         console.log('Connection successful!')
@@ -47,8 +50,6 @@ export function useAccountData() {
       }
     }
   })
-
-  const config = useConfig()
   
   // state variables
   const activityPoints = useState<number | null>('activityPoints', () => null)
