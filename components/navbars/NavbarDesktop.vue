@@ -159,7 +159,7 @@ export default {
         onSuccess() {
           if (environment.value !== 'farcaster') {
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-            window.location.reload()
+            //window.location.reload()
           }
         },
       }

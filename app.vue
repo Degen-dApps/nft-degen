@@ -203,7 +203,7 @@ export default {
         onSuccess() {
           if (environment.value !== 'farcaster') {
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-            window.location.reload()
+            //window.location.reload()
           }
         },
       }
@@ -220,8 +220,8 @@ export default {
           console.error('Connection failed:', error)
           if (environment.value !== 'farcaster') {
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-            disconnect()
-            window.location.reload()
+            //disconnect()
+            //window.location.reload()
           }
         }
       }
