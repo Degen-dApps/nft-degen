@@ -82,9 +82,11 @@ export default {
 
     // DISCONNECT
     const { disconnect } = useDisconnect({
+      config,
       mutation: {
         onSuccess() {
           if (environment.value !== 'farcaster') {
+            window.localStorage.setItem("connected-with", "")
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
             //window.location.reload()
           }

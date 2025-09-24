@@ -140,7 +140,7 @@ export default {
 
     async disconnectWallet() {
       try {
-        await this.disconnect()
+        await this.disconnectAsync()
       } catch (error) {
         console.error('Failed to disconnect wallet:', error)
       }
@@ -154,10 +154,12 @@ export default {
     const { colorMode, environment, setColorMode } = useSiteSettings()
 
     // DISCONNECT
-    const { disconnect } = useDisconnect({
+    const { disconnectAsync } = useDisconnect({
+      config,
       mutation: {
         onSuccess() {
           if (environment.value !== 'farcaster') {
+            window.localStorage.setItem("connected-with", "")
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
             //window.location.reload()
           }
@@ -168,7 +170,7 @@ export default {
     return {
       address,
       colorMode,
-      disconnect,
+      disconnectAsync,
       domainName,
       isConnected,
       setColorMode,

@@ -107,6 +107,9 @@ export default {
     // initialize Farcaster SDK
     sdk.actions.ready()
 
+    // fetch connected-with from local storage
+    const connectedWith = window.localStorage.getItem("connected-with")
+
     // detect if running in Farcaster environment and connect to Farcaster wallet if so
     this.isFarcaster = await sdk.isInMiniApp()
 
@@ -114,8 +117,40 @@ export default {
       this.setEnvironment('farcaster')
 
       // Connect to Farcaster wallet
-      this.connect({ connector: this.farcasterConnector, chainId: this.chainId })
+      try {
+        await this.connectAsync({ connector: this.farcasterConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect Farcaster wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
+    } 
+    /*
+    else if (connectedWith === "injected") {
+      console.log("[app.vue] User has already connected with injected connector")
+      try {
+        this.connectAsync({ connector: this.injectedConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect injected wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
+    } else if (connectedWith === "metaMask") {
+      console.log("User has already connected with metaMask connector")
+      try {
+        this.connectAsync({ connector: this.metaMaskConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect metaMask wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
+    } else if (connectedWith === "walletConnect") {
+      console.log("User has already connected with walletConnect connector")
+      try {
+        this.connectAsync({ connector: this.walletConnectConnector, chainId: this.chainId })
+      } catch (error) {
+        console.error('[app.vue] Failed to connect walletConnect wallet:', error)
+        console.error('[app.vue] Error details:', error.message, error.stack)
+      }
     }
+    */
 
     // enable popovers everywhere
     new bootstrap.Popover(document.body, {
@@ -202,6 +237,7 @@ export default {
       mutation: {
         onSuccess() {
           if (environment.value !== 'farcaster') {
+            window.localStorage.setItem("connected-with", "")
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
             //window.location.reload()
           }
@@ -210,7 +246,7 @@ export default {
     })
 
     // CONNECT
-    const { connect } = useConnect({
+    const { connectAsync } = useConnect({
       config,
       mutation: {
         onSuccess: (data, variables) => {
@@ -227,10 +263,20 @@ export default {
       }
     })
 
+    // CONNECTORS
+    let injectedConnector;
+    let metaMaskConnector;
+    let walletConnectConnector;
     let farcasterConnector;
 
     for (const connector of connectors) {
-      if (connector.name === 'Farcaster') {
+      if (connector.name === 'Injected') {
+        injectedConnector = connector
+      } else if (connector.name === 'MetaMask') {
+        metaMaskConnector = connector
+      } else if (connector.name === 'WalletConnect') {
+        walletConnectConnector = connector
+      } else if (connector.name === 'Farcaster') {
         farcasterConnector = connector
       }
     }
@@ -239,11 +285,13 @@ export default {
       address,
       chainId,
       colorMode,
-      connect,
+      connectAsync,
       domainName,
       farcasterConnector,
+      injectedConnector,
       isConnected,
       mainContent,
+      metaMaskConnector,
       setArweaveBalance,
       setChatTokenBalanceWei,
       setCurrentUserActivityPoints,
@@ -253,6 +301,7 @@ export default {
       setLeftSidebar,
       setMainContent,
       setRightSidebar,
+      walletConnectConnector
     }
   },
 
