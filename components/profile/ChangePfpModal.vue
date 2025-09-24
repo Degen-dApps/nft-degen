@@ -68,13 +68,13 @@
                 >
               </div>
 
-              <button v-if="isActivated && isSupportedChain" class="btn btn-primary" @click="submitToBlockchain" :disabled="!imageLink || waitingSubmit">
+              <button v-if="isConnected && isSupportedChain" class="btn btn-primary" @click="submitToBlockchain" :disabled="!imageLink || waitingSubmit">
                 <span v-if="waitingSubmit" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Submit to blockchain
               </button>
 
-              <ConnectWalletButton v-if="!isActivated" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
-              <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+              <ConnectWalletButton v-if="!isConnected" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
+              <SwitchChainButton v-if="isConnected && !isSupportedChain" />
             </div>
           </div>
         </div>
@@ -85,6 +85,8 @@
 
 <script>
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton'
 import Image from '@/components/Image.vue'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
@@ -268,13 +270,14 @@ export default {
   },
 
   setup() {
+    const config = useConfig()
+    const { isConnected, chainId } = useAccount({ config })
     const { fileUploadEnabled } = useSiteSettings()
-    const { isActivated, chainId } = useAccountData()
     const toast = useToast()
 
     return {
       fileUploadEnabled,
-      isActivated,
+      isConnected,
       chainId,
       toast,
     }

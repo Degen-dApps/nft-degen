@@ -111,6 +111,8 @@
 </template>
 
 <script>
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import StakingClaim from '@/components/stake/StakingClaim.vue'
 import StakingDeposit from '@/components/stake/StakingDeposit.vue'
 import StakingWithdrawal from '@/components/stake/StakingWithdrawal.vue'
@@ -489,8 +491,10 @@ export default {
   },
 
   setup() {
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
     const { 
-      address, 
       getLpTokenBalanceWei, 
       setLpTokenBalanceWei,
       getStakeTokenBalanceWei,

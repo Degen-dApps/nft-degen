@@ -3,9 +3,10 @@
 </template>
 
 <script>
-import { getWorkingUrl } from '@/utils/fileUtils'
+import { useAccount, useConfig } from '@wagmi/vue'
 import { fetchData, storeData } from '@/utils/browserStorageUtils'
 import { readData } from '@/utils/contractUtils'
+import { getWorkingUrl } from '@/utils/fileUtils'
 
 export default {
   name: 'ProfileImage',
@@ -59,7 +60,7 @@ export default {
           }
         } else {
           // fetch image from blockchain
-          if (this.isActivated && this.chainId === this.$config.public.supportedChainId) {
+          if (this.isConnected && this.chainId === this.$config.public.supportedChainId) {
             try {
               // Read domain data from contract
               const contractConfig = {
@@ -104,11 +105,12 @@ export default {
   },
 
   setup() {
-    const { chainId, isActivated } = useAccountData()
+    const config = useConfig()
+    const { chainId, isConnected } = useAccount({ config })
 
     return {
       chainId,
-      isActivated,
+      isConnected,
     }
   },
 

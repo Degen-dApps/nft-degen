@@ -80,7 +80,6 @@ import { isAddress, parseAbi } from 'viem';
 import { useToast } from "vue-toastification/dist/index.mjs";
 import { readData, writeData } from '@/utils/contractUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
-import { useAccountData } from '@/composables/useAccountData'
 import WaitingToast from "@/components/WaitingToast";
 import { hasTextBlankCharacters } from '@/utils/textUtils';
 
@@ -343,13 +342,9 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated } = useAccountData();
     const toast = useToast();
 
     return { 
-      address, 
-      chainId, 
-      isActivated, 
       toast 
     };
   },

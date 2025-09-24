@@ -50,10 +50,15 @@
 
 <script>
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
-import { getDomainHolder, validateDomainName } from '@/utils/domainUtils'
+
+import { useAccountData } from '@/composables/useAccountData'
+
 import { storeUsername } from '@/utils/browserStorageUtils'
 import { writeData } from '@/utils/contractUtils'
+import { getDomainHolder, validateDomainName } from '@/utils/domainUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
@@ -78,7 +83,7 @@ export default {
       this.loading = true
       this.fullDomainName = this.domainName + this.$config.public.tldName
 
-      if (this.isActivated && !this.domainNotValid.invalid) {
+      if (this.isConnected && !this.domainNotValid.invalid) {
         // check if the domain is owned by the user
         const domainHolder = await getDomainHolder(this.domainName)
         if (String(domainHolder).toLowerCase() !== String(this.address).toLowerCase()) {
@@ -183,16 +188,14 @@ export default {
   setup() {
     const toast = useToast()
     
-    // Use the composables
-    const { 
-      address, 
-      isActivated, 
-      setDomainName 
-    } = useAccountData()
+    const config = useConfig()
+    const { address, isConnected } = useAccount({ config })
+    
+    const { setDomainName } = useAccountData()
     
     return { 
       address, 
-      isActivated, 
+      isConnected, 
       toast, 
       setDomainName
     }

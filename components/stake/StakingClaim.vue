@@ -75,10 +75,8 @@ import { useToast } from 'vue-toastification/dist/index.mjs'
 
 import WaitingToast from '@/components/WaitingToast'
 
-import { useAccountData } from '@/composables/useAccountData'
-
-import { getLessDecimals } from '@/utils/numberUtils'
 import { writeData } from '@/utils/contractUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
@@ -352,13 +350,9 @@ export default {
   },
 
   setup() {
-    const { address, chainId, isActivated } = useAccountData()
     const toast = useToast()
 
     return {
-      address,
-      chainId,
-      isActivated,
       toast,
     }
   },

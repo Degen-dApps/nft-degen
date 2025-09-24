@@ -41,7 +41,6 @@
 </template>
 
 <script>
-import { useAccountData } from '@/composables/useAccountData'
 import { readData } from '@/utils/contractUtils'
 import { zeroAddress } from 'viem'
 
@@ -114,15 +113,6 @@ export default {
         return (this.waitingFind = false)
       }
     },
-  },
-
-  setup() {
-    const { chainId, isActivated } = useAccountData()
-
-    return { 
-      chainId, 
-      isActivated
-    }
-  },
+  }
 }
 </script>

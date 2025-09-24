@@ -85,9 +85,13 @@
 <script>
 import { parseUnits, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast.vue'
 import AddLiquidity from '@/components/stake/AddLiquidity.vue'
+
 import { useAccountData } from '@/composables/useAccountData'
+
 import { readData, writeData } from '@/utils/contractUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
 
@@ -363,13 +367,16 @@ export default {
   },
 
   setup() {
-    const { 
-      address, 
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
+    const {  
       getLpTokenBalanceWei, 
       setLpTokenBalanceWei,
       getStakeTokenBalanceWei,
       setStakeTokenBalanceWei
     } = useAccountData()
+
     const toast = useToast()
 
     return {

@@ -64,8 +64,9 @@
 <script>
 import axios from 'axios';
 import { isAddress } from 'viem';
-import { useAccountData } from '@/composables/useAccountData';
 import { useToast } from "vue-toastification/dist/index.mjs";
+import { useAccount, useConfig } from '@wagmi/vue';
+
 import NftCollectionsList from '@/components/nft/list/NftCollectionsList.vue';
 
 export default {
@@ -170,7 +171,9 @@ export default {
   },
 
   setup() {
-    const { address } = useAccountData();
+    const config = useConfig();
+    const { address } = useAccount({ config });
+
     const toast = useToast();
 
     return { address, toast };

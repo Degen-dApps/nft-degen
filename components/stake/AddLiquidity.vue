@@ -97,11 +97,14 @@
 <script>
 import { parseEther, formatEther, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
-import { readData, writeData } from '@/utils/contractUtils'
-import { waitForTxReceipt } from '@/utils/txUtils'
 import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+import { getNativeCoinBalanceWei } from '@/utils/balanceUtils'
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'AddLiquidity',
@@ -109,6 +112,7 @@ export default {
   data() {
     return {
       allowanceWei: BigInt(0),
+      balanceWei: null,
       debounce: null, // debounce to get ETH amount
       depositAmount: 0,
       ethFieldDisabled: true,
@@ -464,6 +468,12 @@ export default {
       }
     },
 
+    setMaxInputTokenAmount() {
+      this.depositAmount = this.chatTokenBalance
+
+      this.fetchNativeCoinAmount()
+    },
+
     fetchNativeCoinAmountWithTimeout() {
       if (this.debounce) {
         clearTimeout(this.debounce)
@@ -476,29 +486,23 @@ export default {
       }, self.timeout)
     },
 
-    setMaxInputTokenAmount() {
-      this.depositAmount = this.chatTokenBalance
-
-      this.fetchNativeCoinAmount()
+    async getUserNativeCoinBalanceWei() {
+      if (this.address) {
+        this.balanceWei = await getNativeCoinBalanceWei(this.address)
+      }
     },
   },
 
   setup() {
-    const { 
-      address, 
-      balanceWei, 
-      getChatTokenBalanceWei, 
-      setChatTokenBalanceWei,
-      setLpTokenBalanceWei
-    } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
 
+    const { getChatTokenBalanceWei, setChatTokenBalanceWei, setLpTokenBalanceWei} = useAccountData()
     const { swapDeadline, slippage } = useSiteSettings()
-    
     const toast = useToast()
 
     return {
       address,
-      balanceWei,
       getChatTokenBalanceWei,
       setChatTokenBalanceWei,
       setLpTokenBalanceWei,

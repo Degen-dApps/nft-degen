@@ -20,9 +20,8 @@
 import { formatEther } from 'viem'
 import Image from '@/components/Image.vue'
 import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils'
-import { getLessDecimals } from '@/utils/numberUtils'
 import { readData } from '@/utils/contractUtils'
-import { useAccountData } from '@/composables/useAccountData'
+import { getLessDecimals } from '@/utils/numberUtils'
 
 export default {
   name: "FeaturedNftsBlockchain",
@@ -192,16 +191,6 @@ export default {
           console.error(`Error processing NFT ${inputArray[i]}:`, error)
         }
       }
-    }
-  },
-
-  setup() {
-    const { address, chainId, isActivated } = useAccountData()
-
-    return {
-      address,
-      chainId,
-      isActivated
     }
   }
 }

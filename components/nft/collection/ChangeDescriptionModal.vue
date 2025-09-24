@@ -46,9 +46,10 @@
 
 <script>
 import axios from 'axios'
-import { useAccountData } from '@/composables/useAccountData'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+
 import WaitingToast from '@/components/WaitingToast'
+
 import { writeData } from '@/utils/contractUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
 
@@ -173,11 +174,9 @@ export default {
   },
 
   setup() {
-    const { isActivated } = useAccountData()
     const toast = useToast()
 
     return { 
-      isActivated, 
       toast 
     }
   },

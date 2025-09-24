@@ -90,13 +90,14 @@
 <script>
 import axios from 'axios';
 import { formatEther } from 'viem';
+
 import Image from '@/components/Image.vue';
 import SearchNftModal from '@/components/nft/SearchNftModal.vue';
 import NftListDropdown from '@/components/nft/list/NftListDropdown.vue';
-import { useAccountData } from '@/composables/useAccountData';
+
 import { fetchCollection, storeCollection } from '@/utils/browserStorageUtils';
-import { getLessDecimals } from '@/utils/numberUtils';
 import { readData } from '@/utils/contractUtils';
+import { getLessDecimals } from '@/utils/numberUtils';
 
 export default {
   name: 'Nft',
@@ -377,15 +378,5 @@ export default {
       }
     }
   },
-
-  setup() {
-    const { address, chainId, isActivated } = useAccountData();
-
-    return { 
-      address, 
-      chainId, 
-      isActivated
-    }
-  }
 }
 </script>

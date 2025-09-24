@@ -5,8 +5,6 @@
 </template>
 
 <script>
-import { useAccountData } from '@/composables/useAccountData'
-
 export default {
   name: "index",
 
@@ -19,11 +17,5 @@ export default {
       return this.$router.push({ path: curComp });
     }
   },
-
-  setup() {
-    const { address, chainId } = useAccountData()
-
-    return { address, chainId }
-  }
 }
 </script>

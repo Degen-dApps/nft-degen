@@ -66,10 +66,12 @@
 <script>
 import axios from 'axios'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import Image from '@/components/Image.vue'
 import WaitingToast from '@/components/WaitingToast'
 import FileUploadInput from '@/components/storage/FileUploadInput.vue'
-import { useAccountData } from '@/composables/useAccountData'
+
 import { writeData } from '@/utils/contractUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
 
@@ -93,7 +95,7 @@ export default {
 
   methods: {
     async updateImage() {
-      if (!this.isActivated) {
+      if (!this.isConnected) {
         this.toast('Please connect your wallet first.', { type: 'error' })
         return
       }
@@ -203,11 +205,12 @@ export default {
   },
 
   setup() {
-    const { isActivated } = useAccountData()
+    const config = useConfig()
+    const { isConnected } = useAccount({ config })
     const toast = useToast()
 
     return { 
-      isActivated, 
+      isConnected, 
       toast 
     }
   },

@@ -68,11 +68,15 @@
 <script>
 import { parseEther, formatUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
-import { readData, writeData } from '@/utils/contractUtils'
-import { waitForTxReceipt } from '@/utils/txUtils'
+
 import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+
+import { readData, writeData } from '@/utils/contractUtils'
+import { waitForTxReceipt } from '@/utils/txUtils'
 
 export default {
   name: 'RemoveLiquidity',
@@ -379,11 +383,10 @@ export default {
   },
 
   setup() {
-    const { 
-      address, 
-      getLpTokenBalanceWei, 
-      setLpTokenBalanceWei 
-    } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
+    const { getLpTokenBalanceWei, setLpTokenBalanceWei } = useAccountData()
     const { slippage, swapDeadline } = useSiteSettings()
     const toast = useToast()
 

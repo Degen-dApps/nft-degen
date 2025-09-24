@@ -57,9 +57,11 @@
 <script>
 import { parseUnits, zeroAddress } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
-import { useAccountData } from '@/composables/useAccountData'
 import { useSiteSettings } from '@/composables/useSiteSettings'
+
 import wrappedNativeTokens from '@/data/wrappedNativeTokens.json'
 
 import { fetchReferrer } from '@/utils/browserStorageUtils'
@@ -222,9 +224,11 @@ export default {
   },
 
   setup() {
-    const { address } = useAccountData()
-    const toast = useToast()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+
     const { slippage } = useSiteSettings()
+    const toast = useToast()
 
     return { 
       address, 

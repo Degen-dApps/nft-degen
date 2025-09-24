@@ -191,19 +191,23 @@
 
 <script>
 import { formatEther, formatUnits } from 'viem'
-import { useAccountData } from '@/composables/useAccountData'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import UserCreatedNfts from '@/components/nft/list/UserCreatedNfts.vue'
 import UserMintedNfts from '@/components/nft/list/UserMintedNfts.vue'
 import ChangePfpModal from '@/components/profile/ChangePfpModal.vue'
 import ProfileImage from '@/components/profile/ProfileImage.vue'
-import { getActivityPoints, getNativeTokenBalanceWei } from '@/utils/balanceUtils'
-import { getDomainName, getDomainHolder } from '@/utils/domainUtils'
-import { fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
-import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
-import { getLessDecimals } from '@/utils/numberUtils'
-import { readData } from '@/utils/contractUtils'
+
+import { useAccountData } from '@/composables/useAccountData'
+
 import { shortenAddress } from '@/utils/addressUtils'
+import { getActivityPoints, getNativeCoinBalanceWei } from '@/utils/balanceUtils'
+import { fetchUsername, storeData, storeUsername } from '@/utils/browserStorageUtils'
+import { readData } from '@/utils/contractUtils'
+import { getDomainName, getDomainHolder } from '@/utils/domainUtils'
+import { getLessDecimals } from '@/utils/numberUtils'
+import { getTextWithoutBlankCharacters } from '@/utils/textUtils'
 
 export default {
   name: 'PunkProfile',
@@ -329,7 +333,7 @@ export default {
     async fetchBalance() {
       if (this.uAddress) {
         // fetch balance of an address
-        this.uBalance = await getNativeTokenBalanceWei(this.uAddress)
+        this.uBalance = await getNativeCoinBalanceWei(this.uAddress)
 
         if (this.$config.public.chatTokenAddress) {
           // fetch chat balance
@@ -373,7 +377,9 @@ export default {
   },
 
   setup() {
-    const { address, domainName } = useAccountData()
+    const config = useConfig()
+    const { address } = useAccount({ config })
+    const { domainName } = useAccountData()
     const toast = useToast()
 
     return { 

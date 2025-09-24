@@ -24,7 +24,7 @@
 
       <div class="text-center">
         <button
-          v-if="isActivated && isSupportedChain"
+          v-if="isConnected && isSupportedChain"
           class="btn btn-outline-primary mt-2 mb-2"
           :disabled="paused || domainNotValid.invalid || balanceTooLow"
           @click="mintName"
@@ -40,29 +40,36 @@
           <span v-if="!loadingMint && !loadingData && !balanceTooLow">Mint username</span>
         </button>
 
-        <ConnectWalletButton v-if="!isActivated" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
-        <SwitchChainButton v-if="isActivated && !isSupportedChain" />
+        <ConnectWalletButton v-if="!isConnected" class="btn-outline-primary mt-2 mb-2" btnText="Connect Wallet" />
+        <SwitchChainButton v-if="isConnected && !isSupportedChain" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { formatUnits, parseUnits } from 'viem'
 import { useToast } from 'vue-toastification/dist/index.mjs'
+import { useAccount, useConfig } from '@wagmi/vue'
+
 import WaitingToast from '@/components/WaitingToast'
 import ConnectWalletButton from '@/components/connect/ConnectWalletButton'
 import SwitchChainButton from '@/components/connect/SwitchChainButton.vue'
-import { getDomainName, getDomainHolder, validateDomainName } from '@/utils/domainUtils'
+
+import { useAccountData } from '@/composables/useAccountData'
+
+import { getNativeCoinBalanceEth } from '@/utils/balanceUtils'
 import { fetchReferrer, storeUsername } from '@/utils/browserStorageUtils'
 import { readData, writeData } from '@/utils/contractUtils'
+import { getDomainName, getDomainHolder, validateDomainName } from '@/utils/domainUtils'
 import { waitForTxReceipt } from '@/utils/txUtils'
-import { formatUnits, parseUnits } from 'viem'
 
 export default {
   name: 'NameMintWidget',
 
   data() {
     return {
+      balanceEth: null,
       domainName: null,
       isMinter: false,
       loadingData: false,
@@ -86,13 +93,13 @@ export default {
 
   mounted() {
     this.fetchDomainData()
+    this.getUserNativeCoinBalanceEth()
   },
 
   computed: {
     balanceTooLow() {
-      const balanceEth = this.balanceEth
-      if (!balanceEth || !this.getNamePrice) return true
-      return Number(balanceEth) < Number(this.getNamePrice)
+      if (!this.balanceEth || !this.getNamePrice) return true
+      return Number(this.balanceEth) < Number(this.getNamePrice)
     },
 
     domainNotValid() {
@@ -322,7 +329,7 @@ export default {
     },
 
     async fetchUserDomain() {
-      if (this.isActivated) {
+      if (this.isConnected) {
         const userDomain = await getDomainName(this.address)
 
         if (userDomain) {
@@ -337,10 +344,16 @@ export default {
       }
     },
 
+    async getUserNativeCoinBalanceEth() {
+      if (this.address) {   
+        this.balanceEth = await getNativeCoinBalanceEth(this.address)
+      }
+    },
+
     async mintName() {
       this.loadingMint = true
 
-      if (this.isActivated && !this.domainNotValid.invalid) {
+      if (this.isConnected && !this.domainNotValid.invalid) {
         // check if name is already taken
         const domainHolder = await getDomainHolder(this.domainName.toLowerCase())
 
@@ -443,23 +456,25 @@ export default {
   },
 
   setup() {
-    const { 
-      address, 
-      balanceEth, 
-      chainId, 
-      isActivated, 
-      setDomainName 
-    } = useAccountData()
+    const config = useConfig()
+    const { address, chainId, isConnected } = useAccount({ config })
+
+    const { setDomainName } = useAccountData()
     const toast = useToast()
 
     return { 
       address, 
-      balanceEth, 
       chainId, 
-      isActivated, 
+      isConnected, 
       setDomainName,
       toast 
     }
   },
+
+  watch: {
+    async address(newAddress, oldAddress) {
+      await this.getUserNativeCoinBalanceEth()
+    }
+  }
 }
 </script>
