@@ -151,18 +151,21 @@ export default {
     const config = useConfig()
     const { address, isConnected } = useAccount({ config })
     const { domainName } = useAccountData()
-    const { colorMode, environment, setColorMode } = useSiteSettings()
+    const { colorMode, setColorMode } = useSiteSettings()
 
     // DISCONNECT
     const { disconnectAsync } = useDisconnect({
       config,
       mutation: {
         onSuccess() {
+          window.localStorage.setItem("connected-with", "")
+
+          /*
           if (environment.value !== 'farcaster') {
-            window.localStorage.setItem("connected-with", "")
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
             //window.location.reload()
           }
+          */
         },
       }
     })

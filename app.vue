@@ -116,41 +116,44 @@ export default {
     if (this.isFarcaster) {
       this.setEnvironment('farcaster')
 
-      // Connect to Farcaster wallet
+      // Auto-connect to Farcaster wallet
       try {
         await this.connectAsync({ connector: this.farcasterConnector, chainId: this.chainId })
       } catch (error) {
         console.error('[app.vue] Failed to connect Farcaster wallet:', error)
         console.error('[app.vue] Error details:', error.message, error.stack)
       }
-    } 
-    /*
-    else if (connectedWith === "injected") {
+    } else if (connectedWith === "injected") {
+      // Auto-connect to injected wallet
       console.log("[app.vue] User has already connected with injected connector")
       try {
-        this.connectAsync({ connector: this.injectedConnector, chainId: this.chainId })
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.injectedConnector, chainId: this.chainId })
       } catch (error) {
         console.error('[app.vue] Failed to connect injected wallet:', error)
         console.error('[app.vue] Error details:', error.message, error.stack)
       }
     } else if (connectedWith === "metaMask") {
+      // Auto-connect to MetaMask wallet
       console.log("User has already connected with metaMask connector")
       try {
-        this.connectAsync({ connector: this.metaMaskConnector, chainId: this.chainId })
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.metaMaskConnector, chainId: this.chainId })
       } catch (error) {
         console.error('[app.vue] Failed to connect metaMask wallet:', error)
         console.error('[app.vue] Error details:', error.message, error.stack)
       }
     } else if (connectedWith === "walletConnect") {
+      // Auto-connect to WalletConnect wallet
       console.log("User has already connected with walletConnect connector")
       try {
-        this.connectAsync({ connector: this.walletConnectConnector, chainId: this.chainId })
+        await this.disconnectAsync()
+        await this.connectAsync({ connector: this.walletConnectConnector, chainId: this.chainId })
       } catch (error) {
         console.error('[app.vue] Failed to connect walletConnect wallet:', error)
         console.error('[app.vue] Error details:', error.message, error.stack)
       }
     }
-    */
 
     // enable popovers everywhere
     new bootstrap.Popover(document.body, {
@@ -221,26 +224,28 @@ export default {
   },
 
   setup() {
-    
     const { domainName, setCurrentUserActivityPoints, setDomainName, setChatTokenBalanceWei } = useAccountData()
 
     const { mainContent, setLeftSidebar, setRightSidebar, setMainContent } = useSidebars()
-    const { colorMode, environment, setArweaveBalance, setEnvironment, setFileUploadEnabled } = useSiteSettings()
+    const { colorMode, setArweaveBalance, setEnvironment, setFileUploadEnabled } = useSiteSettings()
 
     const config = useConfig()
     const { address, chainId, isConnected } = useAccount({ config })
     const { connectors } = useConnect()
 
     // DISCONNECT
-    const { disconnect } = useDisconnect({
+    const { disconnectAsync } = useDisconnect({
       config,
       mutation: {
         onSuccess() {
+          window.localStorage.setItem("connected-with", "")
+
+          /*
           if (environment.value !== 'farcaster') {
-            window.localStorage.setItem("connected-with", "")
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
             //window.location.reload()
           }
+          */
         },
       }
     })
@@ -251,14 +256,25 @@ export default {
       mutation: {
         onSuccess: (data, variables) => {
           console.log('Connection successful!')
+          if (variables?.connector?.id) {
+            window.localStorage.setItem("connected-with", variables.connector.id)
+          }
         },
-        onError: (error) => {
+        onError: async (error) => {
           console.error('Connection failed:', error)
+          if (String(error).startsWith("ConnectorAlreadyConnectedError")) {
+            console.log("INSIDE ConnectorAlreadyConnectedError")
+            toast("ConnectorAlreadyConnectedError Error, please try connecting again.", { type: 'error' })
+            await disconnectAsync()
+          }
+
+          /*
           if (environment.value !== 'farcaster') {
             // needed to prevent wagmi's bug which sometimes happens ("ConnectorAlreadyConnectedError")
-            //disconnect()
+            //disconnectAsync()
             //window.location.reload()
           }
+          */
         }
       }
     })
@@ -286,6 +302,7 @@ export default {
       chainId,
       colorMode,
       connectAsync,
+      disconnectAsync,
       domainName,
       farcasterConnector,
       injectedConnector,
