@@ -353,8 +353,15 @@ export default {
             functionName: 'collectionPreview',
             args: []
           };
+
           cImage = await readData(imageConfig);
-          collection["image"] = cImage;
+          
+          if (cImage) {
+            let cImageResult = await getWorkingUrl(cImage)
+            if (cImageResult?.success) {
+              collection['image'] = cImageResult?.url
+            }
+          }
         }
 
         // check if collection image uses Spheron IPFS gateway (in that case replace it with the IPFS gateway defined in the config)

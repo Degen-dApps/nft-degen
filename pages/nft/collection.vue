@@ -12,7 +12,6 @@
     <Meta name="twitter:description" :content="'Check this NFT collection on ' + $config.public.projectName + '!'" />
   </Head>
 
-  <!-- Main content when composables are ready -->
   <div class="card border">
     <div class="card-body">
       <p class="fs-3">
@@ -951,7 +950,7 @@ export default {
       // if it starts with http, fetch data with axios
       if (String(metadata).startsWith("http")) {
         try {
-          const response = await this.$axios.get(metadata);
+          const response = await axios.get(metadata);
           metadata = response.data;
         } catch (e) {
           console.error(e);
@@ -959,7 +958,7 @@ export default {
           if (metadata.startsWith(this.$config.public.ipfsGateway)) {
             try {
               metadata = String(metadata).replace(this.$config.public.ipfsGateway, this.$config.public.ipfsGateway2);
-              const response = await this.$axios.get(metadata);
+              const response = await axios.get(metadata);
               metadata = response.data;
             } catch (e) {
               console.error(e);
@@ -1116,7 +1115,7 @@ export default {
       } else {
         // if tokenURI is a URL, fetch it
         try {
-          const response = await this.$axios.get(tokenURI);
+          const response = await axios.get(tokenURI);
 
           const metadata = response.data;
 
