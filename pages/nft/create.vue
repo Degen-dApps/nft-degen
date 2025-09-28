@@ -253,10 +253,10 @@ export default {
       nftName: null,
       createPriceWei: null,
       ratio: null,
+      showAdvancedSettings: false,
       uniqueId: null,
       waitingCreate: false,
       waitingData: false,
-      showAdvancedSettings: false,
     }
   },
 
